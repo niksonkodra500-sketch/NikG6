@@ -1,4 +1,5 @@
 import {
+  clampNumber,
   clampPositiveInt,
   clampPositiveNumber,
   clampSliderArg,
@@ -210,7 +211,7 @@ export async function executeToolCall(
         }
         const value = clampSliderArg(args.value);
         api.setAdjustment(name, value);
-        return ok(request, `Set ${name} to ${value}`);
+        return ok(request, `Set ${name} to ${String(value)}`);
       }
       case 'apply_filter': {
         const filter = args.filter;
@@ -221,18 +222,18 @@ export async function executeToolCall(
         return ok(request, `Applied the ${filter} filter`);
       }
       case 'crop': {
-        const x = clampPositiveNumber(args.x, 0);
-        const y = clampPositiveNumber(args.y, 0);
+        const x = clampNumber(args.x, 0, 1_000_000, 0);
+        const y = clampNumber(args.y, 0, 1_000_000, 0);
         const width = clampPositiveInt(args.width, 0);
         const height = clampPositiveInt(args.height, 0);
         if (!width || !height) return fail(request, 'Crop width and height must be positive');
         api.crop(x, y, width, height);
-        return ok(request, `Cropped to ${width}x${height} at (${Math.round(x)}, ${Math.round(y)})`);
+        return ok(request, `Cropped to ${String(width)}x${String(height)} at (${String(Math.round(x))}, ${String(Math.round(y))})`);
       }
       case 'rotate': {
         const degrees = parseRotationArg(args.degrees);
         api.rotate(degrees);
-        return ok(request, `Rotated by ${degrees} degrees`);
+        return ok(request, `Rotated by ${String(degrees)} degrees`);
       }
       case 'flip': {
         const axis = args.axis === 'y' ? ('y' as const) : ('x' as const);
@@ -244,15 +245,15 @@ export async function executeToolCall(
         const height = clampPositiveInt(args.height, 0);
         if (!width || !height) return fail(request, 'Resize width and height must be positive');
         api.resize(width, height);
-        return ok(request, `Resized to ${width}x${height}`);
+        return ok(request, `Resized to ${String(width)}x${String(height)}`);
       }
       case 'export_image': {
         const format = isExportFormat(args.format) ? args.format : 'png';
         const quality = clampPositiveNumber(args.quality, 0.92);
-        const dataUrl = await api.exportImage(format, quality);
+        await api.exportImage(format, quality);
         return ok(
           request,
-          `Exported the photo as ${format.toUpperCase()} (quality ${quality}).`,
+          `Exported the photo as ${format.toUpperCase()} (quality ${String(quality)}).`,
         );
       }
       case 'reset': {

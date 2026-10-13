@@ -11,8 +11,8 @@ const PROJECT_PREFIX = 'project:';
 
 export async function saveApiKey(key: string): Promise<void> {
   if (isNative) {
-    const { SecureStorage } = await import('@capacitor/secure-storage');
-    await SecureStorage.set({ key: API_KEY_STORAGE, value: key });
+    const { SecureStoragePlugin } = await import('capacitor-secure-storage-plugin');
+    await SecureStoragePlugin.set({ key: API_KEY_STORAGE, value: key });
   } else {
     localStorage.setItem(API_KEY_STORAGE, key);
   }
@@ -20,9 +20,9 @@ export async function saveApiKey(key: string): Promise<void> {
 
 export async function getApiKey(): Promise<string | null> {
   if (isNative) {
-    const { SecureStorage } = await import('@capacitor/secure-storage');
+    const { SecureStoragePlugin } = await import('capacitor-secure-storage-plugin');
     try {
-      const result = await SecureStorage.get({ key: API_KEY_STORAGE });
+      const result = await SecureStoragePlugin.get({ key: API_KEY_STORAGE });
       return result.value ?? null;
     } catch {
       return null;
@@ -33,8 +33,8 @@ export async function getApiKey(): Promise<string | null> {
 
 export async function deleteApiKey(): Promise<void> {
   if (isNative) {
-    const { SecureStorage } = await import('@capacitor/secure-storage');
-    await SecureStorage.remove({ key: API_KEY_STORAGE });
+    const { SecureStoragePlugin } = await import('capacitor-secure-storage-plugin');
+    await SecureStoragePlugin.remove({ key: API_KEY_STORAGE });
   } else {
     localStorage.removeItem(API_KEY_STORAGE);
   }

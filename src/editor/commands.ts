@@ -10,8 +10,9 @@ export function clampSliderArg(value: unknown): number {
 }
 
 export function clampPositiveInt(value: unknown, fallback: number): number {
-  const n = clampNumber(value, 1, 100_000, fallback);
-  return Math.round(n);
+  if (typeof value !== 'number' || !Number.isFinite(value)) return fallback;
+  if (value < 1 || value > 100_000) return fallback;
+  return Math.round(value);
 }
 
 export function clampPositiveNumber(value: unknown, fallback: number): number {

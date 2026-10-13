@@ -1,44 +1,45 @@
 /**
- * Generic snapshot history with undo/redo. Edits in the editor are
- * reconstructible from EditorSnapshot values, so the history stores plain
- * state objects instead of canvas JSON.
+ * Snapshot history with undo/redo. The history keeps a linear list of
+ * committed states and a cursor pointing at the current one; undo/redo
+ * move the cursor. Pushing a new state clears the redo branch.
  */
 export class History<T> {
-  private past: T[] = [];
-  private future: T[] = [];
+  private states: T[] = [];
+  private cursor = -1;
 
   constructor(private readonly limit = 50) {}
 
   push(state: T): void {
-    this.past.push(state);
-    if (this.past.length > this.limit) this.past.shift();
-    this.future = [];
+    this.states.push(state);
+    this.cursor = this.states.length - 1;
+    if (this.states.length > this.limit + 1) {
+      this.states.shift();
+      this.cursor -= 1;
+    }
   }
 
-  undo(current: T): T | null {
-    const prev = this.past.pop();
-    if (prev === undefined) return null;
-    this.future.push(current);
-    return prev;
+  undo(_current: T): T | null {
+    if (this.cursor <= 0) return null;
+    this.cursor -= 1;
+    return this.states[this.cursor] ?? null;
   }
 
-  redo(current: T): T | null {
-    const next = this.future.pop();
-    if (next === undefined) return null;
-    this.past.push(current);
-    return next;
+  redo(_current: T): T | null {
+    if (this.cursor >= this.states.length - 1) return null;
+    this.cursor += 1;
+    return this.states[this.cursor] ?? null;
   }
 
   canUndo(): boolean {
-    return this.past.length > 0;
+    return this.cursor > 0;
   }
 
   canRedo(): boolean {
-    return this.future.length > 0;
+    return this.cursor < this.states.length - 1;
   }
 
   clear(): void {
-    this.past = [];
-    this.future = [];
+    this.states = [];
+    this.cursor = -1;
   }
 }

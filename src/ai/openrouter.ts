@@ -81,7 +81,7 @@ export async function requestChatCompletion(options: {
   }
 
   if (!response.ok) {
-    let detail = `HTTP ${response.status}`;
+    let detail = `HTTP ${String(response.status)}`;
     try {
       const body = (await response.json()) as ChatCompletionResponse;
       if (body.error?.message) detail = body.error.message;

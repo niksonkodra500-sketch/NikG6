@@ -30,7 +30,7 @@ export async function runAssistantTurn(options: {
   const conversation = [...options.messages];
 
   if (options.visionEnabled && options.image) {
-    const last = conversation[conversation.length - 1];
+    const last = conversation[conversation.length - 1] as ChatMessage | undefined;
     if (last && last.role === 'user' && typeof last.content === 'string') {
       last.content = [
         { type: 'text', text: last.content },

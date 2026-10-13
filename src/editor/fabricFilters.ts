@@ -6,7 +6,10 @@ import type { AdjustmentName, AdjustmentState, FilterName } from './types';
  * Custom temperature filter — Fabric has no built-in temperature control.
  * Positive values warm the image (more red, less blue); negative values cool it.
  */
-export class TemperatureFilter extends fabric.Image.filters.BaseFilter {
+export class TemperatureFilter extends fabric.filters.BaseFilter<
+  string,
+  { temperature: number }
+> {
   temperature = 0;
 
   constructor(options?: { temperature?: number }) {
@@ -35,28 +38,31 @@ export class TemperatureFilter extends fabric.Image.filters.BaseFilter {
   }
 }
 
+/** Sharpen kernel for the Convolute filter. */
+const SHARPEN_MATRIX = [0, -1, 0, -1, 5, -1, 0, -1, 0];
+
 /** Builds the Fabric filter stack for a snapshot's adjustments + preset filter. */
 export function buildFabricFilters(
   adjustments: AdjustmentState,
   filter: FilterName,
-): fabric.Image.filters.BaseFilter[] {
-  const filters: fabric.Image.filters.BaseFilter[] = [];
+): fabric.filters.BaseFilter<string>[] {
+  const filters: fabric.filters.BaseFilter<string>[] = [];
 
   (Object.keys(adjustments) as AdjustmentName[]).forEach((name) => {
     const v = sliderToFilterValue(name, adjustments[name]);
     if (v === 0) return;
     switch (name) {
       case 'brightness':
-        filters.push(new fabric.Image.filters.Brightness({ brightness: v }));
+        filters.push(new fabric.filters.Brightness({ brightness: v }));
         break;
       case 'contrast':
-        filters.push(new fabric.Image.filters.Contrast({ contrast: v }));
+        filters.push(new fabric.filters.Contrast({ contrast: v }));
         break;
       case 'saturation':
-        filters.push(new fabric.Image.filters.Saturation({ saturation: v }));
+        filters.push(new fabric.filters.Saturation({ saturation: v }));
         break;
       case 'hue':
-        filters.push(new fabric.Image.filters.HueRotation({ rotation: v }));
+        filters.push(new fabric.filters.HueRotation({ rotation: v }));
         break;
       case 'temperature':
         filters.push(new TemperatureFilter({ temperature: v }));
@@ -66,35 +72,49 @@ export function buildFabricFilters(
 
   switch (filter) {
     case 'grayscale':
-      filters.push(new fabric.Image.filters.Grayscale());
+      filters.push(new fabric.filters.Grayscale());
       break;
     case 'sepia':
-      filters.push(new fabric.Image.filters.Sepia());
+      filters.push(new fabric.filters.Sepia());
       break;
     case 'vintage':
-      filters.push(new fabric.Image.filters.Vintage());
+      filters.push(new fabric.filters.Vintage());
       break;
     case 'polaroid':
-      filters.push(new fabric.Image.filters.Polaroid());
+      filters.push(new fabric.filters.Polaroid());
       break;
     case 'kodachrome':
-      filters.push(new fabric.Image.filters.Kodachrome());
+      filters.push(new fabric.filters.Kodachrome());
       break;
     case 'dramatic':
-      filters.push(new fabric.Image.filters.Contrast({ contrast: 0.35 }));
-      filters.push(new fabric.Image.filters.Brightness({ brightness: -0.08 }));
+      filters.push(new fabric.filters.Contrast({ contrast: 0.35 }));
+      filters.push(new fabric.filters.Brightness({ brightness: -0.08 }));
       break;
     case 'cool':
-      filters.push(new fabric.Image.filters.Tint({ color: '#3b82f6', opacity: 0.22 }));
+      filters.push(
+        new fabric.filters.BlendColor({
+          color: '#3b82f6',
+          mode: 'tint',
+          alpha: 0.22,
+        }),
+      );
       break;
     case 'warm':
-      filters.push(new fabric.Image.filters.Tint({ color: '#f97316', opacity: 0.22 }));
+      filters.push(
+        new fabric.filters.BlendColor({
+          color: '#f97316',
+          mode: 'tint',
+          alpha: 0.22,
+        }),
+      );
       break;
     case 'blur':
-      filters.push(new fabric.Image.filters.Blur({ blur: 0.35 }));
+      filters.push(new fabric.filters.Blur({ blur: 0.35 }));
       break;
     case 'sharpen':
-      filters.push(new fabric.Image.filters.Sharpen());
+      filters.push(
+        new fabric.filters.Convolute({ matrix: SHARPEN_MATRIX, opaque: true }),
+      );
       break;
     case 'none':
       break;
