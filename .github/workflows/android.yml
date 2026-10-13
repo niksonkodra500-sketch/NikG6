@@ -16,7 +16,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - uses: android-actions/setup-android@v3
+      - uses: android-actions/setup-android@v4
       - run: npx cap sync android
       - name: Build debug APK
         run: cd android && ./gradlew assembleDebug --no-daemon

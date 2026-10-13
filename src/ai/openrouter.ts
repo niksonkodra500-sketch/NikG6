@@ -31,8 +31,11 @@ export const DEFAULT_BASE_URL = 'https://openrouter.ai/api/v1';
 export const DEFAULT_MODEL = 'google/gemini-2.0-flash-exp:free';
 
 export const MODEL_OPTIONS: Array<{ id: string; label: string }> = [
-  { id: 'google/gemini-2.0-flash-exp:free', label: 'Gemini 2.0 Flash (free, vision)' },
-  { id: 'meta-llama/llama-3.3-70b-instruct:free', label: 'Llama 3.3 70B (free)' },
+  { id: 'google/gemini-2.0-flash-exp:free', label: 'Gemini 2.0 Flash (free, vision) ★ BEST FREE' },
+  { id: 'meta-llama/llama-3.3-70b-instruct:free', label: 'Llama 3.3 70B (free, no vision)' },
+  { id: 'google/gemini-2.0-flash-lite:free', label: 'Gemini 2.0 Flash Lite (free, vision)' },
+  { id: 'meta-llama/llama-3.2-90b-vision-instruct:free', label: 'Llama 3.2 90B Vision (free, vision)' },
+  { id: 'qwen/qwen2.5-vl-72b-instruct:free', label: 'Qwen 2.5 VL 72B (free, vision)' },
   { id: 'openai/gpt-4o-mini', label: 'GPT-4o mini (paid, vision)' },
   { id: 'openai/gpt-4o', label: 'GPT-4o (paid, vision)' },
   { id: 'llava:7b', label: 'LLaVA 7B (local Ollama, vision)' },
