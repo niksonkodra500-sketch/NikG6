@@ -1,6 +1,21 @@
 {
   "$schema": "https://app.kilo.ai/config.json",
   "permission": {
-    "bash": "allow"
+    "bash": "allow",
+    "read": "allow",
+    "write": "allow",
+    "edit": "allow",
+    "task": "allow",
+    "glob": "allow",
+    "grep": "allow",
+    "webfetch": "allow",
+    "websearch": "allow"
+  },
+  "model": "kilo/kilo-auto/free",
+  "instructions": [
+    ".kilo/plans/*.md"
+  ],
+  "skills": {
+    "paths": ["./.kilo/skills"]
   }
 }
