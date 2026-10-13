@@ -1,0 +1,30 @@
+node_modules
+dist
+dist-ssr
+*.local
+*.tsbuildinfo
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Test artifacts
+playwright-report/
+test-results/
+coverage/
+playwright/.auth/
+
+# Capacitor / Android local state
+android/local.properties
+android/.gradle/
+android/app/build/
+android/build/
+android/capacitor.settings.gradle
+.gradle/
