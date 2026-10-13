@@ -58,29 +58,56 @@ export const MODEL_OPTIONS: Array<{ id: string; label: string }> = [
   { id: 'command-r-plus:104b', label: 'Command R+ 104B (local Ollama, RAG-optimized)' },
 ];
 
+const MAX_RETRIES = 2;
+const RETRY_DELAYS_MS = [1000, 2000];
+const RETRYABLE_STATUS = new Set([408, 429, 500, 502, 503, 504]);
+
 export class OpenRouterError extends Error {
   constructor(
     message: string,
     readonly status?: number,
+    readonly retryable = false,
   ) {
     super(message);
     this.name = 'OpenRouterError';
   }
 }
 
-export async function requestChatCompletion(options: {
+function abortError(): Error {
+  const error = new Error('Aborted');
+  error.name = 'AbortError';
+  return error;
+}
+
+function sleep(ms: number, signal?: AbortSignal): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (signal?.aborted) {
+      reject(abortError());
+      return;
+    }
+    const timer = setTimeout(resolve, ms);
+    signal?.addEventListener(
+      'abort',
+      () => {
+        clearTimeout(timer);
+        reject(abortError());
+      },
+      { once: true },
+    );
+  });
+}
+
+async function postChatCompletion(options: {
+  baseUrl: string;
+  model: string;
   apiKey: string;
-  baseUrl?: string;
-  model?: string;
   messages: ChatMessage[];
   tools?: unknown[];
   signal?: AbortSignal;
 }): Promise<ChatCompletionResponse> {
-  const baseUrl = (options.baseUrl ?? DEFAULT_BASE_URL).replace(/\/$/, '');
-
   let response: Response;
   try {
-    response = await fetch(`${baseUrl}/chat/completions`, {
+    response = await fetch(`${options.baseUrl}/chat/completions`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -89,7 +116,7 @@ export async function requestChatCompletion(options: {
         'X-Title': 'NikG6 Photo Editor',
       },
       body: JSON.stringify({
-        model: options.model ?? DEFAULT_MODEL,
+        model: options.model,
         messages: options.messages,
         tools: options.tools,
         tool_choice: 'auto',
@@ -98,7 +125,11 @@ export async function requestChatCompletion(options: {
     });
   } catch (error) {
     if (error instanceof Error && error.name === 'AbortError') throw error;
-    throw new OpenRouterError('Cannot reach the AI service. Check your connection.');
+    throw new OpenRouterError(
+      'Cannot reach the AI service. Check your connection.',
+      undefined,
+      true,
+    );
   }
 
   if (!response.ok) {
@@ -110,10 +141,53 @@ export async function requestChatCompletion(options: {
       // keep the status-based detail
     }
     if (response.status === 401 || response.status === 403) {
-      throw new OpenRouterError('Invalid API key. Update it in the assistant settings.', response.status);
+      throw new OpenRouterError(
+        'Invalid API key. Update it in the assistant settings.',
+        response.status,
+      );
     }
-    throw new OpenRouterError(`AI service error: ${detail}`, response.status);
+    throw new OpenRouterError(
+      `AI service error (${options.model}): ${detail}`,
+      response.status,
+      RETRYABLE_STATUS.has(response.status),
+    );
   }
 
   return (await response.json()) as ChatCompletionResponse;
+}
+
+export async function requestChatCompletion(options: {
+  apiKey: string;
+  baseUrl?: string;
+  model?: string;
+  messages: ChatMessage[];
+  tools?: unknown[];
+  signal?: AbortSignal;
+}): Promise<ChatCompletionResponse> {
+  const baseUrl = (options.baseUrl ?? DEFAULT_BASE_URL).replace(/\/$/, '');
+  const model = options.model ?? DEFAULT_MODEL;
+
+  let lastError: OpenRouterError | null = null;
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    if (attempt > 0) {
+      await sleep(RETRY_DELAYS_MS[attempt - 1] ?? 0, options.signal);
+    }
+    try {
+      return await postChatCompletion({ ...options, baseUrl, model });
+    } catch (error) {
+      if (error instanceof OpenRouterError && error.retryable) {
+        lastError = error;
+        continue;
+      }
+      throw error;
+    }
+  }
+  throw (
+    lastError ??
+    new OpenRouterError(
+      `AI service error (${model}): request failed`,
+      undefined,
+      false,
+    )
+  );
 }

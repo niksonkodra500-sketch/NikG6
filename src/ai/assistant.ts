@@ -1,4 +1,8 @@
-import type { ChatMessage } from './openrouter';
+import {
+  DEFAULT_MODEL,
+  OpenRouterError,
+  type ChatMessage,
+} from './openrouter';
 import { EDITOR_TOOLS, executeToolCall, type EditorApi, type ToolCallResult } from './tools';
 import { requestChatCompletion } from './openrouter';
 
@@ -16,7 +20,7 @@ const MAX_TOOL_ROUNDS = 5;
  * results back, and returns the final reply. Loops until the model stops
  * calling tools or MAX_TOOL_ROUNDS is reached.
  */
-export async function runAssistantTurn(options: {
+async function runTurn(options: {
   apiKey: string;
   model?: string;
   baseUrl?: string;
@@ -95,4 +99,41 @@ export async function runAssistantTurn(options: {
     toolCalls,
     messages: conversation,
   };
+}
+
+/**
+ * Runs one assistant turn. If the selected model fails for any reason
+ * other than authentication (for example a temporary provider error),
+ * the turn is retried once with the reliable default model and the
+ * reply notes the fallback.
+ */
+export async function runAssistantTurn(options: {
+  apiKey: string;
+  model?: string;
+  baseUrl?: string;
+  messages: ChatMessage[];
+  /** Data URL of the current photo, attached when vision is enabled. */
+  image?: string | null;
+  visionEnabled: boolean;
+  editorApi: EditorApi;
+  signal?: AbortSignal;
+}): Promise<AssistantTurnResult> {
+  try {
+    return await runTurn(options);
+  } catch (error) {
+    if (
+      options.model &&
+      options.model !== DEFAULT_MODEL &&
+      error instanceof OpenRouterError &&
+      error.status !== 401 &&
+      error.status !== 403
+    ) {
+      const fallback = await runTurn({ ...options, model: DEFAULT_MODEL });
+      return {
+        ...fallback,
+        reply: `The selected model (${options.model}) was unavailable, so I used a fallback model.\n\n${fallback.reply}`,
+      };
+    }
+    throw error;
+  }
 }
