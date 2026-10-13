@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">NikG6 Photo Editor</string>
+    <string name="title_activity_main">NikG6 Photo Editor</string>
+    <string name="package_name">com.nikg6.photoeditor</string>
+    <string name="custom_url_scheme">com.nikg6.photoeditor</string>
+</resources>

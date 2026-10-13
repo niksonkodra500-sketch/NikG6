@@ -35,8 +35,8 @@ function readPixel(page: Page): Promise<Pixel | null> {
   });
 }
 
-async function waitForPixel(page: Page, predicate: (p: Pixel) => boolean) {
-  await page.waitForFunction((pred) => {
+async function waitForPixel(page: Page, check: 'grey' | 'colored') {
+  await page.waitForFunction((c) => {
     const handle =
       (
         window as unknown as {
@@ -44,8 +44,11 @@ async function waitForPixel(page: Page, predicate: (p: Pixel) => boolean) {
         }
       ).__editorHandle;
     const pixel = handle?.getCanvasPixel();
-    return pixel !== undefined && pred(pixel);
-  }, predicate);
+    if (pixel === undefined) return false;
+    return c === 'grey'
+      ? pixel.r === pixel.g && pixel.g === pixel.b
+      : pixel.r !== pixel.b;
+  }, check);
 }
 
 test.describe('photo editor', () => {

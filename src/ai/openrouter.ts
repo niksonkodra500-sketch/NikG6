@@ -35,6 +35,9 @@ export const MODEL_OPTIONS: Array<{ id: string; label: string }> = [
   { id: 'meta-llama/llama-3.3-70b-instruct:free', label: 'Llama 3.3 70B (free)' },
   { id: 'openai/gpt-4o-mini', label: 'GPT-4o mini (paid, vision)' },
   { id: 'openai/gpt-4o', label: 'GPT-4o (paid, vision)' },
+  { id: 'llava:7b', label: 'LLaVA 7B (local Ollama, vision)' },
+  { id: 'llava:13b', label: 'LLaVA 13B (local Ollama, vision)' },
+  { id: 'llava:34b', label: 'LLaVA 34B (local Ollama, vision)' },
 ];
 
 export class OpenRouterError extends Error {
