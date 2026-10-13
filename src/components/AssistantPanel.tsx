@@ -1,5 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { runAssistantTurn } from '../ai/assistant';
+import {
+  fetchModels,
+  formatModelOption,
+  type CatalogModel,
+} from '../ai/models';
 import { MODEL_OPTIONS, type ChatMessage } from '../ai/openrouter';
 import { PROMPT_PRESETS, SYSTEM_PROMPT } from '../ai/presets';
 import type { EditorApi, ToolCallResult } from '../ai/tools';
@@ -30,8 +35,37 @@ export function AssistantPanel(props: AssistantPanelProps) {
   const [input, setInput] = useState('');
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [catalog, setCatalog] = useState<CatalogModel[] | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const logRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchModels()
+      .then((models) => {
+        if (!cancelled) setCatalog(models);
+      })
+      .catch(() => {
+        if (!cancelled) setCatalog(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const modelOptions = useMemo(() => {
+    if (catalog && catalog.length > 0) {
+      const options = catalog.map((model) => ({
+        id: model.id,
+        label: formatModelOption(model),
+      }));
+      if (!options.some((option) => option.id === props.model)) {
+        options.unshift({ id: props.model, label: props.model });
+      }
+      return options;
+    }
+    return MODEL_OPTIONS;
+  }, [catalog, props.model]);
 
   useEffect(() => {
     logRef.current?.scrollTo({ top: logRef.current.scrollHeight });
@@ -144,11 +178,19 @@ export function AssistantPanel(props: AssistantPanelProps) {
             onChange={(e) => props.onApiKeyChange(e.target.value)}
             placeholder="sk-or-…"
           />
+          <a
+            className="key-link"
+            href="https://openrouter.ai/keys"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Get a free API key
+          </a>
         </label>
         <label>
           Model
           <select value={props.model} onChange={(e) => props.onModelChange(e.target.value)}>
-            {MODEL_OPTIONS.map((m) => (
+            {modelOptions.map((m) => (
               <option key={m.id} value={m.id}>
                 {m.label}
               </option>
