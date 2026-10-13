@@ -38,6 +38,13 @@ export const MODEL_OPTIONS: Array<{ id: string; label: string }> = [
   { id: 'llava:7b', label: 'LLaVA 7B (local Ollama, vision)' },
   { id: 'llava:13b', label: 'LLaVA 13B (local Ollama, vision)' },
   { id: 'llava:34b', label: 'LLaVA 34B (local Ollama, vision)' },
+  { id: 'llama3.1:70b', label: 'Llama 3.1 70B (local Ollama, best general)' },
+  { id: 'llama3.1:405b', label: 'Llama 3.1 405B (local Ollama, largest)' },
+  { id: 'qwen2.5:72b', label: 'Qwen 2.5 72B (local Ollama, strong reasoning)' },
+  { id: 'qwen2.5:14b', label: 'Qwen 2.5 14B (local Ollama, efficient)' },
+  { id: 'nemotron3:70b', label: 'Nemotron 3 Ultra 70B (local Ollama, NVIDIA)' },
+  { id: 'mistral-large:123b', label: 'Mistral Large 123B (local Ollama, strong)' },
+  { id: 'command-r-plus:104b', label: 'Command R+ 104B (local Ollama, RAG-optimized)' },
 ];
 
 export class OpenRouterError extends Error {
