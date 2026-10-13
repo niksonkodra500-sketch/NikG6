@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { formatModelOption, parseModelsResponse, sortModels } from './models';
+import {
+  formatModelOption,
+  modelSupportsVision,
+  parseModelsResponse,
+  sortModels,
+} from './models';
 
 const raw = {
   data: [
@@ -60,6 +65,20 @@ describe('parseModelsResponse', () => {
     expect(parseModelsResponse(undefined)).toEqual([]);
     expect(parseModelsResponse({})).toEqual([]);
     expect(parseModelsResponse({ data: 'nope' })).toEqual([]);
+  });
+});
+
+describe('modelSupportsVision', () => {
+  it('reports vision support, false for text-only, null when unknown', () => {
+    const models = parseModelsResponse(raw);
+    expect(
+      modelSupportsVision(models, 'google/gemini-2.0-flash-exp:free'),
+    ).toBe(true);
+    expect(
+      modelSupportsVision(models, 'meta-llama/llama-3.3-70b-instruct:free'),
+    ).toBe(false);
+    expect(modelSupportsVision(models, 'unknown/model')).toBeNull();
+    expect(modelSupportsVision(null, 'google/gemini-2.0-flash-exp:free')).toBeNull();
   });
 });
 

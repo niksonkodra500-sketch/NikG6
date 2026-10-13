@@ -54,6 +54,15 @@ export function parseModelsResponse(raw: unknown): CatalogModel[] {
   return models;
 }
 
+export function modelSupportsVision(
+  models: CatalogModel[] | null,
+  modelId: string,
+): boolean | null {
+  if (!models) return null;
+  const match = models.find((model) => model.id === modelId);
+  return match ? match.vision : null;
+}
+
 export function sortModels(models: CatalogModel[]): CatalogModel[] {
   return [...models].sort((a, b) => {
     if (a.free !== b.free) return a.free ? -1 : 1;

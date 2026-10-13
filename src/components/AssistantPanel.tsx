@@ -3,6 +3,7 @@ import { runAssistantTurn } from '../ai/assistant';
 import {
   fetchModels,
   formatModelOption,
+  modelSupportsVision,
   type CatalogModel,
 } from '../ai/models';
 import { MODEL_OPTIONS, type ChatMessage } from '../ai/openrouter';
@@ -77,6 +78,15 @@ export function AssistantPanel(props: AssistantPanelProps) {
     if (!props.apiKey) {
       setError('Enter your OpenRouter API key below to enable the assistant.');
       return;
+    }
+    if (props.visionEnabled) {
+      const supportsVision = modelSupportsVision(catalog, props.model);
+      if (supportsVision === false) {
+        setError(
+          'The selected model does not support image input. Turn off "Let the assistant see the photo" or choose a model marked "vision".',
+        );
+        return;
+      }
     }
     const withSystem = props.messages.some((m) => m.role === 'system')
       ? props.messages
@@ -203,7 +213,7 @@ export function AssistantPanel(props: AssistantPanelProps) {
             checked={props.visionEnabled}
             onChange={(e) => props.onVisionChange(e.target.checked)}
           />
-          Let the assistant see the photo (uploaded to the AI provider)
+          Let the assistant see the photo (requires a vision-capable model)
         </label>
       </details>
     </div>
