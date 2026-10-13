@@ -7,7 +7,7 @@ function jsonResponse(status: number, body: unknown): Response {
   return {
     ok: status >= 200 && status < 300,
     status,
-    json: async () => body,
+    json: () => Promise.resolve(body),
   } as unknown as Response;
 }
 
@@ -24,7 +24,7 @@ describe('requestChatCompletion', () => {
   it('returns the completion on success', async () => {
     vi.stubGlobal(
       'fetch',
-      vi.fn(async () => jsonResponse(200, completion('hi'))),
+      vi.fn(() => Promise.resolve(jsonResponse(200, completion('hi')))),
     );
     const response = await requestChatCompletion({
       apiKey: 'key',
@@ -38,14 +38,14 @@ describe('requestChatCompletion', () => {
     let calls = 0;
     vi.stubGlobal(
       'fetch',
-      vi.fn(async () => {
+      vi.fn(() => {
         calls += 1;
         if (calls === 1) {
-          return jsonResponse(503, {
-            error: { message: 'provider returned error' },
-          });
+          return Promise.resolve(
+            jsonResponse(503, { error: { message: 'provider returned error' } }),
+          );
         }
-        return jsonResponse(200, completion('ok'));
+        return Promise.resolve(jsonResponse(200, completion('ok')));
       }),
     );
     const pending = requestChatCompletion({ apiKey: 'key', messages });
@@ -57,8 +57,10 @@ describe('requestChatCompletion', () => {
 
   it('gives up after the retry budget is exhausted', async () => {
     vi.useFakeTimers();
-    const fetchMock = vi.fn(async () =>
-      jsonResponse(500, { error: { message: 'provider returned error' } }),
+    const fetchMock = vi.fn(() =>
+      Promise.resolve(
+        jsonResponse(500, { error: { message: 'provider returned error' } }),
+      ),
     );
     vi.stubGlobal('fetch', fetchMock);
     const pending = requestChatCompletion({ apiKey: 'key', messages });
@@ -72,8 +74,10 @@ describe('requestChatCompletion', () => {
   });
 
   it('does not retry authentication errors', async () => {
-    const fetchMock = vi.fn(async () =>
-      jsonResponse(401, { error: { message: 'Invalid API key' } }),
+    const fetchMock = vi.fn(() =>
+      Promise.resolve(
+        jsonResponse(401, { error: { message: 'Invalid API key' } }),
+      ),
     );
     vi.stubGlobal('fetch', fetchMock);
     await expect(
@@ -89,8 +93,10 @@ describe('requestChatCompletion', () => {
   it('names the model in non-retryable error messages', async () => {
     vi.stubGlobal(
       'fetch',
-      vi.fn(async () =>
-        jsonResponse(400, { error: { message: 'provider returned error' } }),
+      vi.fn(() =>
+        Promise.resolve(
+          jsonResponse(400, { error: { message: 'provider returned error' } }),
+        ),
       ),
     );
     await expect(
@@ -103,10 +109,10 @@ describe('requestChatCompletion', () => {
     let calls = 0;
     vi.stubGlobal(
       'fetch',
-      vi.fn(async () => {
+      vi.fn(() => {
         calls += 1;
         if (calls <= 2) throw new TypeError('Failed to fetch');
-        return jsonResponse(200, completion('recovered'));
+        return Promise.resolve(jsonResponse(200, completion('recovered')));
       }),
     );
     const pending = requestChatCompletion({ apiKey: 'key', messages });

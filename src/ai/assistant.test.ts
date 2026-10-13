@@ -10,8 +10,13 @@ function jsonResponse(status: number, body: unknown): Response {
   return {
     ok: status >= 200 && status < 300,
     status,
-    json: async () => body,
+    json: () => Promise.resolve(body),
   } as unknown as Response;
+}
+
+function selectedModel(init?: RequestInit): string {
+  const body = JSON.parse((init?.body as string) ?? '{}') as { model?: string };
+  return body.model ?? '';
 }
 
 afterEach(() => {
@@ -22,19 +27,18 @@ afterEach(() => {
 describe('runAssistantTurn', () => {
   it('falls back to the default model when the selected model fails', async () => {
     vi.useFakeTimers();
-    const fetchMock = vi.fn(
-      async (_url: RequestInfo | URL, init?: RequestInit) => {
-        const body = JSON.parse(String(init?.body)) as { model: string };
-        if (body.model === 'broken/model') {
-          return jsonResponse(500, {
-            error: { message: 'provider returned error' },
-          });
-        }
-        return jsonResponse(200, {
+    const fetchMock = vi.fn((_url: RequestInfo | URL, init?: RequestInit) => {
+      if (selectedModel(init) === 'broken/model') {
+        return Promise.resolve(
+          jsonResponse(500, { error: { message: 'provider returned error' } }),
+        );
+      }
+      return Promise.resolve(
+        jsonResponse(200, {
           choices: [{ message: { role: 'assistant', content: 'Done!' } }],
-        });
-      },
-    );
+        }),
+      );
+    });
     vi.stubGlobal('fetch', fetchMock);
 
     const pending = runAssistantTurn({
@@ -55,8 +59,10 @@ describe('runAssistantTurn', () => {
   it('propagates authentication errors without fallback', async () => {
     vi.stubGlobal(
       'fetch',
-      vi.fn(async () =>
-        jsonResponse(401, { error: { message: 'Invalid API key' } }),
+      vi.fn(() =>
+        Promise.resolve(
+          jsonResponse(401, { error: { message: 'Invalid API key' } }),
+        ),
       ),
     );
     await expect(
@@ -71,15 +77,14 @@ describe('runAssistantTurn', () => {
   });
 
   it('uses the default model when none is selected', async () => {
-    const fetchMock = vi.fn(
-      async (_url: RequestInfo | URL, init?: RequestInit) => {
-        const body = JSON.parse(String(init?.body)) as { model: string };
-        expect(body.model).toBe(DEFAULT_MODEL);
-        return jsonResponse(200, {
+    const fetchMock = vi.fn((_url: RequestInfo | URL, init?: RequestInit) => {
+      expect(selectedModel(init)).toBe(DEFAULT_MODEL);
+      return Promise.resolve(
+        jsonResponse(200, {
           choices: [{ message: { role: 'assistant', content: 'ok' } }],
-        });
-      },
-    );
+        }),
+      );
+    });
     vi.stubGlobal('fetch', fetchMock);
     const result = await runAssistantTurn({
       apiKey: 'key',
