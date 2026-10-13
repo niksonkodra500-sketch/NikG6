@@ -69,7 +69,7 @@ test.describe('photo editor', () => {
 
     await page.getByRole('button', { name: 'Filters', exact: true }).click();
     await page.getByRole('button', { name: /grayscale/i }).click();
-    await waitForPixel(page, (p) => p.r === p.g && p.g === p.b);
+    await waitForPixel(page, 'grey');
 
     const after = await readPixel(page);
     expect(after).not.toBeNull();
@@ -82,10 +82,10 @@ test.describe('photo editor', () => {
     await openSample(page);
     await page.getByRole('button', { name: 'Filters', exact: true }).click();
     await page.getByRole('button', { name: /grayscale/i }).click();
-    await waitForPixel(page, (p) => p.r === p.g && p.g === p.b);
+    await waitForPixel(page, 'grey');
 
     await page.getByRole('button', { name: 'Undo', exact: true }).click();
-    await waitForPixel(page, (p) => p.r !== p.b);
+    await waitForPixel(page, 'colored');
   });
 
   test('exports a PNG data URL', async ({ page }) => {

@@ -350,7 +350,7 @@ export const EditorCanvas = forwardRef<EditorHandle, EditorCanvasProps>(function
   const getCanvasPixel = useCallback(() => {
     const fc = fabricCanvasRef.current;
     if (!fc) throw new Error('No canvas');
-    const ctx = fc.upperCanvasEl.getContext('2d');
+    const ctx = fc.lowerCanvasEl.getContext('2d');
     if (!ctx) throw new Error('No canvas context');
     const w = fc.getWidth();
     const h = fc.getHeight();
