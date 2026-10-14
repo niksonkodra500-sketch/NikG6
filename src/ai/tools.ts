@@ -268,11 +268,7 @@ export async function executeToolCall(
         const aspect = validAspects.find((a) => a === args.aspect) ?? 'free';
         if (api.cropToAspect) api.cropToAspect(aspect);
         else {
-          // fallback
-          const natural = { width: 0, height: 0 };
-          try {
-            // we don't have access here - best effort no-op
-          } catch {}
+          // fallback - best effort no-op
         }
         return ok(request, `Cropped to ${aspect === 'free' ? 'freeform' : aspect} aspect ratio`);
       }

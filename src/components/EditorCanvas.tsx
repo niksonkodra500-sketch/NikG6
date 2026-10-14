@@ -18,6 +18,7 @@ import {
   type EditorSnapshot,
   type ExportFormat,
   type FilterName,
+  CROP_ASPECT_PRESETS,
 } from '../editor/types';
 
 export interface EditorHandle {
@@ -262,9 +263,7 @@ export const EditorCanvas = forwardRef<EditorHandle, EditorCanvasProps>(
         const natural = naturalSizeRef.current;
         if (!natural.width || !natural.height) return;
         const a = aspect as import('../editor/types').CropAspect;
-        const preset = import('../editor/types').CROP_ASPECT_PRESETS.find(
-          (p: any) => p.ratio === a,
-        );
+        const preset = CROP_ASPECT_PRESETS.find((p) => p.ratio === a);
         const ratio = preset?.value;
         if (!ratio) {
           stateRef.current = { ...stateRef.current, crop: null };
@@ -463,12 +462,8 @@ export const EditorCanvas = forwardRef<EditorHandle, EditorCanvasProps>(
         undo,
       ],
     );
-      const win = window as unknown as { __editorHandle?: EditorHandle };
-      win.__editorHandle = handle;
-      return () => {
-        win.__editorHandle = undefined;
-      };
-    }, [handle]);
+
+    useImperativeHandle(ref, () => handle, [handle]);
 
     return (
       <div className="editor-canvas-wrap">
@@ -480,5 +475,5 @@ export const EditorCanvas = forwardRef<EditorHandle, EditorCanvasProps>(
         )}
       </div>
     );
-  }
+  },
 );
