@@ -64,6 +64,7 @@ describe('requestChatCompletion', () => {
     );
     vi.stubGlobal('fetch', fetchMock);
     const pending = requestChatCompletion({ apiKey: 'key', messages });
+    pending.catch(() => {});
     await vi.advanceTimersByTimeAsync(3000);
     await expect(pending).rejects.toMatchObject({
       name: 'OpenRouterError',
