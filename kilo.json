@@ -2,7 +2,7 @@
   "$schema": "https://app.kilo.ai/config.json",
   "model": "kilo/kilo-auto/free",
   "small_model": "kilo/kilo-auto/free",
-  "default_agent": "code",
+  "default_agent": "general",
   "compaction": {
     "auto": true,
     "prune": true
@@ -48,8 +48,7 @@
     "skill": "allow",
     "lsp": "allow",
     "external_directory": "deny",
-    "kilo_memory_save": "allow",
-    "kilo_memory_recall": "allow",
+    "todowrite": "allow",
     "question": "allow",
     "doom_loop": "deny"
   },
@@ -59,13 +58,8 @@
         "apiKey": "${OPENROUTER_API_KEY}",
         "baseURL": "https://openrouter.ai/api/v1",
         "timeout": 60000
-      },
-      "enabled": true
-    },
-    "kilo": {
-      "enabled": true
-    },
-    "disabled_providers": ["openai", "anthropic", "google", "groq", "cohere"]
+      }
+    }
   },
   "mcp": {
     "filesystem": {
@@ -97,5 +91,37 @@
     "CLAUDE.md",
     "CONTEXT.md"
   ],
-  "plugin": []
+  "plugin": [],
+  "agent": {
+    "general": {
+      "description": "Primary coding agent for the photo editor project",
+      "mode": "primary",
+      "model": "kilo/kilo-auto/free",
+      "steps": 50
+    },
+    "explore": {
+      "description": "Fast codebase exploration and research",
+      "mode": "subagent",
+      "model": "kilo/kilo-auto/free",
+      "steps": 10
+    }
+  },
+  "command": {
+    "test-all": {
+      "template": "Run all tests and fix failures:\n1. Run typecheck: `npm run typecheck`\n2. Run lint: `npm run lint`\n3. Run unit tests: `npm test`\n4. Run e2e tests: `npm run e2e`\n5. If any failures, analyze and fix them",
+      "agent": "general"
+    },
+    "dev-test": {
+      "template": "Start dev server and run e2e tests",
+      "agent": "general"
+    },
+    "build-android": {
+      "template": "Build Android APK:\n1. npm run build\n2. npx cap sync android\n3. cd android && ./gradlew assembleDebug --no-daemon",
+      "agent": "general"
+    },
+    "generate-sample": {
+      "template": "Generate test sample image: `node scripts/generate-sample.mjs`",
+      "agent": "general"
+    }
+  }
 }
