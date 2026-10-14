@@ -17,17 +17,27 @@ jobs:
       - run: npm ci
       - run: npm run build
       - uses: android-actions/setup-android@v4
-      - run: npx cap sync android
+      - name: Sync Capacitor
+        run: npx cap sync android
       - name: Build debug APK
         run: cd android && ./gradlew assembleDebug --no-daemon
-      - name: Upload APK to release
+      - name: Determine release tag
+        id: tag
+        run: |
+          if [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == refs/tags/* ]]; then
+            echo "tag=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          else
+            # For workflow_dispatch, create a manual version
+            echo "tag=manual-$(date +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
+          fi
+      - name: Create GitHub Release
+        id: release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ github.ref_name }}
-          name: Release ${{ github.ref_name }}
-          files: android/app/build/outputs/apk/debug/app-debug.apk
+          tag_name: ${{ steps.tag.outputs.tag }}
+          name: Release ${{ steps.tag.outputs.tag }}
           body: |
-            ## NikG6 Photo Editor - Release ${{ github.ref_name }}
+            ## NikG6 Photo Editor - Release ${{ steps.tag.outputs.tag }}
 
             ### Features
             - AI Assistant with OpenRouter (hardcoded API key, no setup needed)
@@ -41,3 +51,6 @@ jobs:
             1. Download `app-debug.apk` below
             2. Enable "Install unknown apps" on your Android device
             3. Tap the APK to install
+          draft: false
+          prerelease: ${{ github.event_name == 'workflow_dispatch' }}
+          files: android/app/build/outputs/apk/debug/app-debug.apk
