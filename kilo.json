@@ -6,16 +6,16 @@
   "compaction": {
     "auto": true,
     "prune": true,
-    "tail_turns": 20,
-    "preserve_recent_tokens": 8000,
-    "reserved": 4000
+    "tail_turns": 100,
+    "preserve_recent_tokens": 32000,
+    "reserved": 16000
   },
   "snapshot": true,
   "share": "manual",
   "autoupdate": "notify",
   "username": "niksonkodra500",
   "shell": "bash",
-  "logLevel": "INFO",
+  "logLevel": "DEBUG",
   "permission": {
     "bash": "allow",
     "read": "allow",
@@ -41,19 +41,21 @@
       "options": {
         "apiKey": "${OPENROUTER_API_KEY}",
         "baseURL": "https://openrouter.ai/api/v1",
-        "timeout": 60000,
-        "headerTimeout": 30000,
-        "chunkTimeout": 30000
+        "timeout": 300000,
+        "headerTimeout": 120000,
+        "chunkTimeout": 120000
       }
+    },
+    "kilo": {
+      "enabled": true
     }
   },
-  "disabled_providers": ["openai", "anthropic", "google", "groq", "cohere"],
   "mcp": {
     "filesystem": {
       "type": "local",
       "command": ["npx", "-y", "@modelcontextprotocol/server-filesystem", "/workspace/app"],
       "enabled": true,
-      "timeout": 30000,
+      "timeout": 120000,
       "environment": {
         "NODE_ENV": "development"
       }
@@ -65,14 +67,21 @@
         "Authorization": "Bearer ${GITHUB_TOKEN}"
       },
       "enabled": false,
-      "timeout": 30000
+      "timeout": 120000
     }
   },
   "skills": {
-    "paths": ["./.kilo/skills", "~/.config/kilo/skills"],
-    "urls": []
+    "paths": ["./.kilo/skills", "~/.config/kilo/skills", "./skills"],
+    "urls": ["https://raw.githubusercontent.com/kilo-org/skills/main/.well-known/skills/"]
   },
-  "instructions": [".kilo/plans/*.md", "AGENTS.md", "CLAUDE.md", "CONTEXT.md"],
+  "instructions": [
+    ".kilo/plans/*.md",
+    "AGENTS.md",
+    "CLAUDE.md",
+    "CONTEXT.md",
+    "README.md",
+    "docs/**/*.md"
+  ],
   "plugin": [],
   "references": {
     "nikg6-repo": {
@@ -86,7 +95,7 @@
       "description": "Primary coding agent for the photo editor project",
       "mode": "primary",
       "model": "kilo/kilo-auto/free",
-      "steps": 50,
+      "steps": 200,
       "temperature": 0.1,
       "top_p": 0.95,
       "color": "primary"
@@ -95,7 +104,7 @@
       "description": "Fast codebase exploration and research",
       "mode": "subagent",
       "model": "kilo/kilo-auto/free",
-      "steps": 10,
+      "steps": 50,
       "temperature": 0.0,
       "color": "info"
     },
@@ -103,7 +112,7 @@
       "description": "Build and release automation",
       "mode": "subagent",
       "model": "kilo/kilo-auto/free",
-      "steps": 30,
+      "steps": 100,
       "temperature": 0.1,
       "color": "success"
     },
@@ -111,9 +120,25 @@
       "description": "Specialized agent for photo editor development tasks",
       "mode": "subagent",
       "model": "kilo/kilo-auto/free",
-      "steps": 30,
+      "steps": 100,
       "temperature": 0.1,
       "color": "accent"
+    },
+    "debug": {
+      "description": "Debugging and troubleshooting specialist",
+      "mode": "subagent",
+      "model": "kilo/kilo-auto/free",
+      "steps": 50,
+      "temperature": 0.0,
+      "color": "warning"
+    },
+    "review": {
+      "description": "Code review and quality assurance",
+      "mode": "subagent",
+      "model": "kilo/kilo-auto/free",
+      "steps": 50,
+      "temperature": 0.1,
+      "color": "secondary"
     }
   },
   "command": {
@@ -141,14 +166,14 @@
   "attachment": {
     "image": {
       "auto_resize": true,
-      "max_width": 2048,
-      "max_height": 2048,
-      "max_base64_bytes": 5242880
+      "max_width": 8192,
+      "max_height": 8192,
+      "max_base64_bytes": 20971520
     }
   },
   "tool_output": {
-    "max_lines": 2000,
-    "max_bytes": 51200
+    "max_lines": 10000,
+    "max_bytes": 204800
   },
   "formatter": true,
   "lsp": true,
@@ -173,13 +198,11 @@
     "hide_prompt_training_models": true
   },
   "retention": {
-    "enabled": false,
-    "maxAgeDays": 30
+    "enabled": true,
+    "maxAgeDays": 365
   },
   "commit_message": {
     "prompt": "Generate a conventional commit message"
   },
-  "remote_control": false,
-  "terminal_command_display": "collapsed",
-  "code_edit_display": "collapsed"
+  "remote_control": true
 }
