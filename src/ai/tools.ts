@@ -8,18 +8,27 @@ import {
   isFilterName,
   parseRotationArg,
 } from '../editor/commands';
-import type { AdjustmentName, ExportFormat, FilterName } from '../editor/types';
+import type {
+  AdjustmentName,
+  CropAspect,
+  EditorSnapshot,
+  ExportFormat,
+  FilterName,
+} from '../editor/types';
 
 /** The set of editing operations the AI assistant can invoke. */
 export interface EditorApi {
   setAdjustment(name: AdjustmentName, value: number): void;
   applyFilter(filter: FilterName): void;
-  crop(x: number, y: number, width: number, height: number): void;
+  crop(x: number, y: number, width: number, height: number, aspect?: number | null): void;
+  cropToAspect(aspect: CropAspect): void;
   rotate(degrees: number): void;
   flip(axis: 'x' | 'y'): void;
   resize(width: number, height: number): void;
   reset(): void;
   exportImage(format: ExportFormat, quality: number): Promise<string>;
+  /** Current editor snapshot, used to capture pre-tool state for undo. */
+  getSnapshot(): EditorSnapshot;
 }
 
 export interface ToolParameterSchema {
@@ -168,6 +177,24 @@ export const EDITOR_TOOLS: ToolDefinition[] = [
   {
     type: 'function',
     function: {
+      name: 'crop_to_aspect',
+      description:
+        'Crop the photo to a preset aspect ratio (free, 1:1, 4:3, 3:2, 16:9, or 9:16), centered on the image. Use this for "crop to a square" or "crop to 16:9".',
+      parameters: {
+        type: 'object',
+        properties: {
+          aspect: {
+            type: 'string',
+            enum: ['free', '1:1', '4:3', '3:2', '16:9', '9:16'],
+          },
+        },
+        required: ['aspect'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
       name: 'reset',
       description: 'Reset the photo to its original state, discarding all edits.',
       parameters: { type: 'object', properties: {} },
@@ -186,6 +213,8 @@ export interface ToolCallResult {
   name: string;
   success: boolean;
   message: string;
+  /** Editor snapshot captured before the tool ran, so the UI can undo it. */
+  revertSnapshot?: EditorSnapshot;
 }
 
 function ok(request: ToolCallRequest, message: string): ToolCallResult {
@@ -227,8 +256,18 @@ export async function executeToolCall(
         const width = clampPositiveInt(args.width, 0);
         const height = clampPositiveInt(args.height, 0);
         if (!width || !height) return fail(request, 'Crop width and height must be positive');
-        api.crop(x, y, width, height);
-        return ok(request, `Cropped to ${String(width)}x${String(height)} at (${String(Math.round(x))}, ${String(Math.round(y))})`);
+        const aspect = clampPositiveNumber(args.aspect, 0);
+        api.crop(x, y, width, height, aspect || null);
+        return ok(
+          request,
+          `Cropped to ${String(width)}x${String(height)} at (${String(Math.round(x))}, ${String(Math.round(y))})`,
+        );
+      }
+      case 'crop_to_aspect': {
+        const validAspects: CropAspect[] = ['free', '1:1', '4:3', '3:2', '16:9', '9:16'];
+        const aspect = validAspects.find((a) => a === args.aspect) ?? 'free';
+        api.cropToAspect(aspect);
+        return ok(request, `Cropped to ${aspect === 'free' ? 'freeform' : aspect} aspect ratio`);
       }
       case 'rotate': {
         const degrees = parseRotationArg(args.degrees);

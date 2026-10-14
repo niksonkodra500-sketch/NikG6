@@ -10,7 +10,6 @@ const CONVERSATION_KEY = 'assistant_conversation';
 const SETTINGS_KEY = 'app_settings';
 const PROJECT_PREFIX = 'project:';
 
-
 export async function saveApiKey(key: string): Promise<void> {
   if (isNative) {
     const { SecureStoragePlugin } = await import('capacitor-secure-storage-plugin');
@@ -114,6 +113,21 @@ export async function saveProjectJson(name: string, json: string): Promise<void>
   }
 }
 
+export async function deleteProjectJson(name: string): Promise<void> {
+  if (isNative) {
+    try {
+      await Filesystem.deleteFile({
+        path: `projects/${name}.json`,
+        directory: Directory.Data,
+      });
+    } catch {
+      // ignore missing files
+    }
+  } else {
+    localStorage.removeItem(`${PROJECT_PREFIX}${name}`);
+  }
+}
+
 export async function loadProjectJson(name: string): Promise<string | null> {
   if (isNative) {
     try {
@@ -128,4 +142,29 @@ export async function loadProjectJson(name: string): Promise<string | null> {
     }
   }
   return localStorage.getItem(`${PROJECT_PREFIX}${name}`);
+}
+
+/** Returns the names of all stored projects (native only; web scans localStorage). */
+export async function listProjectNames(): Promise<string[]> {
+  if (isNative) {
+    try {
+      const result = await Filesystem.readdir({
+        path: 'projects',
+        directory: Directory.Data,
+      });
+      return result.entries
+        .filter((entry) => entry.name.endsWith('.json'))
+        .map((entry) => entry.name.slice(0, -'.json'.length));
+    } catch {
+      return [];
+    }
+  }
+  const names: string[] = [];
+  for (let i = 0; i < localStorage.length; i += 1) {
+    const key = localStorage.key(i);
+    if (key && key.startsWith(PROJECT_PREFIX)) {
+      names.push(key.slice(PROJECT_PREFIX.length));
+    }
+  }
+  return names;
 }

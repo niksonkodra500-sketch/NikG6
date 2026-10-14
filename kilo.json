@@ -44,58 +44,7 @@
         "timeout": 60000,
         "headerTimeout": 30000,
         "chunkTimeout": 30000
-      },
-      "models": {
-        "google/gemini-2.0-flash-exp:free": {
-          "id": "google/gemini-2.0-flash-exp:free",
-          "name": "Gemini 2.0 Flash (Free)",
-          "family": "gemini",
-          "supportsVision": true,
-          "supportsTools": true,
-          "contextWindow": 1048576,
-          "maxOutputTokens": 8192,
-          "cost": { "input": 0, "output": 0 }
-        },
-        "google/gemini-2.5-pro": {
-          "id": "google/gemini-2.5-pro",
-          "name": "Gemini 2.5 Pro",
-          "family": "gemini",
-          "supportsVision": true,
-          "supportsTools": true,
-          "contextWindow": 2097152,
-          "maxOutputTokens": 8192,
-          "cost": { "input": 1.25, "output": 10.0 }
-        },
-        "anthropic/claude-3.5-sonnet": {
-          "id": "anthropic/claude-3.5-sonnet",
-          "name": "Claude 3.5 Sonnet",
-          "family": "claude",
-          "supportsVision": true,
-          "supportsTools": true,
-          "contextWindow": 200000,
-          "maxOutputTokens": 8192,
-          "cost": { "input": 3.0, "output": 15.0 }
-        },
-        "openai/gpt-4o": {
-          "id": "openai/gpt-4o",
-          "name": "GPT-4o",
-          "family": "gpt",
-          "supportsVision": true,
-          "supportsTools": true,
-          "contextWindow": 128000,
-          "maxOutputTokens": 4096,
-          "cost": { "input": 2.5, "output": 10.0 }
-        }
-      },
-      "whitelist": [
-        "google/gemini-2.0-flash-exp:free",
-        "google/gemini-2.5-pro",
-        "anthropic/claude-3.5-sonnet",
-        "openai/gpt-4o"
-      ]
-    },
-    "kilo": {
-      "enabled": true
+      }
     }
   },
   "disabled_providers": ["openai", "anthropic", "google", "groq", "cohere"],
@@ -139,66 +88,54 @@
       "model": "kilo/kilo-auto/free",
       "steps": 50,
       "temperature": 0.1,
-      "top_p": 0.95
+      "top_p": 0.95,
+      "color": "primary"
     },
     "explore": {
       "description": "Fast codebase exploration and research",
       "mode": "subagent",
       "model": "kilo/kilo-auto/free",
       "steps": 10,
-      "temperature": 0.0
+      "temperature": 0.0,
+      "color": "info"
     },
     "build": {
       "description": "Build and release automation",
       "mode": "subagent",
       "model": "kilo/kilo-auto/free",
       "steps": 30,
-      "temperature": 0.1
+      "temperature": 0.1,
+      "color": "success"
     },
     "photo-editor": {
       "description": "Specialized agent for photo editor development tasks",
       "mode": "subagent",
       "model": "kilo/kilo-auto/free",
       "steps": 30,
-      "temperature": 0.1
+      "temperature": 0.1,
+      "color": "accent"
     }
   },
   "command": {
     "test-all": {
-      "template": "Run all tests and fix failures:\n1. Run typecheck: `npm run typecheck`\n2. Run lint: `npm run lint`\n3. Run unit tests: `npm test`\n4. Run e2e tests: `npm run e2e`\n5. If any failures, analyze and fix them",
-      "agent": "general"
-    },
-    "dev-test": {
-      "template": "Start dev server and run e2e tests",
+      "template": "Run all tests and fix failures",
       "agent": "general"
     },
     "build-android": {
-      "template": "Build Android APK:\n1. npm run build\n2. npx cap sync android\n3. cd android && ./gradlew assembleDebug --no-daemon",
+      "template": "Build Android APK",
       "agent": "build"
     },
     "generate-sample": {
-      "template": "Generate test sample image: `node scripts/generate-sample.mjs`",
+      "template": "Generate test sample image",
       "agent": "general"
     },
     "lint-fix": {
-      "template": "Run lint with auto-fix: `npm run lint -- --fix`",
+      "template": "Run lint with auto-fix",
       "agent": "general"
     },
     "typecheck": {
-      "template": "Run TypeScript type checking: `npm run typecheck`",
+      "template": "Run TypeScript type checking",
       "agent": "general"
-    },
-    "sync-cap": {
-      "template": "Sync Capacitor plugins: `npx cap sync android`",
-      "agent": "build"
-    },
-    "open-android": {
-      "template": "Open Android project in Android Studio: `npx cap open android`",
-      "agent": "build"
-    },
-    "run-android": {
-      "template": "Run on Android device with live reload: `npm run cap:run:android`",
-      "agent": "build"
     }
   },
   "attachment": {
@@ -240,7 +177,9 @@
     "maxAgeDays": 30
   },
   "commit_message": {
-    "prompt": "Generate a conventional commit message for the changes. Format: <type>(<scope>): <subject>\n\nTypes: feat, fix, docs, style, refactor, perf, test, chore, build, ci\nScope: the component/module affected (e.g., editor, ai, toolbar, assistant, storage, canvas, filter, adjustment)\nSubject: imperative, lowercase, no period, max 50 chars\n\nBody (optional): explain what and why, not how. Wrap at 72 chars.\nFooter (optional): breaking changes, issue refs (e.g., Closes #123)\n\nExamples:\n- feat(editor): add temperature adjustment slider\n- fix(ai): handle tool call parsing errors gracefully\n- refactor(toolbar): extract filter buttons to FiltersPanel\n- test(editor): add snapshot undo/redo unit tests"
+    "prompt": "Generate a conventional commit message"
   },
-  "remote_control": false
+  "remote_control": false,
+  "terminal_command_display": "collapsed",
+  "code_edit_display": "collapsed"
 }

@@ -18,6 +18,9 @@ export type FilterName =
 
 export type ExportFormat = 'png' | 'jpeg' | 'webp';
 
+/** Aspect ratio constraint for cropping. `null` means freeform. */
+export type CropAspect = 'free' | '1:1' | '4:3' | '3:2' | '16:9' | '9:16';
+
 export interface TransformState {
   /** Degrees, normalized to (-180, 180], multiples of 90. */
   rotation: number;
@@ -33,6 +36,8 @@ export interface CropState {
   y: number;
   width: number;
   height: number;
+  /** The aspect ratio the crop was constrained to, if any. */
+  aspect: number | null;
 }
 
 /** Full editor state; every edit is reconstructible from this plus the source image. */
@@ -41,6 +46,15 @@ export interface EditorSnapshot {
   filter: FilterName;
   transform: TransformState;
   crop: CropState | null;
+}
+
+/** A saved project: the source image (data URL) plus the editor snapshot. */
+export interface Project {
+  name: string;
+  createdAt: number;
+  updatedAt: number;
+  sourceImage: string;
+  snapshot: EditorSnapshot;
 }
 
 export const DEFAULT_ADJUSTMENTS: AdjustmentState = {
@@ -65,6 +79,20 @@ export const DEFAULT_SNAPSHOT: EditorSnapshot = {
   transform: { ...DEFAULT_TRANSFORM },
   crop: null,
 };
+
+/** Preset crop aspect ratios with human-readable labels. */
+export const CROP_ASPECT_PRESETS: Array<{
+  ratio: CropAspect;
+  label: string;
+  value: number | null;
+}> = [
+  { ratio: 'free', label: 'Free', value: null },
+  { ratio: '1:1', label: '1:1', value: 1 },
+  { ratio: '4:3', label: '4:3', value: 4 / 3 },
+  { ratio: '3:2', label: '3:2', value: 3 / 2 },
+  { ratio: '16:9', label: '16:9', value: 16 / 9 },
+  { ratio: '9:16', label: '9:16', value: 9 / 16 },
+];
 
 export const FILTER_LABELS: Record<FilterName, string> = {
   none: 'Original',

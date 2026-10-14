@@ -1,9 +1,11 @@
+import { DEFAULT_MODEL, OpenRouterError, type ChatMessage } from './openrouter';
 import {
-  DEFAULT_MODEL,
-  OpenRouterError,
-  type ChatMessage,
-} from './openrouter';
-import { EDITOR_TOOLS, executeToolCall, type EditorApi, type ToolCallResult } from './tools';
+  EDITOR_TOOLS,
+  executeToolCall,
+  type EditorApi,
+  type EditorSnapshot,
+  type ToolCallResult,
+} from './tools';
 import { requestChatCompletion } from './openrouter';
 
 export interface AssistantTurnResult {
@@ -80,12 +82,20 @@ async function runTurn(options: {
       } catch {
         parsed = {};
       }
+      // Capture the editor state before the tool runs so the UI can offer
+      // a one-tap "revert" for AI-made edits.
+      let before: EditorSnapshot | undefined;
+      try {
+        before = options.editorApi.getSnapshot();
+      } catch {
+        before = undefined;
+      }
       const result = await executeToolCall(options.editorApi, {
         id: call.id,
         name: call.function.name,
         arguments: parsed,
       });
-      toolCalls.push(result);
+      toolCalls.push({ ...result, revertSnapshot: before });
       conversation.push({
         role: 'tool',
         tool_call_id: call.id,
@@ -107,49 +117,49 @@ async function runTurn(options: {
  * the turn is retried with fallback models and the reply notes the fallback.
  */
 export async function runAssistantTurn(options: {
-   apiKey: string;
-   model?: string;
-   baseUrl?: string;
-   messages: ChatMessage[];
-   /** Data URL of the current photo, attached when vision is enabled. */
-   image?: string | null;
-   visionEnabled: boolean;
-   editorApi: EditorApi;
-   signal?: AbortSignal;
+  apiKey: string;
+  model?: string;
+  baseUrl?: string;
+  messages: ChatMessage[];
+  /** Data URL of the current photo, attached when vision is enabled. */
+  image?: string | null;
+  visionEnabled: boolean;
+  editorApi: EditorApi;
+  signal?: AbortSignal;
 }): Promise<AssistantTurnResult> {
-   // Define fallback models in order of preference
-   const fallbackModels = [
-      options.model ?? DEFAULT_MODEL,
-      DEFAULT_MODEL,  // Always include the default
-      'google/gemini-2.0-flash-exp:free',  // Reliable vision model
-      'thinkingmachines/inkling-small:free'  // Smaller reasoning model
-   ].filter((model, index, self) => model && self.indexOf(model) === index); // Remove duplicates while preserving order
+  // Define fallback models in order of preference
+  const fallbackModels = [
+    options.model ?? DEFAULT_MODEL,
+    DEFAULT_MODEL, // Always include the default
+    'google/gemini-2.0-flash-exp:free', // Reliable vision model
+    'thinkingmachines/inkling-small:free', // Smaller reasoning model
+  ].filter((model, index, self) => model && self.indexOf(model) === index); // Remove duplicates while preserving order
 
-   let lastError: Error | null = null;
+  let lastError: Error | null = null;
 
-   // Try each model in sequence
-   for (const model of fallbackModels) {
-      try {
-         const result = await runTurn({ ...options, model });
-         // If we succeeded with a fallback model (not the first choice), note it in the reply
-         if (model !== fallbackModels[0]) {
-            return {
-               ...result,
-               reply: `The primary model was unavailable, so I used ${model.split('/')[0]}.\n\n${result.reply}`
-            };
-         }
-         return result;
-      } catch (err) {
-         const error = err instanceof Error ? err : new Error(String(err));
-         // Don't fall back on authentication errors
-         if (error instanceof OpenRouterError && (error.status === 401 || error.status === 403)) {
-            throw error;
-         }
-         lastError = error;
-         // Continue to next fallback model
+  // Try each model in sequence
+  for (const model of fallbackModels) {
+    try {
+      const result = await runTurn({ ...options, model });
+      // If we succeeded with a fallback model (not the first choice), note it in the reply
+      if (model !== fallbackModels[0]) {
+        return {
+          ...result,
+          reply: `The primary model was unavailable, so I used ${model.split('/')[0]}.\n\n${result.reply}`,
+        };
       }
-   }
+      return result;
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      // Don't fall back on authentication errors
+      if (error instanceof OpenRouterError && (error.status === 401 || error.status === 403)) {
+        throw error;
+      }
+      lastError = error;
+      // Continue to next fallback model
+    }
+  }
 
-   // If all models failed, throw the last error
-   throw lastError ?? new Error('All available models failed');
+  // If all models failed, throw the last error
+  throw lastError ?? new Error('All available models failed');
 }

@@ -28,16 +28,13 @@ export function parseModelsResponse(raw: unknown): CatalogModel[] {
     const id = typeof record.id === 'string' ? record.id : '';
     if (!id) continue;
 
-    const name =
-      typeof record.name === 'string' && record.name ? record.name : id;
-    const architecture =
-      (record.architecture as { input_modalities?: unknown } | undefined) ?? {};
+    const name = typeof record.name === 'string' && record.name ? record.name : id;
+    const architecture = (record.architecture as { input_modalities?: unknown } | undefined) ?? {};
     const modalities = Array.isArray(architecture.input_modalities)
       ? architecture.input_modalities
       : [];
     const pricing =
-      (record.pricing as { prompt?: unknown; completion?: unknown } | undefined) ??
-      {};
+      (record.pricing as { prompt?: unknown; completion?: unknown } | undefined) ?? {};
 
     models.push({
       id,
@@ -45,8 +42,7 @@ export function parseModelsResponse(raw: unknown): CatalogModel[] {
       provider: id.split('/')[0] ?? id,
       vision: modalities.some((modality) => modality === 'image'),
       free: id.endsWith(':free'),
-      contextLength:
-        typeof record.context_length === 'number' ? record.context_length : null,
+      contextLength: typeof record.context_length === 'number' ? record.context_length : null,
       promptPrice: parsePrice(pricing.prompt),
       completionPrice: parsePrice(pricing.completion),
     });
@@ -71,6 +67,13 @@ export function sortModels(models: CatalogModel[]): CatalogModel[] {
   });
 }
 
+export interface ModelOption {
+  id: string;
+  label: string;
+  promptPrice: number | null;
+  completionPrice: number | null;
+}
+
 export function formatModelOption(model: CatalogModel): string {
   const parts = [model.name];
   if (model.free) parts.push('free');
@@ -79,6 +82,33 @@ export function formatModelOption(model: CatalogModel): string {
     parts.push(`${Math.round(model.contextLength / 1000)}K ctx`);
   }
   return parts.join(' · ');
+}
+
+/** Builds the selectable model options, enriching the static list with live
+ * catalog pricing when the catalog has been fetched. */
+export function buildModelOptions(
+  catalog: CatalogModel[] | null,
+  fallback: Array<{ id: string; label: string }>,
+  current: string,
+): ModelOption[] {
+  if (catalog && catalog.length > 0) {
+    const options: ModelOption[] = catalog.map((model) => ({
+      id: model.id,
+      label: formatModelOption(model),
+      promptPrice: model.promptPrice,
+      completionPrice: model.completionPrice,
+    }));
+    if (!options.some((option) => option.id === current)) {
+      options.unshift({ id: current, label: current, promptPrice: null, completionPrice: null });
+    }
+    return options;
+  }
+  return fallback.map((option) => ({
+    id: option.id,
+    label: option.label,
+    promptPrice: null,
+    completionPrice: null,
+  }));
 }
 
 export async function fetchModels(baseUrl?: string): Promise<CatalogModel[]> {
