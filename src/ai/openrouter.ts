@@ -29,7 +29,7 @@ export interface ChatCompletionResponse {
 
 export const DEFAULT_BASE_URL = 'https://openrouter.ai/api/v1';
 export const DEFAULT_MODEL = 'google/gemini-2.0-flash-exp:free';
-export const DEFAULT_API_KEY = 'YOUR_OPENROUTER_API_KEY';
+export const DEFAULT_API_KEY = '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';
 
 export const MODEL_OPTIONS: Array<{ id: string; label: string }> = [
   { id: 'thinkingmachines/inkling:free', label: 'Inkling (free, vision, reasoning, 1M ctx) ★ BEST FREE VISION+REASONING' },
