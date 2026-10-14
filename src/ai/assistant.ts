@@ -12,7 +12,7 @@ export interface AssistantTurnResult {
   messages: ChatMessage[];
 }
 
-const MAX_TOOL_ROUNDS = 10;
+const MAX_TOOL_ROUNDS = 15;
 
 /**
  * Runs one assistant turn: sends the conversation (optionally with the current
@@ -104,36 +104,52 @@ async function runTurn(options: {
 /**
  * Runs one assistant turn. If the selected model fails for any reason
  * other than authentication (for example a temporary provider error),
- * the turn is retried once with the reliable default model and the
- * reply notes the fallback.
+ * the turn is retried with fallback models and the reply notes the fallback.
  */
 export async function runAssistantTurn(options: {
-  apiKey: string;
-  model?: string;
-  baseUrl?: string;
-  messages: ChatMessage[];
-  /** Data URL of the current photo, attached when vision is enabled. */
-  image?: string | null;
-  visionEnabled: boolean;
-  editorApi: EditorApi;
-  signal?: AbortSignal;
+   apiKey: string;
+   model?: string;
+   baseUrl?: string;
+   messages: ChatMessage[];
+   /** Data URL of the current photo, attached when vision is enabled. */
+   image?: string | null;
+   visionEnabled: boolean;
+   editorApi: EditorApi;
+   signal?: AbortSignal;
 }): Promise<AssistantTurnResult> {
-  try {
-    return await runTurn(options);
-  } catch (error) {
-    if (
-      options.model &&
-      options.model !== DEFAULT_MODEL &&
-      error instanceof OpenRouterError &&
-      error.status !== 401 &&
-      error.status !== 403
-    ) {
-      const fallback = await runTurn({ ...options, model: DEFAULT_MODEL });
-      return {
-        ...fallback,
-        reply: `The selected model (${options.model}) was unavailable, so I used a fallback model.\n\n${fallback.reply}`,
-      };
-    }
-    throw error;
-  }
+   // Define fallback models in order of preference
+   const fallbackModels = [
+      options.model ?? DEFAULT_MODEL,
+      DEFAULT_MODEL,  // Always include the default
+      'google/gemini-2.0-flash-exp:free',  // Reliable vision model
+      'thinkingmachines/inkling-small:free'  // Smaller reasoning model
+   ].filter((model, index, self) => model && self.indexOf(model) === index); // Remove duplicates while preserving order
+
+   let lastError: Error | null = null;
+
+   // Try each model in sequence
+   for (const model of fallbackModels) {
+      try {
+         const result = await runTurn({ ...options, model });
+         // If we succeeded with a fallback model (not the first choice), note it in the reply
+         if (model !== fallbackModels[0]) {
+            return {
+               ...result,
+               reply: `The primary model was unavailable, so I used ${model.split('/')[0]}.\n\n${result.reply}`
+            };
+         }
+         return result;
+      } catch (err) {
+         const error = err instanceof Error ? err : new Error(String(err));
+         // Don't fall back on authentication errors
+         if (error instanceof OpenRouterError && (error.status === 401 || error.status === 403)) {
+            throw error;
+         }
+         lastError = error;
+         // Continue to next fallback model
+      }
+   }
+
+   // If all models failed, throw the last error
+   throw lastError ?? new Error('All available models failed');
 }

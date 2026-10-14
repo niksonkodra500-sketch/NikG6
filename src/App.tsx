@@ -42,21 +42,42 @@ function createConversationSummary(messages: ChatMessage[]): string {
     .filter(m => m.role === 'user' && typeof m.content === 'string')
     .map(m => m.content as string);
   
-  // Look for common photo editing terms
-  const editTerms = ['bright', 'contrast', 'saturation', 'hue', 'temperature', 
-                     'crop', 'rotate', 'flip', 'resize', 'filter', 
-                     'blur', 'sharpen', 'grayscale', 'sepia', 'warm', 'cool'];
+  // Look for common photo editing terms and categorize them
+  const editTerms = {
+    brightness: ['bright', 'contrast', 'exposure', 'shadows', 'highlights'],
+    color: ['saturation', 'hue', 'temperature', 'warm', 'cool', 'vibrant', 'muted'],
+    geometry: ['crop', 'rotate', 'flip', 'resize', 'scale'],
+    filters: ['filter', 'blur', 'sharpen', 'grayscale', 'sepia', 'vintage'],
+    details: ['noise', 'detail', 'texture', 'clarity', 'sharp']
+  };
   
-  const mentionedTerms = editTerms.filter(term => 
-    userTexts.some(text => text.toLowerCase().includes(term))
-  );
+  const mentionedCategories = [];
+  const mentionedTerms = [];
+  
+  for (const [category, terms] of Object.entries(editTerms)) {
+    const foundTerms = terms.filter(term => 
+      userTexts.some(text => text.toLowerCase().includes(term))
+    );
+    if (foundTerms.length > 0) {
+      mentionedCategories.push(category);
+      mentionedTerms.push(...foundTerms);
+    }
+  }
   
   let summary = `Conversation summary: ${userMessages} user messages, ${assistantMessages} assistant responses, ${toolMessages} tool results.`;
-  if (mentionedTerms.length > 0) {
-    summary += ` User mentioned editing terms: ${mentionedTerms.join(', ')}.`;
+  
+  if (mentionedCategories.length > 0) {
+    summary += ` User mentioned editing categories: ${mentionedCategories.join(', ')}.`;
   }
+  
+  if (mentionedTerms.length > 0) {
+    // Limit to most frequently mentioned or recent terms
+    const uniqueTerms = [...new Set(mentionedTerms)];
+    summary += ` Specific terms: ${uniqueTerms.slice(0, 8).join(', ')}${uniqueTerms.length > 8 ? '...' : ''}.`;
+  }
+  
   if (userTexts.length > 0) {
-    summary += ` Recent topics: ${userTexts.slice(-3).join('; ')}.`;
+    summary += ` Recent discussion topics: ${userTexts.slice(-3).map(t => t.length > 50 ? t.substring(0, 50) + '...' : t).join('; ')}.`;
   }
   
   return summary;
