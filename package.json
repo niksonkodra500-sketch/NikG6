@@ -18,9 +18,9 @@
     "cap:sync:android": "npm run build && npx cap sync android",
     "cap:open:android": "npx cap open android",
     "gen:sample": "node scripts/generate-sample.mjs",
-    "dev:android": "npm run dev -- --host 0.0.0.0",
-    "cap:run:android": "npx cap run android --live-reload --external",
-    "cap:run:android:usb": "npx cap run android --live-reload --forward-ports 5173:5173"
+    "dev:android": "npm run dev -- --host 0.0.0.0 --strictPort",
+    "cap:run:android": "npx cap run android --live-reload --port 5173",
+    "cap:run:android:usb": "npx cap run android --live-reload --host localhost --port 5173 --forwardPorts 5173:5173"
   },
   "dependencies": {
     "@capacitor/android": "^6.2.0",
