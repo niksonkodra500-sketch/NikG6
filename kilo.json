@@ -30,6 +30,14 @@
       "package.json": "allow",
       "kilo.json": "ask",
       "*.md": "allow",
+      ".github/**": "allow",
+      "scripts/**": "allow",
+      "android/**/*.gradle": "allow",
+      "android/**/build.gradle": "allow",
+      "android/**/settings.gradle": "allow",
+      "android/**/gradle.properties": "allow",
+      "capacitor.config.ts": "allow",
+      "index.html": "allow",
       "*": "ask"
     },
     "task": "allow",
@@ -39,7 +47,11 @@
     "websearch": "allow",
     "skill": "allow",
     "lsp": "allow",
-    "external_directory": "deny"
+    "external_directory": "deny",
+    "kilo_memory_save": "allow",
+    "kilo_memory_recall": "allow",
+    "question": "allow",
+    "doom_loop": "deny"
   },
   "provider": {
     "openrouter": {
@@ -52,14 +64,23 @@
     },
     "kilo": {
       "enabled": true
-    }
+    },
+    "disabled_providers": ["openai", "anthropic", "google", "groq", "cohere"]
   },
-  "disabled_providers": ["openai", "anthropic", "google", "groq", "cohere"],
   "mcp": {
     "filesystem": {
       "type": "local",
       "command": ["npx", "-y", "@modelcontextprotocol/server-filesystem", "/workspace/app"],
       "enabled": true,
+      "timeout": 30000
+    },
+    "github": {
+      "type": "remote",
+      "url": "https://api.github.com/mcp",
+      "headers": {
+        "Authorization": "Bearer ${GITHUB_TOKEN}"
+      },
+      "enabled": false,
       "timeout": 30000
     }
   },
