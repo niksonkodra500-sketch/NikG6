@@ -5,7 +5,7 @@ import { AdjustmentsPanel } from './components/AdjustmentsPanel';
 import { EditorCanvas, type EditorHandle } from './components/EditorCanvas';
 import { FiltersPanel } from './components/FiltersPanel';
 import { Toolbar, type PanelTab } from './components/Toolbar';
-import { DEFAULT_MODEL, type ChatMessage } from './ai/openrouter';
+import { DEFAULT_API_KEY, DEFAULT_MODEL, type ChatMessage } from './ai/openrouter';
 import type { EditorApi, ToolCallResult } from './ai/tools';
 import {
   DEFAULT_SNAPSHOT,
@@ -15,11 +15,9 @@ import {
   type FilterName,
 } from './editor/types';
 import {
-  deleteApiKey,
   getApiKey,
   loadConversation,
   loadSettings,
-  saveApiKey,
   saveConversation,
   saveSettings,
 } from './storage/persistence';
@@ -36,7 +34,7 @@ export default function App() {
   const [exportFormat, setExportFormat] = useState<ExportFormat>('png');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [lastToolResults, setLastToolResults] = useState<ToolCallResult[]>([]);
-  const [apiKey, setApiKey] = useState<string>('');
+  const [apiKey, setApiKey] = useState<string>(DEFAULT_API_KEY);
   const [model, setModel] = useState<string>(DEFAULT_MODEL);
   const [visionEnabled, setVisionEnabled] = useState(true);
 
@@ -137,12 +135,6 @@ useEffect(() => {
     }
   }, [exportFormat]);
 
-  const handleApiKeyChange = useCallback((key: string) => {
-    setApiKey(key);
-    if (key) void saveApiKey(key);
-    else void deleteApiKey();
-  }, []);
-
   const handleModelChange = useCallback(
     (next: string) => {
       setModel(next);
@@ -233,7 +225,6 @@ useEffect(() => {
             getImageDataUrl={getImageDataUrl}
             onMessagesChange={handleMessagesChange}
             onToolResultsChange={handleToolResultsChange}
-            onApiKeyChange={handleApiKeyChange}
             onModelChange={handleModelChange}
             onVisionChange={handleVisionChange}
           />

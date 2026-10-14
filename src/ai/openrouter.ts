@@ -28,7 +28,7 @@ export interface ChatCompletionResponse {
 }
 
 export const DEFAULT_BASE_URL = 'https://openrouter.ai/api/v1';
-export const DEFAULT_MODEL = 'google/gemini-2.0-flash-exp:free';
+export const DEFAULT_MODEL = 'thinkingmachines/inkling:free';
 export const DEFAULT_API_KEY = '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';
 
 export const MODEL_OPTIONS: Array<{ id: string; label: string }> = [
@@ -59,8 +59,8 @@ export const MODEL_OPTIONS: Array<{ id: string; label: string }> = [
   { id: 'command-r-plus:104b', label: 'Command R+ 104B (local Ollama, RAG-optimized)' },
 ];
 
-const MAX_RETRIES = 2;
-const RETRY_DELAYS_MS = [1000, 2000];
+const MAX_RETRIES = 3;
+const RETRY_DELAYS_MS = [1000, 2000, 4000];
 const RETRYABLE_STATUS = new Set([408, 429, 500, 502, 503, 504]);
 
 export class OpenRouterError extends Error {

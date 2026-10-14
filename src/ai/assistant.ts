@@ -12,7 +12,7 @@ export interface AssistantTurnResult {
   messages: ChatMessage[];
 }
 
-const MAX_TOOL_ROUNDS = 5;
+const MAX_TOOL_ROUNDS = 10;
 
 /**
  * Runs one assistant turn: sends the conversation (optionally with the current

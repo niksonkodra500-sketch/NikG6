@@ -71,7 +71,7 @@ describe('requestChatCompletion', () => {
       status: 500,
       retryable: true,
     });
-    expect(fetchMock).toHaveBeenCalledTimes(3);
+    expect(fetchMock).toHaveBeenCalledTimes(4);
   });
 
   it('does not retry authentication errors', async () => {
@@ -112,7 +112,7 @@ describe('requestChatCompletion', () => {
       'fetch',
       vi.fn(() => {
         calls += 1;
-        if (calls <= 2) throw new TypeError('Failed to fetch');
+        if (calls <= 3) throw new TypeError('Failed to fetch');
         return Promise.resolve(jsonResponse(200, completion('recovered')));
       }),
     );
@@ -120,6 +120,6 @@ describe('requestChatCompletion', () => {
     await vi.advanceTimersByTimeAsync(3000);
     const response = await pending;
     expect(response.choices?.[0]?.message?.content).toBe('recovered');
-    expect(calls).toBe(3);
+    expect(calls).toBe(4);
   });
 });

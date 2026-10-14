@@ -18,9 +18,8 @@ interface AssistantPanelProps {
   visionEnabled: boolean;
   editorApi: EditorApi;
   getImageDataUrl: (maxSize?: number) => Promise<string | null>;
-  onMessagesChange: (messages: ChatMessage[]) => void;
+   onMessagesChange: (messages: ChatMessage[]) => void;
   onToolResultsChange: (results: ToolCallResult[]) => void;
-  onApiKeyChange: (key: string) => void;
   onModelChange: (model: string) => void;
   onVisionChange: (enabled: boolean) => void;
 }
