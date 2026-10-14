@@ -38,7 +38,7 @@ export default function App() {
   const [model, setModel] = useState<string>(DEFAULT_MODEL);
   const [visionEnabled, setVisionEnabled] = useState(true);
 
-useEffect(() => {
+  useEffect(() => {
     void getApiKey().then((key) => {
       setApiKey(key);
     });
@@ -69,8 +69,7 @@ useEffect(() => {
         editorRef.current?.setAdjustment(name, value);
       },
       applyFilter: (filter: FilterName) => editorRef.current?.applyFilter(filter),
-      crop: (x, y, width, height) =>
-        editorRef.current?.crop(x, y, width, height),
+      crop: (x, y, width, height) => editorRef.current?.crop(x, y, width, height),
       rotate: (degrees) => editorRef.current?.rotate(degrees),
       flip: (axis) => editorRef.current?.flip(axis),
       resize: (width, height) => editorRef.current?.resize(width, height),
@@ -126,10 +125,7 @@ useEffect(() => {
     try {
       const quality = exportFormat === 'png' ? 1 : 0.92;
       const dataUrl = await handle.exportImage(exportFormat, quality);
-      downloadDataUrl(
-        dataUrl,
-        `edited-photo.${exportFormat === 'jpeg' ? 'jpg' : exportFormat}`,
-      );
+      downloadDataUrl(dataUrl, `edited-photo.${exportFormat === 'jpeg' ? 'jpg' : exportFormat}`);
     } catch (error) {
       window.alert(error instanceof Error ? error.message : 'Export failed');
     }

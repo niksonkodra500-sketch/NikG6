@@ -42,6 +42,8 @@ export async function deleteApiKey(): Promise<void> {
 }
 
 export async function saveConversation(messages: unknown[]): Promise<void> {
+  // For now, store as-is to maintain backward compatibility
+  // In a future enhancement, we could summarize old messages
   const json = JSON.stringify(messages);
   if (isNative) {
     await Preferences.set({ key: CONVERSATION_KEY, value: json });

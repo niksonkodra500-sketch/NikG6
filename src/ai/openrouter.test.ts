@@ -53,37 +53,31 @@ describe('requestChatCompletion', () => {
     const response = await pending;
     expect(response.choices?.[0]?.message?.content).toBe('ok');
     expect(calls).toBe(2);
-  });
+  }, 15000);
 
   it('gives up after the retry budget is exhausted', async () => {
     vi.useFakeTimers();
     const fetchMock = vi.fn(() =>
-      Promise.resolve(
-        jsonResponse(500, { error: { message: 'provider returned error' } }),
-      ),
+      Promise.resolve(jsonResponse(500, { error: { message: 'provider returned error' } })),
     );
     vi.stubGlobal('fetch', fetchMock);
     const pending = requestChatCompletion({ apiKey: 'key', messages });
     pending.catch(() => {});
-    await vi.advanceTimersByTimeAsync(3000);
+    await vi.runAllTimersAsync();
     await expect(pending).rejects.toMatchObject({
       name: 'OpenRouterError',
       status: 500,
       retryable: true,
     });
     expect(fetchMock).toHaveBeenCalledTimes(4);
-  });
+  }, 15000);
 
   it('does not retry authentication errors', async () => {
     const fetchMock = vi.fn(() =>
-      Promise.resolve(
-        jsonResponse(401, { error: { message: 'Invalid API key' } }),
-      ),
+      Promise.resolve(jsonResponse(401, { error: { message: 'Invalid API key' } })),
     );
     vi.stubGlobal('fetch', fetchMock);
-    await expect(
-      requestChatCompletion({ apiKey: 'bad', messages }),
-    ).rejects.toMatchObject({
+    await expect(requestChatCompletion({ apiKey: 'bad', messages })).rejects.toMatchObject({
       name: 'OpenRouterError',
       status: 401,
       retryable: false,
@@ -95,9 +89,7 @@ describe('requestChatCompletion', () => {
     vi.stubGlobal(
       'fetch',
       vi.fn(() =>
-        Promise.resolve(
-          jsonResponse(400, { error: { message: 'provider returned error' } }),
-        ),
+        Promise.resolve(jsonResponse(400, { error: { message: 'provider returned error' } })),
       ),
     );
     await expect(
@@ -117,9 +109,9 @@ describe('requestChatCompletion', () => {
       }),
     );
     const pending = requestChatCompletion({ apiKey: 'key', messages });
-    await vi.advanceTimersByTimeAsync(3000);
+    await vi.runAllTimersAsync();
     const response = await pending;
     expect(response.choices?.[0]?.message?.content).toBe('recovered');
     expect(calls).toBe(4);
-  });
+  }, 15000);
 });

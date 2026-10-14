@@ -18,7 +18,7 @@ interface AssistantPanelProps {
   visionEnabled: boolean;
   editorApi: EditorApi;
   getImageDataUrl: (maxSize?: number) => Promise<string | null>;
-   onMessagesChange: (messages: ChatMessage[]) => void;
+  onMessagesChange: (messages: ChatMessage[]) => void;
   onToolResultsChange: (results: ToolCallResult[]) => void;
   onModelChange: (model: string) => void;
   onVisionChange: (enabled: boolean) => void;
@@ -26,9 +26,7 @@ interface AssistantPanelProps {
 
 function messageText(message: ChatMessage): string {
   if (typeof message.content === 'string') return message.content;
-  return message.content
-    .map((part) => (part.type === 'text' ? part.text : ''))
-    .join('');
+  return message.content.map((part) => (part.type === 'text' ? part.text : '')).join('');
 }
 
 export function AssistantPanel(props: AssistantPanelProps) {
@@ -158,7 +156,9 @@ export function AssistantPanel(props: AssistantPanelProps) {
           e.preventDefault();
           void send(input);
         }}
-      >        <input
+      >
+        {' '}
+        <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Ask the assistant to edit your photo…"

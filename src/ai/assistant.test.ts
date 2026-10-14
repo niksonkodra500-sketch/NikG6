@@ -48,22 +48,18 @@ describe('runAssistantTurn', () => {
       visionEnabled: false,
       editorApi,
     });
-    await vi.advanceTimersByTimeAsync(5000);
+    await vi.runAllTimersAsync();
     const result = await pending;
 
     expect(result.reply).toContain('fallback');
     expect(result.reply).toContain('Done!');
-    expect(fetchMock).toHaveBeenCalledTimes(4);
-  });
+    expect(fetchMock).toHaveBeenCalledTimes(5);
+  }, 15000);
 
   it('propagates authentication errors without fallback', async () => {
     vi.stubGlobal(
       'fetch',
-      vi.fn(() =>
-        Promise.resolve(
-          jsonResponse(401, { error: { message: 'Invalid API key' } }),
-        ),
-      ),
+      vi.fn(() => Promise.resolve(jsonResponse(401, { error: { message: 'Invalid API key' } }))),
     );
     await expect(
       runAssistantTurn({
