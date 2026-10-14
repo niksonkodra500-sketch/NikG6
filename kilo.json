@@ -43,6 +43,9 @@
       "android/**/gradle.properties": "allow",
       "capacitor.config.ts": "allow",
       "index.html": "allow",
+      "public/**": "allow",
+      "e2e/**": "allow",
+      ".kilo/**": "allow",
       "*": "ask"
     },
     "task": "allow",
@@ -65,7 +68,58 @@
         "timeout": 60000,
         "headerTimeout": 30000,
         "chunkTimeout": 30000
-      }
+      },
+      "models": {
+        "google/gemini-2.0-flash-exp:free": {
+          "id": "google/gemini-2.0-flash-exp:free",
+          "name": "Gemini 2.0 Flash (Free)",
+          "family": "gemini",
+          "supportsVision": true,
+          "supportsTools": true,
+          "contextWindow": 1048576,
+          "maxOutputTokens": 8192,
+          "cost": { "input": 0, "output": 0 }
+        },
+        "google/gemini-2.5-pro": {
+          "id": "google/gemini-2.5-pro",
+          "name": "Gemini 2.5 Pro",
+          "family": "gemini",
+          "supportsVision": true,
+          "supportsTools": true,
+          "contextWindow": 2097152,
+          "maxOutputTokens": 8192,
+          "cost": { "input": 1.25, "output": 10.0 }
+        },
+        "anthropic/claude-3.5-sonnet": {
+          "id": "anthropic/claude-3.5-sonnet",
+          "name": "Claude 3.5 Sonnet",
+          "family": "claude",
+          "supportsVision": true,
+          "supportsTools": true,
+          "contextWindow": 200000,
+          "maxOutputTokens": 8192,
+          "cost": { "input": 3.0, "output": 15.0 }
+        },
+        "openai/gpt-4o": {
+          "id": "openai/gpt-4o",
+          "name": "GPT-4o",
+          "family": "gpt",
+          "supportsVision": true,
+          "supportsTools": true,
+          "contextWindow": 128000,
+          "maxOutputTokens": 4096,
+          "cost": { "input": 2.5, "output": 10.0 }
+        }
+      },
+      "whitelist": [
+        "google/gemini-2.0-flash-exp:free",
+        "google/gemini-2.5-pro",
+        "anthropic/claude-3.5-sonnet",
+        "openai/gpt-4o"
+      ]
+    },
+    "kilo": {
+      "enabled": true
     }
   },
   "disabled_providers": ["openai", "anthropic", "google", "groq", "cohere"],
@@ -90,19 +144,18 @@
     }
   },
   "skills": {
-    "paths": [
-      "./.kilo/skills",
-      "~/.config/kilo/skills"
-    ],
+    "paths": ["./.kilo/skills", "~/.config/kilo/skills"],
     "urls": []
   },
-  "instructions": [
-    ".kilo/plans/*.md",
-    "AGENTS.md",
-    "CLAUDE.md",
-    "CONTEXT.md"
-  ],
+  "instructions": [".kilo/plans/*.md", "AGENTS.md", "CLAUDE.md", "CONTEXT.md"],
   "plugin": [],
+  "references": {
+    "nikg6-repo": {
+      "repository": "https://github.com/niksonkodra500-sketch/NikG6",
+      "branch": "kilo/live-copper-nwe",
+      "description": "NikG6 Photo Editor main repository"
+    }
+  },
   "agent": {
     "general": {
       "description": "Primary coding agent for the photo editor project",
@@ -121,6 +174,13 @@
     },
     "build": {
       "description": "Build and release automation",
+      "mode": "subagent",
+      "model": "kilo/kilo-auto/free",
+      "steps": 30,
+      "temperature": 0.1
+    },
+    "photo-editor": {
+      "description": "Specialized agent for photo editor development tasks",
       "mode": "subagent",
       "model": "kilo/kilo-auto/free",
       "steps": 30,
@@ -151,6 +211,18 @@
     "typecheck": {
       "template": "Run TypeScript type checking: `npm run typecheck`",
       "agent": "general"
+    },
+    "sync-cap": {
+      "template": "Sync Capacitor plugins: `npx cap sync android`",
+      "agent": "build"
+    },
+    "open-android": {
+      "template": "Open Android project in Android Studio: `npx cap open android`",
+      "agent": "build"
+    },
+    "run-android": {
+      "template": "Run on Android device with live reload: `npm run cap:run:android`",
+      "agent": "build"
     }
   },
   "attachment": {
@@ -166,18 +238,7 @@
     "max_bytes": 51200
   },
   "formatter": true,
-  "lsp": {
-    "typescript": {
-      "command": ["npx", "typescript-language-server", "--stdio"],
-      "extensions": [".ts", ".tsx"],
-      "disabled": false
-    },
-    "eslint": {
-      "command": ["npx", "vscode-eslint-language-server", "--stdio"],
-      "extensions": [".ts", ".tsx", ".js", ".jsx"],
-      "disabled": false
-    }
-  },
+  "lsp": true,
   "watcher": {
     "ignore": [
       "node_modules/**",
@@ -186,7 +247,8 @@
       ".git/**",
       "android/**/build/**",
       "www/**",
-      "*.apk"
+      "*.apk",
+      ".kilo/worktrees/**"
     ]
   },
   "experimental": {
@@ -202,7 +264,7 @@
     "maxAgeDays": 30
   },
   "commit_message": {
-    "prompt": "Generate a conventional commit message for the changes. Format: <type>(<scope>): <subject>\n\nTypes: feat, fix, docs, style, refactor, perf, test, chore, build, ci\nScope: the component/module affected (e.g., editor, ai, toolbar, assistant)\nSubject: imperative, lowercase, no period, max 50 chars\n\nBody (optional): explain what and why, not how. Wrap at 72 chars.\nFooter (optional): breaking changes, issue refs (e.g., Closes #123)"
+    "prompt": "Generate a conventional commit message for the changes. Format: <type>(<scope>): <subject>\n\nTypes: feat, fix, docs, style, refactor, perf, test, chore, build, ci\nScope: the component/module affected (e.g., editor, ai, toolbar, assistant, storage, canvas, filter, adjustment)\nSubject: imperative, lowercase, no period, max 50 chars\n\nBody (optional): explain what and why, not how. Wrap at 72 chars.\nFooter (optional): breaking changes, issue refs (e.g., Closes #123)\n\nExamples:\n- feat(editor): add temperature adjustment slider\n- fix(ai): handle tool call parsing errors gracefully\n- refactor(toolbar): extract filter buttons to FiltersPanel\n- test(editor): add snapshot undo/redo unit tests"
   },
   "remote_control": false
 }
