@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Allows plain HTTP (cleartext) traffic to the development server during
+  Capacitor Live Reload. Cleartext is permitted for all domains here because
+  this project is a personal app and the dev server only runs on the local
+  machine during development. For a production app you would scope this to the
+  dev machine's IP and remove it before releasing.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

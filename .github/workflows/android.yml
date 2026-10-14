@@ -3,6 +3,7 @@ name: Android APK
 on:
   push:
     tags: ['v*']
+    branches: ['main']
   workflow_dispatch:
 
 jobs:
@@ -36,6 +37,8 @@ jobs:
         run: |
           if [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == refs/tags/* ]]; then
             echo "tag=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref }}" == refs/heads/main ]]; then
+            echo "tag=main-${{ github.run_id }}" >> $GITHUB_OUTPUT
           else
             # For workflow_dispatch, create a manual version using run ID to avoid collisions
             echo "tag=manual-${{ github.run_id }}" >> $GITHUB_OUTPUT
@@ -61,6 +64,9 @@ jobs:
             1. Download `app-debug.apk` below
             2. Enable "Install unknown apps" on your Android device
             3. Tap the APK to install
+
+            **Updating an existing install:** just install the new APK over the old one —
+            Android will replace the app in place, no need to uninstall first.
           draft: false
           prerelease: ${{ github.event_name == 'workflow_dispatch' }}
           files: android/app/build/outputs/apk/debug/app-debug.apk
