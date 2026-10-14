@@ -5,12 +5,17 @@
   "default_agent": "general",
   "compaction": {
     "auto": true,
-    "prune": true
+    "prune": true,
+    "tail_turns": 20,
+    "preserve_recent_tokens": 8000,
+    "reserved": 4000
   },
   "snapshot": true,
   "share": "manual",
   "autoupdate": "notify",
   "username": "niksonkodra500",
+  "shell": "bash",
+  "logLevel": "INFO",
   "permission": {
     "bash": "allow",
     "read": "allow",
@@ -57,16 +62,22 @@
       "options": {
         "apiKey": "${OPENROUTER_API_KEY}",
         "baseURL": "https://openrouter.ai/api/v1",
-        "timeout": 60000
+        "timeout": 60000,
+        "headerTimeout": 30000,
+        "chunkTimeout": 30000
       }
     }
   },
+  "disabled_providers": ["openai", "anthropic", "google", "groq", "cohere"],
   "mcp": {
     "filesystem": {
       "type": "local",
       "command": ["npx", "-y", "@modelcontextprotocol/server-filesystem", "/workspace/app"],
       "enabled": true,
-      "timeout": 30000
+      "timeout": 30000,
+      "environment": {
+        "NODE_ENV": "development"
+      }
     },
     "github": {
       "type": "remote",
@@ -97,13 +108,23 @@
       "description": "Primary coding agent for the photo editor project",
       "mode": "primary",
       "model": "kilo/kilo-auto/free",
-      "steps": 50
+      "steps": 50,
+      "temperature": 0.1,
+      "top_p": 0.95
     },
     "explore": {
       "description": "Fast codebase exploration and research",
       "mode": "subagent",
       "model": "kilo/kilo-auto/free",
-      "steps": 10
+      "steps": 10,
+      "temperature": 0.0
+    },
+    "build": {
+      "description": "Build and release automation",
+      "mode": "subagent",
+      "model": "kilo/kilo-auto/free",
+      "steps": 30,
+      "temperature": 0.1
     }
   },
   "command": {
@@ -117,11 +138,71 @@
     },
     "build-android": {
       "template": "Build Android APK:\n1. npm run build\n2. npx cap sync android\n3. cd android && ./gradlew assembleDebug --no-daemon",
-      "agent": "general"
+      "agent": "build"
     },
     "generate-sample": {
       "template": "Generate test sample image: `node scripts/generate-sample.mjs`",
       "agent": "general"
+    },
+    "lint-fix": {
+      "template": "Run lint with auto-fix: `npm run lint -- --fix`",
+      "agent": "general"
+    },
+    "typecheck": {
+      "template": "Run TypeScript type checking: `npm run typecheck`",
+      "agent": "general"
     }
-  }
+  },
+  "attachment": {
+    "image": {
+      "auto_resize": true,
+      "max_width": 2048,
+      "max_height": 2048,
+      "max_base64_bytes": 5242880
+    }
+  },
+  "tool_output": {
+    "max_lines": 2000,
+    "max_bytes": 51200
+  },
+  "formatter": true,
+  "lsp": {
+    "typescript": {
+      "command": ["npx", "typescript-language-server", "--stdio"],
+      "extensions": [".ts", ".tsx"],
+      "disabled": false
+    },
+    "eslint": {
+      "command": ["npx", "vscode-eslint-language-server", "--stdio"],
+      "extensions": [".ts", ".tsx", ".js", ".jsx"],
+      "disabled": false
+    }
+  },
+  "watcher": {
+    "ignore": [
+      "node_modules/**",
+      "dist/**",
+      "build/**",
+      ".git/**",
+      "android/**/build/**",
+      "www/**",
+      "*.apk"
+    ]
+  },
+  "experimental": {
+    "web_search": true,
+    "privacy_mode": true,
+    "reasoning_display": "preview",
+    "terminal_command_display": "collapsed",
+    "code_edit_display": "collapsed",
+    "hide_prompt_training_models": true
+  },
+  "retention": {
+    "enabled": false,
+    "maxAgeDays": 30
+  },
+  "commit_message": {
+    "prompt": "Generate a conventional commit message for the changes. Format: <type>(<scope>): <subject>\n\nTypes: feat, fix, docs, style, refactor, perf, test, chore, build, ci\nScope: the component/module affected (e.g., editor, ai, toolbar, assistant)\nSubject: imperative, lowercase, no period, max 50 chars\n\nBody (optional): explain what and why, not how. Wrap at 72 chars.\nFooter (optional): breaking changes, issue refs (e.g., Closes #123)"
+  },
+  "remote_control": false
 }
