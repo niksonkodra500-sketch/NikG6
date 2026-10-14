@@ -466,6 +466,13 @@ export const EditorCanvas = forwardRef<EditorHandle, EditorCanvasProps>(
 
     useImperativeHandle(ref, () => handle, [handle]);
 
+    useEffect(() => {
+      window.__editorHandle = handle;
+      return () => {
+        delete window.__editorHandle;
+      };
+    }, [handle]);
+
     return (
       <div className="editor-canvas-wrap">
         <canvas ref={canvasElRef} />
