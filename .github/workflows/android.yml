@@ -20,7 +20,24 @@ jobs:
       - run: npx cap sync android
       - name: Build debug APK
         run: cd android && ./gradlew assembleDebug --no-daemon
-      - uses: actions/upload-artifact@v4
+      - name: Upload APK to release
+        uses: softprops/action-gh-release@v1
         with:
-          name: app-debug
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          files: android/app/build/outputs/apk/debug/app-debug.apk
+          body: |
+            ## NikG6 Photo Editor - Release ${{ github.ref_name }}
+
+            ### Features
+            - AI Assistant with OpenRouter (hardcoded API key, no setup needed)
+            - Default model: `google/gemini-2.0-flash-exp:free` (vision-capable)
+            - 8 prompt presets for quick edits
+            - Full photo editing: adjustments, filters, crop, rotate, flip, resize, export
+            - Undo/redo with snapshot-based history
+            - Vision support (assistant sees the photo)
+
+            ### Install
+            1. Download `app-debug.apk` below
+            2. Enable "Install unknown apps" on your Android device
+            3. Tap the APK to install
