@@ -13,7 +13,7 @@ import type { EditorApi, ToolCallResult } from '../ai/tools';
 interface AssistantPanelProps {
   messages: ChatMessage[];
   lastToolResults: ToolCallResult[];
-  apiKey: string | null;
+  apiKey: string;
   model: string;
   visionEnabled: boolean;
   editorApi: EditorApi;
@@ -75,10 +75,6 @@ export function AssistantPanel(props: AssistantPanelProps) {
   const send = async (text: string) => {
     const prompt = text.trim();
     if (!prompt || pending) return;
-    if (!props.apiKey) {
-      setError('Enter your OpenRouter API key below to enable the assistant.');
-      return;
-    }
     if (props.visionEnabled) {
       const supportsVision = modelSupportsVision(catalog, props.model);
       if (supportsVision === false) {
@@ -169,7 +165,7 @@ export function AssistantPanel(props: AssistantPanelProps) {
           placeholder="Ask the assistant to edit your photo…"
           disabled={pending}
         />
-        <button type="submit" disabled={pending || !props.apiKey}>
+        <button type="submit" disabled={pending}>
           Send
         </button>
         {pending && (
@@ -180,23 +176,6 @@ export function AssistantPanel(props: AssistantPanelProps) {
       </form>
       <details className="assistant-settings">
         <summary>Settings</summary>
-        <label>
-          OpenRouter API key
-          <input
-            type="password"
-            value={props.apiKey ?? ''}
-            onChange={(e) => props.onApiKeyChange(e.target.value)}
-            placeholder="sk-or-…"
-          />
-          <a
-            className="key-link"
-            href="https://openrouter.ai/keys"
-            target="_blank"
-            rel="noreferrer"
-          >
-            Get a free API key
-          </a>
-        </label>
         <label>
           Model
           <select value={props.model} onChange={(e) => props.onModelChange(e.target.value)}>

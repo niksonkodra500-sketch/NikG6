@@ -20,8 +20,8 @@ export async function saveApiKey(key: string): Promise<void> {
 
 export async function getApiKey(): Promise<string | null> {
   if (isNative) {
-    const { SecureStoragePlugin } = await import('capacitor-secure-storage-plugin');
     try {
+      const { SecureStoragePlugin } = await import('capacitor-secure-storage-plugin');
       const result = await SecureStoragePlugin.get({ key: API_KEY_STORAGE });
       return result.value ?? null;
     } catch {

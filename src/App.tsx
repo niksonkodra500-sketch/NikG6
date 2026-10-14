@@ -36,13 +36,13 @@ export default function App() {
   const [exportFormat, setExportFormat] = useState<ExportFormat>('png');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [lastToolResults, setLastToolResults] = useState<ToolCallResult[]>([]);
-  const [apiKey, setApiKey] = useState<string | null>(null);
+  const [apiKey, setApiKey] = useState<string>('');
   const [model, setModel] = useState<string>(DEFAULT_MODEL);
   const [visionEnabled, setVisionEnabled] = useState(true);
 
-  useEffect(() => {
+useEffect(() => {
     void getApiKey().then((key) => {
-      if (key) setApiKey(key);
+      setApiKey(key);
     });
     void loadConversation<ChatMessage>().then((stored) => {
       if (stored && stored.length) setMessages(stored);
