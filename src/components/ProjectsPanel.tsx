@@ -15,6 +15,7 @@ interface ProjectsPanelProps {
  * localStorage (web).
  */
 export function ProjectsPanel(props: ProjectsPanelProps) {
+  const { sourceDataUrl, onRestore, onClose } = props;
   const [projects, setProjects] = useState<Project[]>([]);
   const [name, setName] = useState('');
   const [saving, setSaving] = useState(false);
@@ -32,31 +33,31 @@ export function ProjectsPanel(props: ProjectsPanelProps) {
   }, [refresh]);
 
   const handleSave = useCallback(async () => {
-    if (!props.sourceDataUrl) return;
+    if (!sourceDataUrl) return;
     const trimmed = name.trim();
     const finalName = trimmed || `Project ${new Date().toLocaleDateString()}`;
     setSaving(true);
     try {
-      await saveProject(finalName, props.sourceDataUrl);
+      await saveProject(finalName, sourceDataUrl);
       setName('');
       await refresh();
     } finally {
       setSaving(false);
     }
-  }, [name, props.sourceDataUrl, refresh]);
+  }, [name, sourceDataUrl, refresh]);
 
   const handleRestore = useCallback(
     async (project: Project) => {
       try {
         const dataUrl = await loadProject(project.name);
         if (dataUrl) {
-          props.onRestore(dataUrl, project.snapshot);
+          onRestore(dataUrl, project.snapshot);
         }
       } catch {
         // ignore restore failures
       }
     },
-    [props.onRestore],
+    [onRestore],
   );
 
   const handleDelete = useCallback(
@@ -75,7 +76,7 @@ export function ProjectsPanel(props: ProjectsPanelProps) {
     <div className="panel projects-panel">
       <h2>
         Projects
-        <button type="button" className="link-button" onClick={props.onClose} aria-label="Close">
+        <button type="button" className="link-button" onClick={onClose} aria-label="Close">
           Close
         </button>
       </h2>
@@ -88,7 +89,7 @@ export function ProjectsPanel(props: ProjectsPanelProps) {
           placeholder="Project name (optional)"
           disabled={saving}
         />
-        <button type="button" onClick={handleSave} disabled={!props.sourceDataUrl || saving}>
+        <button type="button" onClick={() => void handleSave()} disabled={!sourceDataUrl || saving}>
           {saving ? 'Saving…' : 'Save current'}
         </button>
       </div>
@@ -106,10 +107,10 @@ export function ProjectsPanel(props: ProjectsPanelProps) {
                 </span>
               </div>
               <div className="project-actions">
-                <button type="button" onClick={() => handleRestore(project)}>
+                <button type="button" onClick={() => void handleRestore(project)}>
                   Open
                 </button>
-                <button type="button" className="danger" onClick={() => handleDelete(project)}>
+                <button type="button" className="danger" onClick={() => void handleDelete(project)}>
                   Delete
                 </button>
               </div>

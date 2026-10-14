@@ -15,6 +15,7 @@ import { History } from '../editor/history';
 import {
   DEFAULT_SNAPSHOT,
   type AdjustmentName,
+  type CropAspect,
   type EditorSnapshot,
   type ExportFormat,
   type FilterName,
@@ -32,7 +33,7 @@ export interface EditorHandle {
   setAdjustment(name: AdjustmentName, value: number, opts?: { commit?: boolean }): void;
   applyFilter(filter: FilterName): void;
   crop(x: number, y: number, width: number, height: number, aspect?: number | null): void;
-  cropToAspect(aspect: any): void;
+  cropToAspect(aspect: CropAspect): void;
   rotate(degrees: number): void;
   flip(axis: 'x' | 'y'): void;
   resize(width: number, height: number): void;
@@ -259,13 +260,13 @@ export const EditorCanvas = forwardRef<EditorHandle, EditorCanvasProps>(
     );
 
     const cropToAspect = useCallback(
-      (aspect: any) => {
+      (aspect: CropAspect) => {
         const natural = naturalSizeRef.current;
         if (!natural.width || !natural.height) return;
-        const a = aspect as import('../editor/types').CropAspect;
-        const preset = CROP_ASPECT_PRESETS.find((p) => p.ratio === a);
-        const ratio = preset?.value;
-        if (!ratio) {
+        const presets = CROP_ASPECT_PRESETS as Array<{ ratio: CropAspect; value: number | null }>;
+        const preset = presets.find((p) => p.ratio === aspect);
+        const ratio = preset?.value ?? null;
+        if (ratio === null) {
           stateRef.current = { ...stateRef.current, crop: null };
           applySnapshot(stateRef.current);
           emitState(stateRef.current, true);

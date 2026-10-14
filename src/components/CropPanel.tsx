@@ -16,25 +16,26 @@ interface CropPanelProps {
  * image centered, plus a freeform crop button and a "clear crop" option.
  */
 export function CropPanel(props: CropPanelProps) {
+  const { crop, naturalWidth, naturalHeight, onCrop, onCropToAspect, onClearCrop } = props;
   const [mode, setMode] = useState<CropAspect>('free');
 
   const handleAspect = useCallback(
     (aspect: CropAspect) => {
       setMode(aspect);
-      props.onCropToAspect(aspect);
+      onCropToAspect(aspect);
     },
-    [props.onCropToAspect],
+    [onCropToAspect],
   );
 
   const handleFreeform = useCallback(() => {
-    if (!props.naturalWidth || !props.naturalHeight) return;
-    const w = Math.round(props.naturalWidth * 0.8);
-    const h = Math.round(props.naturalHeight * 0.8);
-    const x = Math.round((props.naturalWidth - w) / 2);
-    const y = Math.round((props.naturalHeight - h) / 2);
+    if (!naturalWidth || !naturalHeight) return;
+    const w = Math.round(naturalWidth * 0.8);
+    const h = Math.round(naturalHeight * 0.8);
+    const x = Math.round((naturalWidth - w) / 2);
+    const y = Math.round((naturalHeight - h) / 2);
     setMode('free');
-    props.onCrop(x, y, w, h, null);
-  }, [props.naturalWidth, props.naturalHeight, props.onCrop]);
+    onCrop(x, y, w, h, null);
+  }, [naturalWidth, naturalHeight, onCrop]);
 
   return (
     <div className="panel crop-panel">
@@ -52,17 +53,17 @@ export function CropPanel(props: CropPanelProps) {
         ))}
       </div>
       <div className="crop-actions">
-        <button type="button" onClick={handleFreeform} disabled={!props.naturalWidth}>
+        <button type="button" onClick={handleFreeform} disabled={!naturalWidth}>
           Crop 80%
         </button>
-        <button type="button" onClick={props.onClearCrop} disabled={!props.crop}>
+        <button type="button" onClick={onClearCrop} disabled={!crop}>
           Clear
         </button>
       </div>
-      {props.crop && (
+      {crop && (
         <p className="crop-info">
-          Cropped to {props.crop.width}x{props.crop.height}
-          {props.crop.aspect ? ` (${formatAspect(props.crop.aspect)})` : ''}
+          Cropped to {crop.width}x{crop.height}
+          {crop.aspect ? ` (${formatAspect(crop.aspect)})` : ''}
         </p>
       )}
     </div>

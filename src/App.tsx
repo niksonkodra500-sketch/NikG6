@@ -383,8 +383,8 @@ export default function App() {
         onExport={() => {
           void exportCurrent();
         }}
-        onCompare={handleCompare}
-        onOpenProjects={() => setActiveTab((t) => (t === 'projects' ? null : 'projects'))}
+        onCompare={() => void handleCompare()}
+        onOpenProjects={() => void setActiveTab((t) => (t === 'projects' ? null : 'projects'))}
         onTabChange={setActiveTab}
       />
       <main className="app-main">
@@ -427,7 +427,7 @@ export default function App() {
         {activeTab === 'projects' && (
           <ProjectsPanel
             sourceDataUrl={sourceDataUrl}
-            onRestore={handleProjectRestore}
+            onRestore={(dataUrl, snap) => void handleProjectRestore(dataUrl, snap)}
             onClose={() => setActiveTab(null)}
           />
         )}

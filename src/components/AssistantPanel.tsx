@@ -9,6 +9,7 @@ import {
 import { MODEL_OPTIONS, type ChatMessage } from '../ai/openrouter';
 import { PROMPT_PRESETS, SYSTEM_PROMPT } from '../ai/presets';
 import type { EditorApi, ToolCallResult } from '../ai/tools';
+import type { EditorSnapshot } from '../editor/types';
 
 interface AssistantPanelProps {
   messages: ChatMessage[];
@@ -23,7 +24,7 @@ interface AssistantPanelProps {
   onModelChange: (model: string) => void;
   onVisionChange: (enabled: boolean) => void;
   onNewChat: () => void;
-  onRevert: (snap: any) => void;
+  onRevert: (snap: EditorSnapshot) => void;
 }
 
 function messageText(message: ChatMessage): string {

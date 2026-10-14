@@ -1,36 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
-
-const GITHUB_REPO = 'niksonkodra500-sketch/NikG6';
-const CURRENT_VERSION = '0.1.0';
-
-interface GitHubRelease {
-  tag_name?: string;
-  name?: string;
-  html_url?: string;
-  assets?: Array<{ name?: string; browser_download_url?: string }>;
-}
-
-function parseVersion(tag: string): number[] {
-  return tag
-    .replace(/^v/, '')
-    .split('.')
-    .map((part) => {
-      const n = Number.parseInt(part, 10);
-      return Number.isFinite(n) ? n : 0;
-    });
-}
-
-/** Returns true if `a` is strictly newer than `b`. */
-function isNewer(a: string, b: string): boolean {
-  const av = parseVersion(a);
-  const bv = parseVersion(b);
-  for (let i = 0; i < Math.max(av.length, bv.length); i += 1) {
-    const an = av[i] ?? 0;
-    const bn = bv[i] ?? 0;
-    if (an !== bn) return an > bn;
-  }
-  return false;
-}
+import {
+  GITHUB_REPO,
+  CURRENT_VERSION,
+  type GitHubRelease,
+  isNewer,
+} from './UpdateChecker.constants';
 
 export interface UpdateCheckResult {
   checking: boolean;
@@ -102,6 +76,7 @@ interface UpdateBannerProps {
 }
 
 /** Inline banner shown when a newer APK release is available. */
+// eslint-disable-next-line react-refresh/only-export-components
 export function UpdateBanner({ updates }: UpdateBannerProps) {
   if (!updates.updateAvailable || !updates.downloadUrl) return null;
   return (

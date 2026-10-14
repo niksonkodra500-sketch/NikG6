@@ -152,9 +152,10 @@ export async function listProjectNames(): Promise<string[]> {
         path: 'projects',
         directory: Directory.Data,
       });
-      return result.files
-        .filter((entry: any) => entry.name.endsWith('.json'))
-        .map((entry: any) => entry.name.slice(0, -'.json'.length));
+      const entries = result.entries as Array<{ name: string }>;
+      return entries
+        .filter((entry) => entry.name.endsWith('.json'))
+        .map((entry) => entry.name.slice(0, -'.json'.length));
     } catch {
       return [];
     }

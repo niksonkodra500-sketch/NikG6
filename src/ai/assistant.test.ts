@@ -51,7 +51,8 @@ describe('runAssistantTurn', () => {
     await vi.runAllTimersAsync();
     const result = await pending;
 
-    expect(result.reply).toContain('fallback');
+    expect(result.reply).toContain('unavailable');
+    expect(result.reply).toContain('thinkingmachines');
     expect(result.reply).toContain('Done!');
     expect(fetchMock).toHaveBeenCalledTimes(5);
   }, 15000);
