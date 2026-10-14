@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 
-export type PanelTab = 'adjust' | 'filters' | 'assistant';
+export type PanelTab = 'adjust' | 'filters' | 'crop' | 'projects' | 'assistant';
 
 interface ToolbarProps {
   canUndo: boolean;
@@ -16,6 +16,8 @@ interface ToolbarProps {
   onFlip: (axis: 'x' | 'y') => void;
   onReset: () => void;
   onExport: () => void;
+  onCompare: () => void;
+  onOpenProjects: () => void;
   onTabChange: (tab: PanelTab | null) => void;
 }
 
@@ -56,14 +58,22 @@ export function Toolbar(props: ToolbarProps) {
         <button type="button" disabled={!hasImage} onClick={props.onRotate}>
           Rotate
         </button>
-        <button type="button" disabled={!hasImage} onClick={() => {
-          props.onFlip('x');
-        }}>
+        <button
+          type="button"
+          disabled={!hasImage}
+          onClick={() => {
+            props.onFlip('x');
+          }}
+        >
           Flip H
         </button>
-        <button type="button" disabled={!hasImage} onClick={() => {
-          props.onFlip('y');
-        }}>
+        <button
+          type="button"
+          disabled={!hasImage}
+          onClick={() => {
+            props.onFlip('y');
+          }}
+        >
           Flip V
         </button>
         <button type="button" disabled={!hasImage} onClick={props.onReset}>
@@ -71,6 +81,9 @@ export function Toolbar(props: ToolbarProps) {
         </button>
         <button type="button" disabled={!hasImage} onClick={props.onExport}>
           Export
+        </button>
+        <button type="button" disabled={!hasImage} onClick={props.onCompare}>
+          Compare
         </button>
       </div>
       <div className="toolbar-group">
@@ -91,6 +104,22 @@ export function Toolbar(props: ToolbarProps) {
           }}
         >
           Filters
+        </button>
+        <button
+          type="button"
+          className={activeTab === 'crop' ? 'active' : ''}
+          onClick={() => {
+            props.onTabChange(activeTab === 'crop' ? null : 'crop');
+          }}
+        >
+          Crop
+        </button>
+        <button
+          type="button"
+          className={activeTab === 'projects' ? 'active' : ''}
+          onClick={props.onOpenProjects}
+        >
+          Projects
         </button>
         <button
           type="button"

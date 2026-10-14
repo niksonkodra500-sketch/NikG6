@@ -34,7 +34,7 @@ export function BeforeAfter({ before, after, filename = 'comparison.png' }: Befo
     [updateFromClientX],
   );
   const onMove = useCallback(
-    (e: MouseEvent) => {
+    (e: React.MouseEvent) => {
       if (!dragging) return;
       updateFromClientX(e.clientX);
     },

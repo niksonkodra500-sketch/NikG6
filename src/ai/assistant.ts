@@ -1,11 +1,6 @@
 import { DEFAULT_MODEL, OpenRouterError, type ChatMessage } from './openrouter';
-import {
-  EDITOR_TOOLS,
-  executeToolCall,
-  type EditorApi,
-  type EditorSnapshot,
-  type ToolCallResult,
-} from './tools';
+import { EDITOR_TOOLS, executeToolCall, type EditorApi, type ToolCallResult } from './tools';
+import type { EditorSnapshot } from '../editor/types';
 import { requestChatCompletion } from './openrouter';
 
 export interface AssistantTurnResult {

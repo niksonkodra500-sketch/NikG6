@@ -8,8 +8,8 @@ function mockApi(): EditorApi & { calls: string[] } {
     calls,
     setAdjustment: (name, value) => record(`adjust:${name}=${String(value)}`),
     applyFilter: (filter) => record(`filter:${filter}`),
-    crop: (x, y, w, h) =>
-      record(`crop:${String(x)},${String(y)},${String(w)},${String(h)}`),
+    crop: (x, y, w, h) => record(`crop:${String(x)},${String(y)},${String(w)},${String(h)}`),
+    cropToAspect: (aspect) => record(`cropaspect:${aspect}`),
     rotate: (d) => record(`rotate:${String(d)}`),
     flip: (axis) => record(`flip:${axis}`),
     resize: (w, h) => record(`resize:${String(w)}x${String(h)}`),
@@ -18,6 +18,12 @@ function mockApi(): EditorApi & { calls: string[] } {
       record('export');
       return Promise.resolve('data:image/png;base64,xx');
     },
+    getSnapshot: () => ({
+      adjustments: { brightness: 0, contrast: 0, saturation: 0, hue: 0, temperature: 0 },
+      filter: 'none',
+      transform: { rotation: 0, flipX: false, flipY: false, scaleX: 1, scaleY: 1 },
+      crop: null,
+    }),
   };
 }
 

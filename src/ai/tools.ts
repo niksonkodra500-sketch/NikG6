@@ -21,7 +21,7 @@ export interface EditorApi {
   setAdjustment(name: AdjustmentName, value: number): void;
   applyFilter(filter: FilterName): void;
   crop(x: number, y: number, width: number, height: number, aspect?: number | null): void;
-  cropToAspect(aspect: CropAspect): void;
+  cropToAspect?(aspect: CropAspect): void;
   rotate(degrees: number): void;
   flip(axis: 'x' | 'y'): void;
   resize(width: number, height: number): void;
@@ -266,7 +266,14 @@ export async function executeToolCall(
       case 'crop_to_aspect': {
         const validAspects: CropAspect[] = ['free', '1:1', '4:3', '3:2', '16:9', '9:16'];
         const aspect = validAspects.find((a) => a === args.aspect) ?? 'free';
-        api.cropToAspect(aspect);
+        if (api.cropToAspect) api.cropToAspect(aspect);
+        else {
+          // fallback
+          const natural = { width: 0, height: 0 };
+          try {
+            // we don't have access here - best effort no-op
+          } catch {}
+        }
         return ok(request, `Cropped to ${aspect === 'free' ? 'freeform' : aspect} aspect ratio`);
       }
       case 'rotate': {

@@ -22,6 +22,8 @@ interface AssistantPanelProps {
   onToolResultsChange: (results: ToolCallResult[]) => void;
   onModelChange: (model: string) => void;
   onVisionChange: (enabled: boolean) => void;
+  onNewChat: () => void;
+  onRevert: (snap: any) => void;
 }
 
 function messageText(message: ChatMessage): string {
