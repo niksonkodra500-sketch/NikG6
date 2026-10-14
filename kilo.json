@@ -1,21 +1,80 @@
 {
   "$schema": "https://app.kilo.ai/config.json",
+  "model": "kilo/kilo-auto/free",
+  "small_model": "kilo/kilo-auto/free",
+  "default_agent": "code",
+  "compaction": {
+    "auto": true,
+    "prune": true
+  },
+  "snapshot": true,
+  "share": "manual",
+  "autoupdate": "notify",
+  "username": "niksonkodra500",
   "permission": {
     "bash": "allow",
     "read": "allow",
     "write": "allow",
-    "edit": "allow",
+    "edit": {
+      "src/**": "allow",
+      "*.test.ts": "allow",
+      "*.test.tsx": "allow",
+      "*.spec.ts": "allow",
+      "*.spec.tsx": "allow",
+      "vite.config.ts": "allow",
+      "vitest.config.ts": "allow",
+      "playwright.config.ts": "allow",
+      "capacitor.config.ts": "allow",
+      "eslint.config.js": "allow",
+      "tsconfig*.json": "allow",
+      "package.json": "allow",
+      "kilo.json": "ask",
+      "*.md": "allow",
+      "*": "ask"
+    },
     "task": "allow",
     "glob": "allow",
     "grep": "allow",
     "webfetch": "allow",
-    "websearch": "allow"
+    "websearch": "allow",
+    "skill": "allow",
+    "lsp": "allow",
+    "external_directory": "deny"
   },
-  "model": "kilo/kilo-auto/free",
-  "instructions": [
-    ".kilo/plans/*.md"
-  ],
+  "provider": {
+    "openrouter": {
+      "options": {
+        "apiKey": "${OPENROUTER_API_KEY}",
+        "baseURL": "https://openrouter.ai/api/v1",
+        "timeout": 60000
+      },
+      "enabled": true
+    },
+    "kilo": {
+      "enabled": true
+    }
+  },
+  "disabled_providers": ["openai", "anthropic", "google", "groq", "cohere"],
+  "mcp": {
+    "filesystem": {
+      "type": "local",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-filesystem", "/workspace/app"],
+      "enabled": true,
+      "timeout": 30000
+    }
+  },
   "skills": {
-    "paths": ["./.kilo/skills"]
-  }
+    "paths": [
+      "./.kilo/skills",
+      "~/.config/kilo/skills"
+    ],
+    "urls": []
+  },
+  "instructions": [
+    ".kilo/plans/*.md",
+    "AGENTS.md",
+    "CLAUDE.md",
+    "CONTEXT.md"
+  ],
+  "plugin": []
 }
