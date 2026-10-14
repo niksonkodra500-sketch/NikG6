@@ -152,7 +152,7 @@ export async function listProjectNames(): Promise<string[]> {
         path: 'projects',
         directory: Directory.Data,
       });
-      const entries = result.entries as Array<{ name: string }>;
+      const entries = (result as unknown as { entries: Array<{ name: string }> }).entries;
       return entries
         .filter((entry) => entry.name.endsWith('.json'))
         .map((entry) => entry.name.slice(0, -'.json'.length));

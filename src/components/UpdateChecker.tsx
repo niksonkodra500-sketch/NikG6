@@ -20,6 +20,7 @@ export interface UpdateCheckResult {
  * workflow publishes an APK as a GitHub Release on every push to `main`,
  * so this lets users update without uninstalling.
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAppUpdates(): UpdateCheckResult {
   const [checking, setChecking] = useState(false);
   const [updateAvailable, setUpdateAvailable] = useState(false);
@@ -76,7 +77,6 @@ interface UpdateBannerProps {
 }
 
 /** Inline banner shown when a newer APK release is available. */
-// eslint-disable-next-line react-refresh/only-export-components
 export function UpdateBanner({ updates }: UpdateBannerProps) {
   if (!updates.updateAvailable || !updates.downloadUrl) return null;
   return (

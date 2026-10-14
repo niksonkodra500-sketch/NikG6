@@ -211,15 +211,18 @@ export default function App() {
     [openFromDataUrl],
   );
 
-  const openFiles = useCallback((files: FileList | null) => {
-    const file = files?.[0];
-    if (!file) return;
-    if (!file.type.startsWith('image/')) {
-      window.alert('Please choose an image file');
-      return;
-    }
-    void openFromFile(file);
-  }, []);
+  const openFiles = useCallback(
+    (files: FileList | null) => {
+      const file = files?.[0];
+      if (!file) return;
+      if (!file.type.startsWith('image/')) {
+        window.alert('Please choose an image file');
+        return;
+      }
+      void openFromFile(file);
+    },
+    [openFromFile],
+  );
 
   const takePhoto = useCallback(async () => {
     try {
