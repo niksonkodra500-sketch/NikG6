@@ -16,7 +16,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - uses: android-actions/setup-android@v4
+      - uses: android-actions/setup-android@v3
       - name: Sync Capacitor
         run: npx cap sync android
       - name: Build debug APK
@@ -27,8 +27,8 @@ jobs:
           if [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == refs/tags/* ]]; then
             echo "tag=${{ github.ref_name }}" >> $GITHUB_OUTPUT
           else
-            # For workflow_dispatch, create a manual version
-            echo "tag=manual-$(date +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
+            # For workflow_dispatch, create a manual version using run ID to avoid collisions
+            echo "tag=manual-${{ github.run_id }}" >> $GITHUB_OUTPUT
           fi
       - name: Create GitHub Release
         id: release
