@@ -22,7 +22,69 @@ import {
   saveSettings,
 } from './storage/persistence';
 import { downloadDataUrl } from './utils/download';
+import { SYSTEM_PROMPT } from './ai/presets';
 import './App.css';
+
+// Memory configuration
+const MAX_RECENT_MESSAGES = 15; // Keep this many messages in full detail
+
+// Simple conversation summarization
+function createConversationSummary(messages: ChatMessage[]): string {
+  if (messages.length === 0) return "No previous conversation.";
+  
+  // Count message types
+  const userMessages = messages.filter(m => m.role === 'user').length;
+  const assistantMessages = messages.filter(m => m.role === 'assistant').length;
+  const toolMessages = messages.filter(m => m.role === 'tool').length;
+  
+  // Extract topics from user messages (simplistic)
+  const userTexts = messages
+    .filter(m => m.role === 'user' && typeof m.content === 'string')
+    .map(m => m.content as string);
+  
+  // Look for common photo editing terms
+  const editTerms = ['bright', 'contrast', 'saturation', 'hue', 'temperature', 
+                     'crop', 'rotate', 'flip', 'resize', 'filter', 
+                     'blur', 'sharpen', 'grayscale', 'sepia', 'warm', 'cool'];
+  
+  const mentionedTerms = editTerms.filter(term => 
+    userTexts.some(text => text.toLowerCase().includes(term))
+  );
+  
+  let summary = `Conversation summary: ${userMessages} user messages, ${assistantMessages} assistant responses, ${toolMessages} tool results.`;
+  if (mentionedTerms.length > 0) {
+    summary += ` User mentioned editing terms: ${mentionedTerms.join(', ')}.`;
+  }
+  if (userTexts.length > 0) {
+    summary += ` Recent topics: ${userTexts.slice(-3).join('; ')}.`;
+  }
+  
+  return summary;
+}
+
+// Enhanced conversation processing for AI context
+function getConversationForAI(messages: ChatMessage[]): ChatMessage[] {
+  if (messages.length <= MAX_RECENT_MESSAGES) {
+    // Not enough messages to warrant summarization
+    return messages;
+  }
+  
+  // Split into recent (full detail) and older (to be summarized)
+  const recentMessages = messages.slice(-MAX_RECENT_MESSAGES);
+  const olderMessages = messages.slice(0, -MAX_RECENT_MESSAGES);
+  
+  // Create summary of older messages
+  const summary = createConversationSummary(olderMessages);
+  
+  // Create a system message with the summary
+  const summaryMessage: ChatMessage = {
+    role: 'system',
+    content: `[MEMORY SUMMARY] ${summary}`
+  };
+  
+  // Return summary + recent messages
+  return [summaryMessage, ...recentMessages];
+}
 
 export default function App() {
   const editorRef = useRef<EditorHandle>(null);
@@ -32,18 +94,23 @@ export default function App() {
   const [canRedo, setCanRedo] = useState(false);
   const [activeTab, setActiveTab] = useState<PanelTab | null>(null);
   const [exportFormat, setExportFormat] = useState<ExportFormat>('png');
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [originalMessages, setOriginalMessages] = useState<ChatMessage[]>([]); // Store original messages
   const [lastToolResults, setLastToolResults] = useState<ToolCallResult[]>([]);
   const [apiKey, setApiKey] = useState<string>(DEFAULT_API_KEY);
   const [model, setModel] = useState<string>(DEFAULT_MODEL);
   const [visionEnabled, setVisionEnabled] = useState(true);
+
+  // Generate enhanced messages for AI (with summary) from original messages
+  const enhancedMessages = useMemo(() => getConversationForAI(originalMessages), [originalMessages]);
 
   useEffect(() => {
     void getApiKey().then((key) => {
       setApiKey(key);
     });
     void loadConversation<ChatMessage>().then((stored) => {
-      if (stored && stored.length) setMessages(stored);
+      if (stored && stored.length) {
+        setOriginalMessages(stored);
+      }
     });
     void loadSettings().then((settings) => {
       if (settings) {
@@ -69,7 +136,8 @@ export default function App() {
         editorRef.current?.setAdjustment(name, value);
       },
       applyFilter: (filter: FilterName) => editorRef.current?.applyFilter(filter),
-      crop: (x, y, width, height) => editorRef.current?.crop(x, y, width, height),
+      crop: (x, y, width, height) =>
+        editorRef.current?.crop(x, y, width, height),
       rotate: (degrees) => editorRef.current?.rotate(degrees),
       flip: (axis) => editorRef.current?.flip(axis),
       resize: (width, height) => editorRef.current?.resize(width, height),
@@ -125,7 +193,10 @@ export default function App() {
     try {
       const quality = exportFormat === 'png' ? 1 : 0.92;
       const dataUrl = await handle.exportImage(exportFormat, quality);
-      downloadDataUrl(dataUrl, `edited-photo.${exportFormat === 'jpeg' ? 'jpg' : exportFormat}`);
+      downloadDataUrl(
+        dataUrl,
+        `edited-photo.${exportFormat === 'jpeg' ? 'jpg' : exportFormat}`,
+      );
     } catch (error) {
       window.alert(error instanceof Error ? error.message : 'Export failed');
     }
@@ -148,8 +219,22 @@ export default function App() {
   );
 
   const handleMessagesChange = useCallback((next: ChatMessage[]) => {
-    setMessages(next);
-    void saveConversation(next);
+    // Extract original messages from the AI's response by removing system messages
+    // that we don't want to store: summary messages and the SYSTEM_PROMPT
+    const originalNext = next.filter(msg => {
+      // Don't store summary system messages
+      if (msg.role === 'system' && typeof msg.content === 'string' && msg.content.startsWith('[MEMORY SUMMARY]')) {
+        return false;
+      }
+      // Don't store the SYSTEM_PROMPT (it's regenerated each time)
+      if (msg.role === 'system' && typeof msg.content === 'string' && msg.content === SYSTEM_PROMPT) {
+        return false;
+      }
+      return true;
+    });
+    setOriginalMessages(originalNext);
+    // Save original messages for persistence
+    void saveConversation(originalNext);
   }, []);
 
   const handleToolResultsChange = useCallback((results: ToolCallResult[]) => {
@@ -212,7 +297,7 @@ export default function App() {
         )}
         {activeTab === 'assistant' && (
           <AssistantPanel
-            messages={messages}
+            messages={enhancedMessages}
             lastToolResults={lastToolResults}
             apiKey={apiKey}
             model={model}

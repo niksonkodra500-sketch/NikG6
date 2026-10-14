@@ -81,9 +81,7 @@ export function AssistantPanel(props: AssistantPanelProps) {
         return;
       }
     }
-    const withSystem = props.messages.some((m) => m.role === 'system')
-      ? props.messages
-      : [{ role: 'system' as const, content: SYSTEM_PROMPT }, ...props.messages];
+    const withSystem = [{ role: 'system' as const, content: SYSTEM_PROMPT }, ...props.messages];
     const userMessage: ChatMessage = { role: 'user', content: prompt };
     const next = [...withSystem, userMessage];
     props.onMessagesChange(next);

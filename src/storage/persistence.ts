@@ -10,6 +10,7 @@ const CONVERSATION_KEY = 'assistant_conversation';
 const SETTINGS_KEY = 'app_settings';
 const PROJECT_PREFIX = 'project:';
 
+
 export async function saveApiKey(key: string): Promise<void> {
   if (isNative) {
     const { SecureStoragePlugin } = await import('capacitor-secure-storage-plugin');
@@ -42,8 +43,8 @@ export async function deleteApiKey(): Promise<void> {
 }
 
 export async function saveConversation(messages: unknown[]): Promise<void> {
-  // For now, store as-is to maintain backward compatibility
-  // In a future enhancement, we could summarize old messages
+  // For storage, we keep the original messages to maintain fidelity
+  // The enhancement for AI context happens in the application layer
   const json = JSON.stringify(messages);
   if (isNative) {
     await Preferences.set({ key: CONVERSATION_KEY, value: json });
@@ -62,7 +63,9 @@ export async function loadConversation<T>(): Promise<T[] | null> {
   }
   if (!json) return null;
   try {
-    return JSON.parse(json) as T[];
+    const parsed: unknown = JSON.parse(json);
+    // Return as-is for backward compatibility; enhancement happens in app layer
+    return parsed as T[];
   } catch {
     return null;
   }
