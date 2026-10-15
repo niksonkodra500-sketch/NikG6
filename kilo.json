@@ -45,7 +45,27 @@
     "task_steps": 999999999,
     "glob_results": 999999999,
     "grep_results": 999999999,
-    "permission_scope": "all"
+    "permission_scope": "all",
+    "tool_output_max_lines": 999999999,
+    "tool_output_max_bytes": 999999999999,
+    "compaction_tail_turns": 999999999,
+    "compaction_preserve_recent_tokens": 999999999,
+    "compaction_reserved": 999999999,
+    "attachment_max_width": 999999999,
+    "attachment_max_height": 999999999,
+    "attachment_max_base64_bytes": 999999999999,
+    "retention_max_age_days": 999999999,
+    "agent_steps": 999999999,
+    "mcp_timeout": 999999999,
+    "provider_timeout": 999999999,
+    "max_attachment_files": 999999999,
+    "max_conversation_messages": 999999999,
+    "max_history_entries": 999999999,
+    "max_snapshot_turns": 999999999,
+    "max_canvas_operations": 999999999,
+    "max_undo_redo_steps": 999999999,
+    "max_export_size_bytes": 999999999999,
+    "max_image_dimension": 999999999
   },
   "provider": {
     "openrouter": {
