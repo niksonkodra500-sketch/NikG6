@@ -23,6 +23,9 @@ import {
 } from './editor/types';
 import {
   getApiKey,
+  hasStoredApiKey,
+  saveApiKey,
+  deleteApiKey,
   loadConversation,
   loadSettings,
   saveConversation,
@@ -131,6 +134,7 @@ export default function App() {
   const [originalMessages, setOriginalMessages] = useState<ChatMessage[]>([]);
   const [lastToolResults, setLastToolResults] = useState<ToolCallResult[]>([]);
   const [apiKey, setApiKey] = useState<string>(DEFAULT_API_KEY);
+  const [apiKeyIsDefault, setApiKeyIsDefault] = useState(true);
   const [model, setModel] = useState<string>(DEFAULT_MODEL);
   const [visionEnabled, setVisionEnabled] = useState(true);
   const [compareMode, setCompareMode] = useState(false);
@@ -146,9 +150,17 @@ export default function App() {
   );
 
   useEffect(() => {
-    void getApiKey().then((key) => {
-      setApiKey(key);
-    });
+    void (async () => {
+      const stored = await hasStoredApiKey();
+      if (stored) {
+        const key = await getApiKey();
+        setApiKey(key);
+        setApiKeyIsDefault(false);
+      } else {
+        setApiKey(DEFAULT_API_KEY);
+        setApiKeyIsDefault(true);
+      }
+    })();
     void loadConversation<ChatMessage>().then((stored) => {
       if (stored && stored.length) {
         setOriginalMessages(stored);
@@ -278,6 +290,18 @@ export default function App() {
     },
     [model],
   );
+
+  const handleApiKeySave = useCallback(async (key: string) => {
+    await saveApiKey(key);
+    setApiKey(key);
+    setApiKeyIsDefault(false);
+  }, []);
+
+  const handleApiKeyClear = useCallback(async () => {
+    await deleteApiKey();
+    setApiKey(DEFAULT_API_KEY);
+    setApiKeyIsDefault(true);
+  }, []);
 
   const handleMessagesChange = useCallback((next: ChatMessage[]) => {
     // Extract original messages from the AI's response by removing system messages
@@ -456,6 +480,7 @@ export default function App() {
           messages={enhancedMessages}
           lastToolResults={lastToolResults}
           apiKey={apiKey}
+          apiKeyIsDefault={apiKeyIsDefault}
           model={model}
           visionEnabled={visionEnabled}
           editorApi={editorApi}
@@ -464,6 +489,8 @@ export default function App() {
           onToolResultsChange={handleToolResultsChange}
           onModelChange={handleModelChange}
           onVisionChange={handleVisionChange}
+          onSaveApiKey={handleApiKeySave}
+          onClearApiKey={handleApiKeyClear}
           onNewChat={handleNewChat}
           onRevert={handleRevert}
           onClose={() => setAssistantOpen(false)}

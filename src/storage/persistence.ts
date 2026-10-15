@@ -10,6 +10,19 @@ const CONVERSATION_KEY = 'assistant_conversation';
 const SETTINGS_KEY = 'app_settings';
 const PROJECT_PREFIX = 'project:';
 
+export async function hasStoredApiKey(): Promise<boolean> {
+  if (isNative) {
+    try {
+      const { SecureStoragePlugin } = await import('capacitor-secure-storage-plugin');
+      const result = await SecureStoragePlugin.get({ key: API_KEY_STORAGE });
+      return Boolean(result.value);
+    } catch {
+      return false;
+    }
+  }
+  return Boolean(localStorage.getItem(API_KEY_STORAGE));
+}
+
 export async function saveApiKey(key: string): Promise<void> {
   if (isNative) {
     const { SecureStoragePlugin } = await import('capacitor-secure-storage-plugin');

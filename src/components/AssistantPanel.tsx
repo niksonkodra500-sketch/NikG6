@@ -15,6 +15,7 @@ interface AssistantPanelProps {
   messages: ChatMessage[];
   lastToolResults: ToolCallResult[];
   apiKey: string;
+  apiKeyIsDefault: boolean;
   model: string;
   visionEnabled: boolean;
   editorApi: EditorApi;
@@ -23,6 +24,8 @@ interface AssistantPanelProps {
   onToolResultsChange: (results: ToolCallResult[]) => void;
   onModelChange: (model: string) => void;
   onVisionChange: (enabled: boolean) => void;
+  onSaveApiKey: (key: string) => Promise<void>;
+  onClearApiKey: () => Promise<void>;
   onNewChat: () => void;
   onRevert: (snap: EditorSnapshot) => void;
   onClose?: () => void;
@@ -37,6 +40,8 @@ export function AssistantPanel(props: AssistantPanelProps) {
   const [input, setInput] = useState('');
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [apiKeyInput, setApiKeyInput] = useState('');
+  const [showKey, setShowKey] = useState(false);
   const [catalog, setCatalog] = useState<CatalogModel[] | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const logRef = useRef<HTMLDivElement>(null);
@@ -219,6 +224,93 @@ export function AssistantPanel(props: AssistantPanelProps) {
             />
             Let the assistant see the photo (requires a vision-capable model)
           </label>
+          <div className="api-key-section">
+            <label>
+              OpenRouter API Key
+              <input
+                type={showKey ? 'text' : 'password'}
+                value={apiKeyInput}
+                onChange={(e) => setApiKeyInput(e.target.value)}
+                placeholder="sk-or-…"
+                style={{
+                  width: '100%',
+                  padding: '6px 8px',
+                  border: '1px solid var(--border-soft)',
+                  borderRadius: '6px',
+                  background: 'rgba(15, 23, 42, 0.6)',
+                  color: 'var(--text)',
+                  fontSize: '0.85rem',
+                  boxSizing: 'border-box',
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowKey((s) => !s)}
+                style={{
+                  padding: '6px 8px',
+                  border: '1px solid var(--border-soft)',
+                  borderRadius: '6px',
+                  background: 'rgba(15, 23, 42, 0.6)',
+                  color: 'var(--text)',
+                  cursor: 'pointer',
+                  fontSize: '0.85rem',
+                }}
+              >
+                {showKey ? 'Hide' : 'Show'}
+              </button>
+            </label>
+            <div style={{ display: 'flex', gap: '6px', marginTop: '6px' }}>
+              <button
+                type="button"
+                onClick={() => {
+                  const key = apiKeyInput.trim();
+                  if (!key) return;
+                  void props.onSaveApiKey(key);
+                  setApiKeyInput('');
+                }}
+                disabled={!apiKeyInput.trim()}
+                style={{
+                  flex: 1,
+                  padding: '6px 10px',
+                  border: '1px solid var(--border-soft)',
+                  borderRadius: '6px',
+                  background: 'rgba(15, 23, 42, 0.6)',
+                  color: 'var(--text)',
+                  cursor: apiKeyInput.trim() ? 'pointer' : 'not-allowed',
+                  fontSize: '0.85rem',
+                  opacity: apiKeyInput.trim() ? 1 : 0.5,
+                }}
+              >
+                Save key
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  props.onClearApiKey();
+                  setApiKeyInput('');
+                }}
+                disabled={!props.apiKeyIsDefault}
+                style={{
+                  padding: '6px 10px',
+                  border: '1px solid var(--border-soft)',
+                  borderRadius: '6px',
+                  background: 'rgba(15, 23, 42, 0.6)',
+                  color: 'var(--text-faint)',
+                  cursor: props.apiKeyIsDefault ? 'pointer' : 'not-allowed',
+                  fontSize: '0.85rem',
+                  opacity: props.apiKeyIsDefault ? 1 : 0.5,
+                }}
+              >
+                Reset to default
+              </button>
+            </div>
+            {props.apiKeyIsDefault && (
+              <p style={{ margin: '8px 0 0', fontSize: '0.75rem', color: 'var(--text-faint)' }}>
+                Using the built-in default key. Enter your own OpenRouter key above so the assistant
+                works under your account and avoids shared rate limits.
+              </p>
+            )}
+          </div>
         </details>
       </div>
     </div>
