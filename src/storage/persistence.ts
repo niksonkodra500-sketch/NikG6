@@ -42,8 +42,6 @@ export async function deleteApiKey(): Promise<void> {
 }
 
 export async function saveConversation(messages: unknown[]): Promise<void> {
-  // For storage, we keep the original messages to maintain fidelity
-  // The enhancement for AI context happens in the application layer
   const json = JSON.stringify(messages);
   if (isNative) {
     await Preferences.set({ key: CONVERSATION_KEY, value: json });
@@ -63,7 +61,6 @@ export async function loadConversation<T>(): Promise<T[] | null> {
   if (!json) return null;
   try {
     const parsed: unknown = JSON.parse(json);
-    // Return as-is for backward compatibility; enhancement happens in app layer
     return parsed as T[];
   } catch {
     return null;
@@ -144,7 +141,6 @@ export async function loadProjectJson(name: string): Promise<string | null> {
   return localStorage.getItem(`${PROJECT_PREFIX}${name}`);
 }
 
-/** Returns the names of all stored projects (native only; web scans localStorage). */
 export async function listProjectNames(): Promise<string[]> {
   if (isNative) {
     try {
