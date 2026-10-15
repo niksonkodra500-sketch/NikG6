@@ -8254,7 +8254,7 @@
     "general": {
       "description": "Primary coding agent for the photo editor project",
       "mode": "primary",
-      "model": "kilo/kilo-auto/free",
+      "model": "openai/gpt-4o",
       "steps": 999999999,
       "temperature": 0.1,
       "top_p": 0.95,
@@ -8263,7 +8263,7 @@
     "explore": {
       "description": "Fast codebase exploration and research",
       "mode": "subagent",
-      "model": "kilo/kilo-auto/free",
+      "model": "openai/gpt-4o-mini",
       "steps": 999999999,
       "temperature": 0.0,
       "color": "info"
@@ -8271,7 +8271,7 @@
     "build": {
       "description": "Build and release automation",
       "mode": "subagent",
-      "model": "kilo/kilo-auto/free",
+      "model": "openai/gpt-4o-mini",
       "steps": 999999999,
       "temperature": 0.1,
       "color": "success"
@@ -8279,7 +8279,7 @@
     "photo-editor": {
       "description": "Specialized agent for photo editor development tasks",
       "mode": "subagent",
-      "model": "kilo/kilo-auto/free",
+      "model": "openai/gpt-4o",
       "steps": 999999999,
       "temperature": 0.1,
       "color": "accent"
@@ -8287,7 +8287,7 @@
     "debug": {
       "description": "Debugging and troubleshooting specialist",
       "mode": "subagent",
-      "model": "kilo/kilo-auto/free",
+      "model": "openai/gpt-4o-mini",
       "steps": 999999999,
       "temperature": 0.0,
       "color": "warning"
@@ -8295,7 +8295,7 @@
     "review": {
       "description": "Code review and quality assurance",
       "mode": "subagent",
-      "model": "kilo/kilo-auto/free",
+      "model": "openai/gpt-4o",
       "steps": 999999999,
       "temperature": 0.1,
       "color": "secondary"
