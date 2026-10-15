@@ -33,7 +33,7 @@ import './App.css';
 
 // Memory configuration
 const MAX_RECENT_MESSAGES = 15; // Keep this many messages in full detail
-const CURRENT_VERSION = '0.1.0';
+const CURRENT_VERSION = '2.1.0';
 
 // Simple conversation summarization
 function createConversationSummary(messages: ChatMessage[]): string {
