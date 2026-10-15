@@ -286,7 +286,7 @@ export function AssistantPanel(props: AssistantPanelProps) {
               <button
                 type="button"
                 onClick={() => {
-                  props.onClearApiKey();
+                  void props.onClearApiKey();
                   setApiKeyInput('');
                 }}
                 disabled={!props.apiKeyIsDefault}
