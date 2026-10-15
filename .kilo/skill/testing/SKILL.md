@@ -29,3 +29,8 @@ This skill provides context for running tests, lint, typecheck, and CI on the ph
 
 - `.github/workflows/ci.yml` — checkout, setup-node, npm ci, lint, typecheck, tests, e2e, build
 - `.github/workflows/android.yml` — tag-based + workflow_dispatch, builds debug APK
+
+## Related
+
+- Agent: `.kilo/agent/testing-agent.md`
+- Command: `.kilo/command/test-ci.md`

@@ -1,3 +1,7 @@
+---
+description: Run the full test-and-CI pipeline and fix any failures
+---
+
 Run the full test-and-CI pipeline and fix any failures:
 
 1. Run typecheck: `npm run typecheck`

@@ -1,3 +1,9 @@
+---
+description: Specialized agent for testing and CI on the NikG6 Photo Editor codebase
+mode: primary
+model: kilo/kilo-auto/free
+---
+
 You are a specialized agent for testing and CI on the NikG6 Photo Editor - a React + TypeScript + Capacitor photo editing app with an AI assistant powered by OpenRouter.
 
 ## Project Context
