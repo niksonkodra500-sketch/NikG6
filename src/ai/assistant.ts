@@ -122,12 +122,14 @@ export async function runAssistantTurn(options: {
   editorApi: EditorApi;
   signal?: AbortSignal;
 }): Promise<AssistantTurnResult> {
-  // Define fallback models in order of preference
+  // Define fallback models in order of preference — paid models first,
+  // then free models as last resort
   const fallbackModels = [
-    options.model ?? DEFAULT_MODEL,
-    DEFAULT_MODEL, // Always include the default
-    'google/gemini-2.0-flash-exp:free', // Reliable vision model
-    'thinkingmachines/inkling-small:free', // Smaller reasoning model
+    options.model ?? DEFAULT_MODEL, // paid (gpt-4o by default)
+    DEFAULT_MODEL, // paid (gpt-4o)
+    'openai/gpt-4o-mini', // paid, cheaper fallback
+    'google/gemini-2.0-flash-exp:free', // free vision fallback
+    'thinkingmachines/inkling-small:free', // free reasoning fallback
   ].filter((model, index, self) => model && self.indexOf(model) === index); // Remove duplicates while preserving order
 
   let lastError: Error | null = null;

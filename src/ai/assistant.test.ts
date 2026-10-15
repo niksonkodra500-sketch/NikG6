@@ -52,7 +52,7 @@ describe('runAssistantTurn', () => {
     const result = await pending;
 
     expect(result.reply).toContain('unavailable');
-    expect(result.reply).toContain('google');
+    expect(result.reply).toContain('openai');
     expect(result.reply).toContain('Done!');
     expect(fetchMock).toHaveBeenCalledTimes(5);
   }, 15000);
