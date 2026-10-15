@@ -33,7 +33,6 @@ import './App.css';
 
 // Memory configuration
 const MAX_RECENT_MESSAGES = 15; // Keep this many messages in full detail
-const CURRENT_VERSION = '2.1.0';
 
 // Simple conversation summarization
 function createConversationSummary(messages: ChatMessage[]): string {
@@ -127,6 +126,7 @@ export default function App() {
   const [canRedo, setCanRedo] = useState(false);
   const [activeTab, setActiveTab] = useState<PanelTab | null>(null);
   const [exportFormat, setExportFormat] = useState<ExportFormat>('png');
+  const [assistantOpen, setAssistantOpen] = useState(false);
   const [originalMessages, setOriginalMessages] = useState<ChatMessage[]>([]);
   const [lastToolResults, setLastToolResults] = useState<ToolCallResult[]>([]);
   const [apiKey, setApiKey] = useState<string>(DEFAULT_API_KEY);
@@ -360,10 +360,10 @@ export default function App() {
   }, []);
 
   return (
-    <div className="app">
+    <div className="app fullscreen">
       <OfflineBanner online={online} />
       <UpdateBanner updates={updates} />
-      <header className="app-header">
+      <header className="app-header float">
         <h1 className="animated">NikG6 Photo Editor</h1>
         <p className="app-tagline">Professional photo editing powered by AI</p>
       </header>
@@ -372,6 +372,8 @@ export default function App() {
         canRedo={canRedo}
         hasImage={hasImage}
         activeTab={activeTab}
+        exportFormat={exportFormat}
+        assistantOpen={assistantOpen}
         onOpenFiles={openFiles}
         onTakePhoto={() => {
           void takePhoto();
@@ -389,19 +391,27 @@ export default function App() {
         }}
         onCompare={() => void handleCompare()}
         onOpenProjects={() => void setActiveTab((t) => (t === 'projects' ? null : 'projects'))}
+        onExportFormatChange={(f) => setExportFormat(f)}
+        onToggleAssistant={() => setAssistantOpen((o) => !o)}
         onTabChange={setActiveTab}
       />
-      <main className="app-main">
-        <div className="canvas-stage">
-          {compareMode && hasImage && sourceDataUrl && compareAfter ? (
-            <BeforeAfter before={sourceDataUrl} after={compareAfter} filename="edited-photo.png" />
-          ) : (
-            <EditorCanvas
-              ref={editorRef}
-              onStateChange={handleStateChange}
-              onHistoryChange={handleHistoryChange}
-            />
-          )}
+      <main className="workspace">
+        <div className="canvas-container">
+          <div className="canvas-stage">
+            {compareMode && hasImage && sourceDataUrl && compareAfter ? (
+              <BeforeAfter
+                before={sourceDataUrl}
+                after={compareAfter}
+                filename="edited-photo.png"
+              />
+            ) : (
+              <EditorCanvas
+                ref={editorRef}
+                onStateChange={handleStateChange}
+                onHistoryChange={handleHistoryChange}
+              />
+            )}
+          </div>
         </div>
         {activeTab === 'adjust' && (
           <AdjustmentsPanel
@@ -410,12 +420,14 @@ export default function App() {
               editorRef.current?.setAdjustment(name, value, { commit: false })
             }
             onCommit={() => editorRef.current?.commit()}
+            onClose={() => setActiveTab(null)}
           />
         )}
         {activeTab === 'filters' && (
           <FiltersPanel
             current={snapshot.filter}
             onSelect={(filter) => editorRef.current?.applyFilter(filter)}
+            onClose={() => setActiveTab(null)}
           />
         )}
         {activeTab === 'crop' && (
@@ -426,6 +438,7 @@ export default function App() {
             onCrop={(x, y, w, h, aspect) => editorRef.current?.crop(x, y, w, h, aspect)}
             onCropToAspect={(aspect) => editorRef.current?.cropToAspect(aspect)}
             onClearCrop={() => editorRef.current?.cropToAspect('free')}
+            onClose={() => setActiveTab(null)}
           />
         )}
         {activeTab === 'projects' && (
@@ -435,41 +448,25 @@ export default function App() {
             onClose={() => setActiveTab(null)}
           />
         )}
-        {activeTab === 'assistant' && (
-          <AssistantPanel
-            messages={enhancedMessages}
-            lastToolResults={lastToolResults}
-            apiKey={apiKey}
-            model={model}
-            visionEnabled={visionEnabled}
-            editorApi={editorApi}
-            getImageDataUrl={getImageDataUrl}
-            onMessagesChange={handleMessagesChange}
-            onToolResultsChange={handleToolResultsChange}
-            onModelChange={handleModelChange}
-            onVisionChange={handleVisionChange}
-            onNewChat={handleNewChat}
-            onRevert={handleRevert}
-          />
-        )}
       </main>
-      <footer className="app-footer">
-        <label>
-          Export format
-          <select
-            value={exportFormat}
-            onChange={(e) => setExportFormat(e.target.value as ExportFormat)}
-          >
-            <option value="png">PNG</option>
-            <option value="jpeg">JPEG</option>
-            <option value="webp">WebP</option>
-          </select>
-        </label>
-        <button type="button" onClick={() => void updates.check()} disabled={updates.checking}>
-          {updates.checking ? 'Checking…' : 'Check for updates'}
-        </button>
-        {updates.latestVersion && <span className="version">v{CURRENT_VERSION}</span>}
-      </footer>
+      {assistantOpen && (
+        <AssistantPanel
+          messages={enhancedMessages}
+          lastToolResults={lastToolResults}
+          apiKey={apiKey}
+          model={model}
+          visionEnabled={visionEnabled}
+          editorApi={editorApi}
+          getImageDataUrl={getImageDataUrl}
+          onMessagesChange={handleMessagesChange}
+          onToolResultsChange={handleToolResultsChange}
+          onModelChange={handleModelChange}
+          onVisionChange={handleVisionChange}
+          onNewChat={handleNewChat}
+          onRevert={handleRevert}
+          onClose={() => setAssistantOpen(false)}
+        />
+      )}
     </div>
   );
 }

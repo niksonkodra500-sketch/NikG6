@@ -73,7 +73,7 @@ export function ProjectsPanel(props: ProjectsPanelProps) {
   );
 
   return (
-    <div className="panel projects-panel">
+    <div className="panel floating projects-panel">
       <h2>
         Projects
         <button type="button" className="link-button" onClick={onClose} aria-label="Close">

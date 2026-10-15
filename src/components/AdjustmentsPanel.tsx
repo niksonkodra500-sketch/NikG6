@@ -5,6 +5,7 @@ interface AdjustmentsPanelProps {
   adjustments: AdjustmentState;
   onChange: (name: AdjustmentName, value: number) => void;
   onCommit: () => void;
+  onClose?: () => void;
 }
 
 const SLIDERS: Array<{ name: AdjustmentName; label: string }> = [
@@ -15,7 +16,12 @@ const SLIDERS: Array<{ name: AdjustmentName; label: string }> = [
   { name: 'temperature', label: 'Temperature' },
 ];
 
-export function AdjustmentsPanel({ adjustments, onChange, onCommit }: AdjustmentsPanelProps) {
+export function AdjustmentsPanel({
+  adjustments,
+  onChange,
+  onCommit,
+  onClose,
+}: AdjustmentsPanelProps) {
   const neutral = isNeutralAdjustments(adjustments);
 
   const resetAll = () => {
@@ -26,8 +32,20 @@ export function AdjustmentsPanel({ adjustments, onChange, onCommit }: Adjustment
   };
 
   return (
-    <div className="panel adjustments-panel">
-      <h2>Adjustments</h2>
+    <div className="panel floating adjustments-panel">
+      <div className="panel-header">
+        <h2>Adjustments</h2>
+        {onClose && (
+          <button
+            type="button"
+            className="panel-close"
+            aria-label="Close adjustments"
+            onClick={onClose}
+          >
+            ×
+          </button>
+        )}
+      </div>
       {SLIDERS.map(({ name, label }) => (
         <label key={name} className="slider-row">
           <span>{label}</span>

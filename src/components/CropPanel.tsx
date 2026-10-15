@@ -9,6 +9,7 @@ interface CropPanelProps {
   onCrop: (x: number, y: number, width: number, height: number, aspect?: number | null) => void;
   onCropToAspect: (aspect: CropAspect) => void;
   onClearCrop: () => void;
+  onClose?: () => void;
 }
 
 /**
@@ -16,7 +17,7 @@ interface CropPanelProps {
  * image centered, plus a freeform crop button and a "clear crop" option.
  */
 export function CropPanel(props: CropPanelProps) {
-  const { crop, naturalWidth, naturalHeight, onCrop, onCropToAspect, onClearCrop } = props;
+  const { crop, naturalWidth, naturalHeight, onCrop, onCropToAspect, onClearCrop, onClose } = props;
   const [mode, setMode] = useState<CropAspect>('free');
 
   const handleAspect = useCallback(
@@ -38,8 +39,15 @@ export function CropPanel(props: CropPanelProps) {
   }, [naturalWidth, naturalHeight, onCrop]);
 
   return (
-    <div className="panel crop-panel">
-      <h2>Crop</h2>
+    <div className="panel floating crop-panel">
+      <div className="panel-header">
+        <h2>Crop</h2>
+        {onClose && (
+          <button type="button" className="panel-close" aria-label="Close crop" onClick={onClose}>
+            ×
+          </button>
+        )}
+      </div>
       <div className="filter-grid">
         {CROP_ASPECT_PRESETS.map((preset) => (
           <button

@@ -25,6 +25,7 @@ interface AssistantPanelProps {
   onVisionChange: (enabled: boolean) => void;
   onNewChat: () => void;
   onRevert: (snap: EditorSnapshot) => void;
+  onClose?: () => void;
 }
 
 function messageText(message: ChatMessage): string {
@@ -116,85 +117,99 @@ export function AssistantPanel(props: AssistantPanelProps) {
   };
 
   return (
-    <div className="panel assistant-panel">
-      <h2>AI Assistant</h2>
-      <div className="assistant-log" ref={logRef}>
-        {props.messages
-          .filter((m) => m.role !== 'system' && m.role !== 'tool')
-          .map((m, i) => (
-            <div key={i} className={`message ${m.role}`}>
-              {messageText(m)}
-            </div>
-          ))}
-        {props.lastToolResults.length > 0 && (
-          <div className="tool-results">
-            {props.lastToolResults.map((r, i) => (
-              <span key={i} className={r.success ? 'tool-ok' : 'tool-fail'}>
-                {r.message}
-              </span>
-            ))}
-          </div>
-        )}
-        {pending && <div className="message assistant">Thinking…</div>}
-        {error && <div className="assistant-error">{error}</div>}
-      </div>
-      <div className="preset-row">
-        {PROMPT_PRESETS.map((p) => (
+    <div className="assistant-window">
+      <div className="assistant-window-header">
+        <h2>AI Assistant</h2>
+        {props.onClose && (
           <button
-            key={p.id}
             type="button"
-            onClick={() => {
-              void send(p.prompt);
-            }}
-            disabled={pending}
+            className="close-btn"
+            aria-label="Close assistant"
+            onClick={props.onClose}
           >
-            {p.label}
-          </button>
-        ))}
-      </div>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          void send(input);
-        }}
-      >
-        {' '}
-        <input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Ask the assistant to edit your photo…"
-          disabled={pending}
-        />
-        <button type="submit" disabled={pending}>
-          Send
-        </button>
-        {pending && (
-          <button type="button" onClick={() => abortRef.current?.abort()}>
-            Stop
+            ×
           </button>
         )}
-      </form>
-      <details className="assistant-settings">
-        <summary>Settings</summary>
-        <label>
-          Model
-          <select value={props.model} onChange={(e) => props.onModelChange(e.target.value)}>
-            {modelOptions.map((m) => (
-              <option key={m.id} value={m.id}>
-                {m.label}
-              </option>
+      </div>
+      <div className="assistant-window-body assistant-panel">
+        <div className="assistant-log" ref={logRef}>
+          {props.messages
+            .filter((m) => m.role !== 'system' && m.role !== 'tool')
+            .map((m, i) => (
+              <div key={i} className={`message ${m.role}`}>
+                {messageText(m)}
+              </div>
             ))}
-          </select>
-        </label>
-        <label className="vision-toggle">
+          {props.lastToolResults.length > 0 && (
+            <div className="tool-results">
+              {props.lastToolResults.map((r, i) => (
+                <span key={i} className={r.success ? 'tool-ok' : 'tool-fail'}>
+                  {r.message}
+                </span>
+              ))}
+            </div>
+          )}
+          {pending && <div className="message assistant">Thinking…</div>}
+          {error && <div className="assistant-error">{error}</div>}
+        </div>
+        <div className="preset-row">
+          {PROMPT_PRESETS.map((p) => (
+            <button
+              key={p.id}
+              type="button"
+              onClick={() => {
+                void send(p.prompt);
+              }}
+              disabled={pending}
+            >
+              {p.label}
+            </button>
+          ))}
+        </div>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            void send(input);
+          }}
+        >
+          {' '}
           <input
-            type="checkbox"
-            checked={props.visionEnabled}
-            onChange={(e) => props.onVisionChange(e.target.checked)}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Ask the assistant to edit your photo…"
+            disabled={pending}
           />
-          Let the assistant see the photo (requires a vision-capable model)
-        </label>
-      </details>
+          <button type="submit" disabled={pending}>
+            Send
+          </button>
+          {pending && (
+            <button type="button" onClick={() => abortRef.current?.abort()}>
+              Stop
+            </button>
+          )}
+        </form>
+        <details className="assistant-settings">
+          <summary>Settings</summary>
+          <label>
+            Model
+            <select value={props.model} onChange={(e) => props.onModelChange(e.target.value)}>
+              {modelOptions.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="vision-toggle">
+            <input
+              type="checkbox"
+              checked={props.visionEnabled}
+              onChange={(e) => props.onVisionChange(e.target.checked)}
+            />
+            Let the assistant see the photo (requires a vision-capable model)
+          </label>
+        </details>
+      </div>
     </div>
   );
 }

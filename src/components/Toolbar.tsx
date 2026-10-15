@@ -1,6 +1,7 @@
 import { useRef } from 'react';
+import type { ExportFormat } from '../editor/types';
 
-export type PanelTab = 'adjust' | 'filters' | 'crop' | 'projects' | 'assistant';
+export type PanelTab = 'adjust' | 'filters' | 'crop' | 'projects';
 
 interface ToolbarProps {
   canUndo: boolean;
@@ -19,14 +20,18 @@ interface ToolbarProps {
   onCompare: () => void;
   onOpenProjects: () => void;
   onTabChange: (tab: PanelTab | null) => void;
+  exportFormat: ExportFormat;
+  assistantOpen: boolean;
+  onExportFormatChange: (format: ExportFormat) => void;
+  onToggleAssistant: () => void;
 }
 
 export function Toolbar(props: ToolbarProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { canUndo, canRedo, hasImage, activeTab } = props;
+  const { canUndo, canRedo, hasImage, activeTab, exportFormat, assistantOpen } = props;
 
   return (
-    <div className="toolbar" role="toolbar" aria-label="Editor toolbar">
+    <div className="toolbar floating-toolbar" role="toolbar" aria-label="Editor toolbar">
       <div className="toolbar-group">
         <button
           type="button"
@@ -180,13 +185,31 @@ export function Toolbar(props: ToolbarProps) {
         >
           Projects
         </button>
+        <label style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+          <span style={{ fontSize: '0.72rem', color: 'var(--text-faint)' }}>Format</span>
+          <select
+            value={exportFormat}
+            onChange={(e) => props.onExportFormatChange(e.target.value as ExportFormat)}
+            style={{
+              background: 'rgba(15, 23, 42, 0.6)',
+              border: '1px solid var(--border-soft)',
+              borderRadius: '8px',
+              color: 'var(--text)',
+              padding: '4px 8px',
+              fontSize: '0.8rem',
+              cursor: 'pointer',
+            }}
+          >
+            <option value="png">PNG</option>
+            <option value="jpeg">JPEG</option>
+            <option value="webp">WebP</option>
+          </select>
+        </label>
         <button
           type="button"
-          className={`icon-assistant ${activeTab === 'assistant' ? 'active' : ''}`}
+          className={`icon-assistant ${assistantOpen ? 'active' : ''}`}
           aria-label="AI Assistant"
-          onClick={() => {
-            props.onTabChange(activeTab === 'assistant' ? null : 'assistant');
-          }}
+          onClick={props.onToggleAssistant}
         >
           AI Assistant
         </button>
