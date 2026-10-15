@@ -55,7 +55,7 @@ jobs:
             ## NikG6 Photo Editor - Release ${{ steps.tag.outputs.tag }}
 
             ### Features
-            - AI Assistant with OpenRouter (hardcoded API key, no setup needed)
+            - AI Assistant with OpenRouter — enter your own API key in Settings (no hardcoded key required)
             - Default model: `google/gemini-2.0-flash-exp:free` (vision-capable)
             - 8 prompt presets for quick edits
             - Full photo editing: adjustments, filters, crop, rotate, flip, resize, export
