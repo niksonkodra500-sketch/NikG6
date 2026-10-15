@@ -4,43 +4,21 @@ on:
   push:
     branches: [kilo/live-copper-nwe]
   pull_request:
-    branches: [kilo/live-copper-nwe]
 
 jobs:
-  ci:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: package-lock.json
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Lint
-        run: npm run lint
-
-      - name: Typecheck
-        run: npm run typecheck
-
-      - name: Unit tests
-        run: npm test
-
-      - name: Generate sample image
-        run: npm run gen:sample
-
-      - name: Install Playwright browsers
-        uses: microsoft/playwright-github-action@v1
-        with:
-          with-deps: true
-
-      - name: E2E tests
-        run: npm run e2e
-
-      - name: Build
-        run: npm run build
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run gen:sample
+      - run: npx playwright install --with-deps chromium
+      - run: npm run e2e
+      - run: npm run build
