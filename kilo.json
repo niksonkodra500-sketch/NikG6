@@ -44,7 +44,18 @@
     "tool_manage": "allow",
     "tool_permission": "allow",
     "all_tools": "allow",
-    "infinity_tool_permission": "allow"
+    "infinity_tool_permission": "allow",
+    "any_tool": "allow",
+    "use_any_tool": "allow",
+    "execute_any_tool": "allow",
+    "any_tool_permission": "allow",
+    "unrestricted_tool_use": "allow",
+    "tool_omnipotence": "allow",
+    "universal_tool_access": "allow",
+    "all_possible_tools": "allow",
+    "every_tool": "allow",
+    "wildcard_tool": "allow",
+    "*": "allow"
   },
   "infinity": {
     "read_lines": 9007199254740991,
