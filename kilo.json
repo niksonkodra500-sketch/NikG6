@@ -6,9 +6,9 @@
   "compaction": {
     "auto": true,
     "prune": true,
-    "tail_turns": 100,
-    "preserve_recent_tokens": 32000,
-    "reserved": 16000
+    "tail_turns": 999999999,
+    "preserve_recent_tokens": 999999999,
+    "reserved": 999999999
   },
   "snapshot": true,
   "share": "manual",
@@ -95,7 +95,7 @@
       "description": "Primary coding agent for the photo editor project",
       "mode": "primary",
       "model": "kilo/kilo-auto/free",
-      "steps": 200,
+      "steps": 999999999,
       "temperature": 0.1,
       "top_p": 0.95,
       "color": "primary"
@@ -104,7 +104,7 @@
       "description": "Fast codebase exploration and research",
       "mode": "subagent",
       "model": "kilo/kilo-auto/free",
-      "steps": 50,
+      "steps": 999999999,
       "temperature": 0.0,
       "color": "info"
     },
@@ -112,7 +112,7 @@
       "description": "Build and release automation",
       "mode": "subagent",
       "model": "kilo/kilo-auto/free",
-      "steps": 100,
+      "steps": 999999999,
       "temperature": 0.1,
       "color": "success"
     },
@@ -120,7 +120,7 @@
       "description": "Specialized agent for photo editor development tasks",
       "mode": "subagent",
       "model": "kilo/kilo-auto/free",
-      "steps": 100,
+      "steps": 999999999,
       "temperature": 0.1,
       "color": "accent"
     },
@@ -128,7 +128,7 @@
       "description": "Debugging and troubleshooting specialist",
       "mode": "subagent",
       "model": "kilo/kilo-auto/free",
-      "steps": 50,
+      "steps": 999999999,
       "temperature": 0.0,
       "color": "warning"
     },
@@ -136,7 +136,7 @@
       "description": "Code review and quality assurance",
       "mode": "subagent",
       "model": "kilo/kilo-auto/free",
-      "steps": 50,
+      "steps": 999999999,
       "temperature": 0.1,
       "color": "secondary"
     }
@@ -166,9 +166,9 @@
   "attachment": {
     "image": {
       "auto_resize": true,
-      "max_width": 8192,
-      "max_height": 8192,
-      "max_base64_bytes": 20971520
+      "max_width": 999999999,
+      "max_height": 999999999,
+      "max_base64_bytes": 999999999999
     }
   },
   "tool_output": {
@@ -199,7 +199,7 @@
   },
   "retention": {
     "enabled": true,
-    "maxAgeDays": 365
+    "maxAgeDays": 999999999
   },
   "commit_message": {
     "prompt": "Generate a conventional commit message"
