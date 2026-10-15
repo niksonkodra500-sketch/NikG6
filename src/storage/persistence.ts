@@ -1,7 +1,6 @@
 import { Capacitor } from '@capacitor/core';
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 import { Preferences } from '@capacitor/preferences';
-import { DEFAULT_API_KEY } from '../ai/openrouter';
 
 const isNative = Capacitor.isNativePlatform();
 
@@ -19,17 +18,17 @@ export async function saveApiKey(key: string): Promise<void> {
   }
 }
 
-export async function getApiKey(): Promise<string> {
+export async function getApiKey(): Promise<string | null> {
   if (isNative) {
     try {
       const { SecureStoragePlugin } = await import('capacitor-secure-storage-plugin');
       const result = await SecureStoragePlugin.get({ key: API_KEY_STORAGE });
-      return result.value ?? DEFAULT_API_KEY;
+      return result.value ?? null;
     } catch {
-      return DEFAULT_API_KEY;
+      return null;
     }
   }
-  return localStorage.getItem(API_KEY_STORAGE) ?? DEFAULT_API_KEY;
+  return localStorage.getItem(API_KEY_STORAGE);
 }
 
 export async function deleteApiKey(): Promise<void> {

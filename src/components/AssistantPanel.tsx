@@ -14,7 +14,7 @@ import type { EditorSnapshot } from '../editor/types';
 interface AssistantPanelProps {
   messages: ChatMessage[];
   lastToolResults: ToolCallResult[];
-  apiKey: string;
+  apiKey: string | null;
   model: string;
   visionEnabled: boolean;
   editorApi: EditorApi;
@@ -23,6 +23,7 @@ interface AssistantPanelProps {
   onToolResultsChange: (results: ToolCallResult[]) => void;
   onModelChange: (model: string) => void;
   onVisionChange: (enabled: boolean) => void;
+  onApiKeyChange: (key: string) => void;
   onNewChat: () => void;
   onRevert: (snap: EditorSnapshot) => void;
 }
@@ -75,6 +76,10 @@ export function AssistantPanel(props: AssistantPanelProps) {
   const send = async (text: string) => {
     const prompt = text.trim();
     if (!prompt || pending) return;
+    if (!props.apiKey) {
+      setError('Please enter your OpenRouter API key in Settings.');
+      return;
+    }
     if (props.visionEnabled) {
       const supportsVision = modelSupportsVision(catalog, props.model);
       if (supportsVision === false) {
@@ -176,6 +181,16 @@ export function AssistantPanel(props: AssistantPanelProps) {
       </form>
       <details className="assistant-settings">
         <summary>Settings</summary>
+        <label>
+          OpenRouter API Key
+          <input
+            type="password"
+            value={props.apiKey ?? ''}
+            onChange={(e) => props.onApiKeyChange(e.target.value)}
+            placeholder="sk-or-v1-..."
+            disabled={pending}
+          />
+        </label>
         <label>
           Model
           <select value={props.model} onChange={(e) => props.onModelChange(e.target.value)}>

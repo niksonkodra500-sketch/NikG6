@@ -10,7 +10,7 @@ import { OfflineBanner } from './components/OfflineBanner';
 import { ProjectsPanel } from './components/ProjectsPanel';
 import { Toolbar, type PanelTab } from './components/Toolbar';
 import { UpdateBanner, useAppUpdates } from './components/UpdateChecker';
-import { DEFAULT_API_KEY, DEFAULT_MODEL, type ChatMessage } from './ai/openrouter';
+import { DEFAULT_MODEL, type ChatMessage } from './ai/openrouter';
 import type { EditorApi, ToolCallResult } from './ai/tools';
 import {
   DEFAULT_SNAPSHOT,
@@ -24,6 +24,7 @@ import {
   getApiKey,
   loadConversation,
   loadSettings,
+  saveApiKey,
   saveConversation,
   saveSettings,
 } from './storage/persistence';
@@ -129,7 +130,7 @@ export default function App() {
   const [exportFormat, setExportFormat] = useState<ExportFormat>('png');
   const [originalMessages, setOriginalMessages] = useState<ChatMessage[]>([]);
   const [lastToolResults, setLastToolResults] = useState<ToolCallResult[]>([]);
-  const [apiKey, setApiKey] = useState<string>(DEFAULT_API_KEY);
+  const [apiKey, setApiKey] = useState<string | null>(null);
   const [model, setModel] = useState<string>(DEFAULT_MODEL);
   const [visionEnabled, setVisionEnabled] = useState(true);
   const [compareMode, setCompareMode] = useState(false);
@@ -146,7 +147,7 @@ export default function App() {
 
   useEffect(() => {
     void getApiKey().then((key) => {
-      setApiKey(key);
+      if (key) setApiKey(key);
     });
     void loadConversation<ChatMessage>().then((stored) => {
       if (stored && stored.length) {
@@ -277,6 +278,11 @@ export default function App() {
     },
     [model],
   );
+
+  const handleApiKeyChange = useCallback((key: string) => {
+    setApiKey(key);
+    void saveApiKey(key);
+  }, []);
 
   const handleMessagesChange = useCallback((next: ChatMessage[]) => {
     // Extract original messages from the AI's response by removing system messages
@@ -447,6 +453,7 @@ export default function App() {
             onToolResultsChange={handleToolResultsChange}
             onModelChange={handleModelChange}
             onVisionChange={handleVisionChange}
+            onApiKeyChange={handleApiKeyChange}
             onNewChat={handleNewChat}
             onRevert={handleRevert}
           />

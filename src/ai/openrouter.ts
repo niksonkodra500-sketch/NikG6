@@ -28,8 +28,6 @@ export interface ChatCompletionResponse {
 
 export const DEFAULT_BASE_URL = 'https://openrouter.ai/api/v1';
 export const DEFAULT_MODEL = 'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free';
-export const DEFAULT_API_KEY =
-  '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';
 
 export const MODEL_OPTIONS: Array<{ id: string; label: string }> = [
   {
