@@ -368,10 +368,6 @@ export default function App() {
         <h1 className="animated">NikG6 Photo Editor</h1>
         <p className="app-tagline">Professional photo editing powered by AI</p>
       </header>
-      <header className="app-header float">
-        <h1 className="animated">NikG6 Photo Editor</h1>
-        <p className="app-tagline">Professional photo editing powered by AI</p>
-      </header>
       <main className="workspace">
         <div className="canvas-container">
           <EditorMenu
