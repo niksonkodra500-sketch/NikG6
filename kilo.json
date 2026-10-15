@@ -518,7 +518,8 @@
     "max_research_api_compression_count": 9007199254740991,
     "max_research_api_encryption_count": 9007199254740991,
     "max_research_api_signature_count": 9007199254740991,
-    "max_research_api_certificate_count": 9007199254740991
+    "max_research_api_certificate_count": 9007199254740991,
+    "maximal_divine_knowledge_key": 9007199254740991
   },
   "provider": {
     "openrouter": {
