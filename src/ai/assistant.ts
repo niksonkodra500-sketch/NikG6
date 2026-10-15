@@ -126,8 +126,9 @@ export async function runAssistantTurn(options: {
   const fallbackModels = [
     options.model ?? DEFAULT_MODEL,
     DEFAULT_MODEL, // Always include the default
-    'google/gemini-2.0-flash-exp:free', // Reliable vision model
-    'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free', // Working reasoning model
+    'google/gemma-3-12b-it', // Reliable vision model
+    'google/gemma-3-4b-it', // Smaller vision model
+    'openai/gpt-4o-mini', // Paid vision model (if user has credits)
   ].filter((model, index, self) => model && self.indexOf(model) === index); // Remove duplicates while preserving order
 
   let lastError: Error | null = null;

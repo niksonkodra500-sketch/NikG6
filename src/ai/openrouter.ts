@@ -27,45 +27,22 @@ export interface ChatCompletionResponse {
 }
 
 export const DEFAULT_BASE_URL = 'https://openrouter.ai/api/v1';
-export const DEFAULT_MODEL = 'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free';
+export const DEFAULT_MODEL = 'google/gemma-3-27b-it';
 
 export const MODEL_OPTIONS: Array<{ id: string; label: string }> = [
-  {
-    id: 'thinkingmachines/inkling:free',
-    label: 'Inkling (free, vision, reasoning, 1M ctx) ★ BEST FREE VISION+REASONING',
-  },
-  {
-    id: 'thinkingmachines/inkling-small:free',
-    label: 'Inkling Small (free, vision, reasoning, 1M ctx)',
-  },
-  { id: 'google/gemma-4-31b-it:free', label: 'Gemma 4 31B (free, vision, video, reasoning)' },
-  { id: 'google/gemma-4-26b-a4b-it:free', label: 'Gemma 4 26B (free, vision, video, reasoning)' },
-  { id: 'qwen/qwen3.8-27b:free', label: 'Qwen3.8 27B (free, vision, video)' },
-  {
-    id: 'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free',
-    label: 'Nemotron 3 Nano Omni (free, vision, audio, video, reasoning)',
-  },
+  { id: 'google/gemma-3-27b-it', label: 'Gemma 3 27B (vision, reasoning) ★ DEFAULT' },
+  { id: 'google/gemma-3-12b-it', label: 'Gemma 3 12B (vision, fast)' },
+  { id: 'google/gemma-3-4b-it', label: 'Gemma 3 4B (vision, fastest)' },
+  { id: 'openai/gpt-4o-mini', label: 'GPT-4o mini (paid, vision)' },
+  { id: 'openai/gpt-4o', label: 'GPT-4o (paid, vision)' },
   {
     id: 'dots-studio/dots-3-note-preview:free',
-    label: 'Dots3-Note Preview (free, vision, 512K ctx)',
+    label: 'Dots3-Note Preview (free, reasoning, 512K ctx)',
   },
-  {
-    id: 'deepseek/deepseek-v4-flash-vision-exp:free',
-    label: 'DeepSeek V4 Flash Vision (free, vision, reasoning)',
-  },
-  { id: 'google/gemini-2.0-flash-exp:free', label: 'Gemini 2.0 Flash (free, vision) ★ RELIABLE' },
-  { id: 'google/gemini-2.0-flash-lite:free', label: 'Gemini 2.0 Flash Lite (free, vision)' },
-  {
-    id: 'meta-llama/llama-3.2-90b-vision-instruct:free',
-    label: 'Llama 3.2 90B Vision (free, vision)',
-  },
-  { id: 'qwen/qwen2.5-vl-72b-instruct:free', label: 'Qwen 2.5 VL 72B (free, vision)' },
   {
     id: 'meta-llama/llama-3.3-70b-instruct:free',
     label: 'Llama 3.3 70B (free, no vision, best text)',
   },
-  { id: 'openai/gpt-4o-mini', label: 'GPT-4o mini (paid, vision)' },
-  { id: 'openai/gpt-4o', label: 'GPT-4o (paid, vision)' },
   { id: 'llava:7b', label: 'LLaVA 7B (local Ollama, vision)' },
   { id: 'llava:13b', label: 'LLaVA 13B (local Ollama, vision)' },
   { id: 'llava:34b', label: 'LLaVA 34B (local Ollama, vision)' },
