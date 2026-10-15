@@ -127,7 +127,7 @@ export async function runAssistantTurn(options: {
     options.model ?? DEFAULT_MODEL,
     DEFAULT_MODEL, // Always include the default
     'google/gemini-2.0-flash-exp:free', // Reliable vision model
-    'thinkingmachines/inkling-small:free', // Smaller reasoning model
+    'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free', // Working reasoning model
   ].filter((model, index, self) => model && self.indexOf(model) === index); // Remove duplicates while preserving order
 
   let lastError: Error | null = null;

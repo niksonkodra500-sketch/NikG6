@@ -27,9 +27,9 @@ export interface ChatCompletionResponse {
 }
 
 export const DEFAULT_BASE_URL = 'https://openrouter.ai/api/v1';
-export const DEFAULT_MODEL = 'thinkingmachines/inkling:free';
+export const DEFAULT_MODEL = 'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free';
 export const DEFAULT_API_KEY =
-  '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';
+  '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';
 
 export const MODEL_OPTIONS: Array<{ id: string; label: string }> = [
   {
