@@ -395,14 +395,6 @@ button.active:hover:not(:disabled) {
    Main content area
    ========================================================================== */
 
-.app-main {
-  flex: 1;
-  display: flex;
-  min-height: 0;
-  gap: 12px;
-  padding: 12px;
-}
-
 /* Full-screen workspace (replaces .app-main in fullscreen mode) */
 .workspace {
   position: absolute;
@@ -1060,46 +1052,6 @@ input[type='range']::-ms-fill-upper {
   width: 100%;
 }
 
-/* Assistant toggle floating button */
-.assistant-toggle {
-  position: fixed;
-  bottom: 16px;
-  right: 16px;
-  z-index: 85;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  border: 1px solid var(--border-accent);
-  background: linear-gradient(135deg, var(--gold-deep) 0%, var(--gold) 100%);
-  color: #1a112e;
-  font-size: 1.5rem;
-  cursor: pointer;
-  box-shadow:
-    0 0 16px rgba(212, 175, 55, 0.4),
-    0 4px 16px rgba(0, 0, 0, 0.4);
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-}
-
-.assistant-toggle:hover:not(:disabled) {
-  transform: translateY(-2px) scale(1.05);
-  box-shadow:
-    0 0 24px rgba(212, 175, 55, 0.6),
-    0 6px 20px rgba(0, 0, 0, 0.5);
-}
-
-.assistant-toggle.active {
-  background: linear-gradient(135deg, var(--purple-deep) 0%, var(--purple) 100%);
-  border-color: var(--purple);
-  color: #fff;
-  box-shadow:
-    0 0 20px rgba(168, 85, 247, 0.5),
-    0 4px 16px rgba(0, 0, 0, 0.4);
-}
-
 /* ---- Settings (details) ---- */
 
 .assistant-settings {
@@ -1558,14 +1510,6 @@ input[type='range']::-ms-fill-upper {
     border-radius: 0;
   }
 
-  .assistant-toggle {
-    bottom: 16px;
-    right: 16px;
-    width: 52px;
-    height: 52px;
-    font-size: 1.3rem;
-  }
-
   .filter-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 6px;
@@ -1596,12 +1540,6 @@ input[type='range']::-ms-fill-upper {
   button {
     font-size: 0.78rem;
     padding: 6px 8px;
-  }
-
-  .assistant-toggle {
-    width: 48px;
-    height: 48px;
-    font-size: 1.2rem;
   }
 
   .assistant-window {
