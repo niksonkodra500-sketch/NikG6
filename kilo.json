@@ -690,8 +690,8 @@
     }
   },
   "tool_output": {
-    "max_lines": 999999999,
-    "max_bytes": 999999999999
+    "max_lines": 9007199254740991,
+    "max_bytes": 9007199254740991
   },
   "formatter": true,
   "lsp": true,
