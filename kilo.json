@@ -36,6 +36,17 @@
     "notebook_edit": "allow",
     "notebook_execute": "allow"
   },
+  "infinity": {
+    "read_lines": 999999999,
+    "read_bytes": 999999999999,
+    "write_lines": 999999999,
+    "write_bytes": 999999999999,
+    "edit_lines": 999999999,
+    "task_steps": 999999999,
+    "glob_results": 999999999,
+    "grep_results": 999999999,
+    "permission_scope": "all"
+  },
   "provider": {
     "openrouter": {
       "options": {
