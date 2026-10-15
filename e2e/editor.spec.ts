@@ -10,6 +10,8 @@ interface Pixel {
 }
 
 async function openSample(page: Page) {
+  // Open the kebab menu first, since all editing features are now inside it
+  await openMenu(page);
   // Click the "Open" button (verifies the button exists and is wired up to the
   // hidden file input) …
   await page.getByRole('button', { name: 'Open', exact: true }).click();
@@ -67,6 +69,7 @@ test.describe('photo editor', () => {
     if (before === null) throw new Error('could not read pixel');
     expect(before.r).not.toBe(before.b);
 
+    await openMenu(page);
     await page.getByRole('button', { name: 'Filters', exact: true }).click();
     await page.getByRole('button', { name: /grayscale/i }).click();
     await waitForPixel(page, 'grey');
@@ -80,10 +83,12 @@ test.describe('photo editor', () => {
 
   test('undo restores the original colors', async ({ page }) => {
     await openSample(page);
+    await openMenu(page);
     await page.getByRole('button', { name: 'Filters', exact: true }).click();
     await page.getByRole('button', { name: /grayscale/i }).click();
     await waitForPixel(page, 'grey');
 
+    await openMenu(page);
     await page.getByRole('button', { name: 'Undo', exact: true }).click();
     await waitForPixel(page, 'colored');
   });
@@ -103,3 +108,14 @@ test.describe('photo editor', () => {
     expect(result).toMatch(/^data:image\/png;base64,/);
   });
 });
+
+async function openMenu(page: Page) {
+  // The kebab button toggles the dropdown open/closed — only click if
+  // the dropdown isn't already open (otherwise a second click would close it).
+  const menuOpen = await page
+    .locator('.editor-menu')
+    .evaluate((el) => el.classList.contains('open'));
+  if (!menuOpen) {
+    await page.getByRole('button', { name: 'Open editing menu', exact: true }).click();
+  }
+}

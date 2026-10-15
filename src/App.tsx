@@ -5,10 +5,11 @@ import { AdjustmentsPanel } from './components/AdjustmentsPanel';
 import { BeforeAfter } from './components/BeforeAfter';
 import { CropPanel } from './components/CropPanel';
 import { EditorCanvas, type EditorHandle } from './components/EditorCanvas';
+import { EditorMenu } from './components/EditorMenu';
 import { FiltersPanel } from './components/FiltersPanel';
 import { OfflineBanner } from './components/OfflineBanner';
 import { ProjectsPanel } from './components/ProjectsPanel';
-import { Toolbar, type PanelTab } from './components/Toolbar';
+import { type PanelTab } from './components/Toolbar';
 import { UpdateBanner, useAppUpdates } from './components/UpdateChecker';
 import { DEFAULT_API_KEY, DEFAULT_MODEL, type ChatMessage } from './ai/openrouter';
 import type { EditorApi, ToolCallResult } from './ai/tools';
@@ -367,36 +368,40 @@ export default function App() {
         <h1 className="animated">NikG6 Photo Editor</h1>
         <p className="app-tagline">Professional photo editing powered by AI</p>
       </header>
-      <Toolbar
-        canUndo={canUndo}
-        canRedo={canRedo}
-        hasImage={hasImage}
-        activeTab={activeTab}
-        exportFormat={exportFormat}
-        assistantOpen={assistantOpen}
-        onOpenFiles={openFiles}
-        onTakePhoto={() => {
-          void takePhoto();
-        }}
-        onPickFromLibrary={() => {
-          void pickFromLibrary();
-        }}
-        onUndo={() => editorRef.current?.undo()}
-        onRedo={() => editorRef.current?.redo()}
-        onRotate={() => editorRef.current?.rotate(90)}
-        onFlip={(axis) => editorRef.current?.flip(axis)}
-        onReset={() => editorRef.current?.reset()}
-        onExport={() => {
-          void exportCurrent();
-        }}
-        onCompare={() => void handleCompare()}
-        onOpenProjects={() => void setActiveTab((t) => (t === 'projects' ? null : 'projects'))}
-        onExportFormatChange={(f) => setExportFormat(f)}
-        onToggleAssistant={() => setAssistantOpen((o) => !o)}
-        onTabChange={setActiveTab}
-      />
+      <header className="app-header float">
+        <h1 className="animated">NikG6 Photo Editor</h1>
+        <p className="app-tagline">Professional photo editing powered by AI</p>
+      </header>
       <main className="workspace">
         <div className="canvas-container">
+          <EditorMenu
+            canUndo={canUndo}
+            canRedo={canRedo}
+            hasImage={hasImage}
+            activeTab={activeTab}
+            exportFormat={exportFormat}
+            assistantOpen={assistantOpen}
+            onOpenFiles={openFiles}
+            onTakePhoto={() => {
+              void takePhoto();
+            }}
+            onPickFromLibrary={() => {
+              void pickFromLibrary();
+            }}
+            onUndo={() => editorRef.current?.undo()}
+            onRedo={() => editorRef.current?.redo()}
+            onRotate={() => editorRef.current?.rotate(90)}
+            onFlip={(axis) => editorRef.current?.flip(axis)}
+            onReset={() => editorRef.current?.reset()}
+            onExport={() => {
+              void exportCurrent();
+            }}
+            onCompare={() => void handleCompare()}
+            onOpenProjects={() => void setActiveTab((t) => (t === 'projects' ? null : 'projects'))}
+            onExportFormatChange={(f) => setExportFormat(f)}
+            onToggleAssistant={() => setAssistantOpen((o) => !o)}
+            onTabChange={setActiveTab}
+          />
           <div className="canvas-stage">
             {compareMode && hasImage && sourceDataUrl && compareAfter ? (
               <BeforeAfter

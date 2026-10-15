@@ -78,7 +78,7 @@
 
 .app.fullscreen .panel.floating,
 .app.fullscreen .assistant-window,
-.app.fullscreen .floating-toolbar {
+.app.fullscreen .editor-menu {
   animation: floatIn 0.3s ease-out;
 }
 
@@ -231,18 +231,82 @@ html {
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
-/* Floating toolbar for full-screen mode */
-.floating-toolbar {
-  position: fixed;
-  bottom: 0;
-  inset-inline: 0;
-  z-index: 90;
-  border-bottom: none;
-  border-radius: 16px 16px 0 0;
-  box-shadow:
-    0 -4px 24px rgba(0, 0, 0, 0.5),
-    0 0 0 1px rgba(26, 22, 46, 0.3) inset;
-  transition: box-shadow 0.25s ease;
+/* Editor menu — single overlay button with dropdown */
+.editor-menu {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 100;
+}
+
+.editor-menu-trigger {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--text);
+  font-size: 1.3rem;
+  line-height: 1;
+  padding: 0;
+}
+
+.editor-menu-trigger:hover {
+  background: rgba(26, 22, 46, 0.85);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  transform: scale(1.05);
+}
+
+.editor-menu.open .editor-menu-trigger {
+  background: rgba(26, 22, 46, 0.95);
+  border-color: var(--gold);
+}
+
+.editor-menu.open .editor-menu-dropdown {
+  display: flex;
+}
+
+.kebab-icon {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  align-items: center;
+}
+
+.kebab-icon span {
+  display: block;
+  width: 18px;
+  height: 2px;
+  background: var(--text);
+  border-radius: 1px;
+}
+
+/* Dropdown panel for editor menu */
+.editor-menu-dropdown {
+  position: absolute;
+  top: 56px;
+  right: 0;
+  background: var(--surface-1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  padding: 10px;
+  min-width: 280px;
+  max-height: calc(100dvh - 120px);
+  overflow-y: auto;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 100;
 }
 
 .toolbar-group {
@@ -401,7 +465,7 @@ button.active:hover:not(:disabled) {
   top: 56px;
   left: 0;
   right: 0;
-  bottom: 88px;
+  bottom: 0;
   overflow: hidden;
 }
 
@@ -583,7 +647,7 @@ button.active:hover:not(:disabled) {
 /* Floating panel overlay for full-screen mode */
 .panel.floating {
   position: fixed;
-  bottom: 96px;
+  bottom: 16px;
   right: 16px;
   z-index: 90;
   max-height: calc(100dvh - 160px);
@@ -1477,12 +1541,7 @@ input[type='range']::-ms-fill-upper {
 
   .workspace {
     top: 56px;
-    bottom: 140px;
-  }
-
-  .floating-toolbar {
-    padding: 8px 12px;
-    gap: 6px;
+    bottom: 0;
   }
 
   button {
@@ -1491,11 +1550,11 @@ input[type='range']::-ms-fill-upper {
   }
 
   .panel.floating {
-    bottom: 150px;
+    bottom: 16px;
     right: 0;
     left: 0;
     width: 100%;
-    max-height: calc(100dvh - 210px);
+    max-height: calc(100dvh - 80px);
     border-radius: 16px 16px 0 0;
   }
 
@@ -1503,7 +1562,7 @@ input[type='range']::-ms-fill-upper {
     top: 56px;
     right: 0;
     left: 0;
-    bottom: 150px;
+    bottom: 16px;
     width: 100%;
     border-radius: 0;
   }
@@ -1530,14 +1589,25 @@ input[type='range']::-ms-fill-upper {
     justify-content: center;
   }
 
-  .floating-toolbar {
-    padding: 6px 8px;
-    gap: 4px;
-  }
-
   button {
     font-size: 0.78rem;
     padding: 6px 8px;
+  }
+
+  .editor-menu {
+    top: 10px;
+    right: 10px;
+  }
+
+  .editor-menu-trigger {
+    width: 40px;
+    height: 40px;
+    font-size: 1.1rem;
+  }
+
+  .editor-menu-dropdown {
+    min-width: calc(100vw - 20px);
+    right: -4px;
   }
 }
 
