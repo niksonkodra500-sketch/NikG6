@@ -171,10 +171,7 @@
       "max_base64_bytes": 20971520
     }
   },
-  "tool_output": {
-    "max_lines": 10000,
-    "max_bytes": 204800
-  },
+  "tool_output": {},
   "formatter": true,
   "lsp": true,
   "watcher": {
