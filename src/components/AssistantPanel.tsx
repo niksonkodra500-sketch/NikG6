@@ -143,9 +143,18 @@ export function AssistantPanel(props: AssistantPanelProps) {
           {props.lastToolResults.length > 0 && (
             <div className="tool-results">
               {props.lastToolResults.map((r, i) => (
-                <span key={i} className={r.success ? 'tool-ok' : 'tool-fail'}>
-                  {r.message}
-                </span>
+                <div key={i} className="tool-result-row">
+                  <span className={r.success ? 'tool-ok' : 'tool-fail'}>{r.message}</span>
+                  {r.success && r.revertSnapshot && (
+                    <button
+                      type="button"
+                      className="tool-revert"
+                      onClick={() => props.onRevert(r.revertSnapshot!)}
+                    >
+                      Revert
+                    </button>
+                  )}
+                </div>
               ))}
             </div>
           )}

@@ -4,6 +4,7 @@ import { listProjects, loadProject, saveProject, deleteProject } from '../storag
 
 interface ProjectsPanelProps {
   sourceDataUrl: string | null;
+  snapshot: Project['snapshot'];
   onRestore: (sourceDataUrl: string, snapshot: Project['snapshot']) => void;
   onClose: () => void;
 }
@@ -15,7 +16,7 @@ interface ProjectsPanelProps {
  * localStorage (web).
  */
 export function ProjectsPanel(props: ProjectsPanelProps) {
-  const { sourceDataUrl, onRestore, onClose } = props;
+  const { sourceDataUrl, snapshot, onRestore, onClose } = props;
   const [projects, setProjects] = useState<Project[]>([]);
   const [name, setName] = useState('');
   const [saving, setSaving] = useState(false);
@@ -38,13 +39,13 @@ export function ProjectsPanel(props: ProjectsPanelProps) {
     const finalName = trimmed || `Project ${new Date().toLocaleDateString()}`;
     setSaving(true);
     try {
-      await saveProject(finalName, sourceDataUrl);
+      await saveProject(finalName, sourceDataUrl, snapshot);
       setName('');
       await refresh();
     } finally {
       setSaving(false);
     }
-  }, [name, sourceDataUrl, refresh]);
+  }, [name, sourceDataUrl, snapshot, refresh]);
 
   const handleRestore = useCallback(
     async (project: Project) => {

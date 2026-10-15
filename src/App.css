@@ -1092,8 +1092,7 @@ input[type='range']::-ms-fill-upper {
   margin-bottom: 0;
 }
 
-.assistant-settings select,
-.assistant-settings input[type='password'] {
+.assistant-settings select {
   background: rgba(15, 23, 42, 0.6);
   border: 1px solid var(--border-soft);
   border-radius: 10px;
@@ -1104,8 +1103,7 @@ input[type='range']::-ms-fill-upper {
   outline: none;
 }
 
-.assistant-settings select:focus,
-.assistant-settings input[type='password']:focus {
+.assistant-settings select:focus {
   border-color: var(--gold);
   box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
 }
@@ -1540,10 +1538,6 @@ input[type='range']::-ms-fill-upper {
   button {
     font-size: 0.78rem;
     padding: 6px 8px;
-  }
-
-  .assistant-window {
-    width: 100%;
   }
 }
 

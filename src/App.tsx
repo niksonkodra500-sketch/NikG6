@@ -444,6 +444,7 @@ export default function App() {
         {activeTab === 'projects' && (
           <ProjectsPanel
             sourceDataUrl={sourceDataUrl}
+            snapshot={snapshot}
             onRestore={(dataUrl, snap) => void handleProjectRestore(dataUrl, snap)}
             onClose={() => setActiveTab(null)}
           />
