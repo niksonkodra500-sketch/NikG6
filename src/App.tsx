@@ -9,7 +9,7 @@ import { EditorMenu } from './components/EditorMenu';
 import { FiltersPanel } from './components/FiltersPanel';
 import { OfflineBanner } from './components/OfflineBanner';
 import { ProjectsPanel } from './components/ProjectsPanel';
-import { type PanelTab } from './components/Toolbar';
+import { type PanelTab } from './components/EditorMenu';
 import { UpdateBanner, useAppUpdates } from './components/UpdateChecker';
 import { DEFAULT_API_KEY, DEFAULT_MODEL, type ChatMessage } from './ai/openrouter';
 import type { EditorApi, ToolCallResult } from './ai/tools';

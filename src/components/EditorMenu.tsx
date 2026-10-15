@@ -1,6 +1,8 @@
 import { useRef } from 'react';
 import type { ExportFormat } from '../editor/types';
-import type { PanelTab } from './Toolbar';
+
+/** Tab identifiers for the floating editor panels. */
+export type PanelTab = 'adjust' | 'filters' | 'crop' | 'projects';
 
 interface EditorMenuProps {
   canUndo: boolean;
@@ -61,7 +63,10 @@ export function EditorMenu(props: EditorMenuProps) {
             type="button"
             className="icon-open"
             aria-label="Open"
-            onClick={() => { fileInputRef.current?.click(); closeMenu(); }}
+            onClick={() => {
+              fileInputRef.current?.click();
+              closeMenu();
+            }}
           >
             Open
           </button>
@@ -79,7 +84,10 @@ export function EditorMenu(props: EditorMenuProps) {
             type="button"
             className="icon-camera"
             aria-label="Take photo"
-            onClick={() => { props.onTakePhoto(); closeMenu(); }}
+            onClick={() => {
+              props.onTakePhoto();
+              closeMenu();
+            }}
           >
             Camera
           </button>
@@ -87,7 +95,10 @@ export function EditorMenu(props: EditorMenuProps) {
             type="button"
             className="icon-library"
             aria-label="Pick from library"
-            onClick={() => { props.onPickFromLibrary(); closeMenu(); }}
+            onClick={() => {
+              props.onPickFromLibrary();
+              closeMenu();
+            }}
           >
             Library
           </button>
@@ -98,7 +109,10 @@ export function EditorMenu(props: EditorMenuProps) {
             className="icon-undo"
             aria-label="Undo"
             disabled={!canUndo || !hasImage}
-            onClick={() => { props.onUndo(); closeMenu(); }}
+            onClick={() => {
+              props.onUndo();
+              closeMenu();
+            }}
           >
             Undo
           </button>
@@ -107,7 +121,10 @@ export function EditorMenu(props: EditorMenuProps) {
             className="icon-redo"
             aria-label="Redo"
             disabled={!canRedo || !hasImage}
-            onClick={() => { props.onRedo(); closeMenu(); }}
+            onClick={() => {
+              props.onRedo();
+              closeMenu();
+            }}
           >
             Redo
           </button>
@@ -116,7 +133,10 @@ export function EditorMenu(props: EditorMenuProps) {
             className="icon-rotate"
             aria-label="Rotate 90°"
             disabled={!hasImage}
-            onClick={() => { props.onRotate(); closeMenu(); }}
+            onClick={() => {
+              props.onRotate();
+              closeMenu();
+            }}
           >
             Rotate
           </button>
@@ -125,7 +145,10 @@ export function EditorMenu(props: EditorMenuProps) {
             className="icon-fliph"
             aria-label="Flip horizontal"
             disabled={!hasImage}
-            onClick={() => { props.onFlip('x'); closeMenu(); }}
+            onClick={() => {
+              props.onFlip('x');
+              closeMenu();
+            }}
           >
             Flip H
           </button>
@@ -134,7 +157,10 @@ export function EditorMenu(props: EditorMenuProps) {
             className="icon-flipv"
             aria-label="Flip vertical"
             disabled={!hasImage}
-            onClick={() => { props.onFlip('y'); closeMenu(); }}
+            onClick={() => {
+              props.onFlip('y');
+              closeMenu();
+            }}
           >
             Flip V
           </button>
@@ -143,7 +169,10 @@ export function EditorMenu(props: EditorMenuProps) {
             className="icon-reset"
             aria-label="Reset"
             disabled={!hasImage}
-            onClick={() => { props.onReset(); closeMenu(); }}
+            onClick={() => {
+              props.onReset();
+              closeMenu();
+            }}
           >
             Reset
           </button>
@@ -154,7 +183,10 @@ export function EditorMenu(props: EditorMenuProps) {
             className="icon-compare"
             aria-label="Compare before/after"
             disabled={!hasImage}
-            onClick={() => { props.onCompare(); closeMenu(); }}
+            onClick={() => {
+              props.onCompare();
+              closeMenu();
+            }}
           >
             Compare
           </button>
@@ -163,7 +195,10 @@ export function EditorMenu(props: EditorMenuProps) {
             className={`icon-export ${activeTab === 'adjust' ? 'active' : ''}`}
             aria-label="Adjustments"
             disabled={!hasImage}
-            onClick={() => { props.onTabChange(activeTab === 'adjust' ? null : 'adjust'); closeMenu(); }}
+            onClick={() => {
+              props.onTabChange(activeTab === 'adjust' ? null : 'adjust');
+              closeMenu();
+            }}
           >
             Adjust
           </button>
@@ -172,7 +207,10 @@ export function EditorMenu(props: EditorMenuProps) {
             className="icon-filters"
             aria-label="Filters"
             disabled={!hasImage}
-            onClick={() => { props.onTabChange(activeTab === 'filters' ? null : 'filters'); closeMenu(); }}
+            onClick={() => {
+              props.onTabChange(activeTab === 'filters' ? null : 'filters');
+              closeMenu();
+            }}
           >
             Filters
           </button>
@@ -181,7 +219,10 @@ export function EditorMenu(props: EditorMenuProps) {
             className="icon-crop"
             aria-label="Crop"
             disabled={!hasImage}
-            onClick={() => { props.onTabChange(activeTab === 'crop' ? null : 'crop'); closeMenu(); }}
+            onClick={() => {
+              props.onTabChange(activeTab === 'crop' ? null : 'crop');
+              closeMenu();
+            }}
           >
             Crop
           </button>
@@ -190,7 +231,10 @@ export function EditorMenu(props: EditorMenuProps) {
             className="icon-projects"
             aria-label="Projects"
             disabled={!hasImage}
-            onClick={() => { props.onOpenProjects(); closeMenu(); }}
+            onClick={() => {
+              props.onOpenProjects();
+              closeMenu();
+            }}
           >
             Projects
           </button>
@@ -221,7 +265,10 @@ export function EditorMenu(props: EditorMenuProps) {
             className="icon-export"
             aria-label="Export"
             disabled={!hasImage}
-            onClick={() => { props.onExport(); closeMenu(); }}
+            onClick={() => {
+              props.onExport();
+              closeMenu();
+            }}
           >
             Export
           </button>
@@ -229,7 +276,10 @@ export function EditorMenu(props: EditorMenuProps) {
             type="button"
             className={`icon-assistant ${assistantOpen ? 'active' : ''}`}
             aria-label="AI Assistant"
-            onClick={() => { props.onToggleAssistant(); closeMenu(); }}
+            onClick={() => {
+              props.onToggleAssistant();
+              closeMenu();
+            }}
           >
             AI Assistant
           </button>
