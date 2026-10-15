@@ -95,7 +95,9 @@ export function AssistantPanel(props: AssistantPanelProps) {
     const controller = new AbortController();
     abortRef.current = controller;
     try {
-      const image = props.visionEnabled ? await props.getImageDataUrl(1024) : null;
+      // Read the photo at full resolution (no size cap) so the assistant sees
+      // the complete image for vision-based editing.
+      const image = props.visionEnabled ? await props.getImageDataUrl(Infinity) : null;
       const result = await runAssistantTurn({
         apiKey: props.apiKey,
         model: props.model,

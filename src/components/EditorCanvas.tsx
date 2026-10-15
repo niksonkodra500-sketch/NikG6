@@ -368,7 +368,9 @@ export const EditorCanvas = forwardRef<EditorHandle, EditorCanvasProps>(
       return Promise.resolve(fc.toDataURL({ format, quality, multiplier: 1 }));
     }, []);
 
-    const getImageDataUrl = useCallback((maxSize = 1024): Promise<string | null> => {
+    // When maxSize is Infinity the image is read at full (natural) resolution,
+    // i.e. no downscaling cap — "infinity" file read for the AI assistant's vision.
+    const getImageDataUrl = useCallback((maxSize = Infinity): Promise<string | null> => {
       const fc = fabricCanvasRef.current;
       if (!fc || !imageRef.current) return Promise.resolve(null);
       const maxDim = Math.max(fc.getWidth(), fc.getHeight());
