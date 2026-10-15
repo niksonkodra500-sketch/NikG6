@@ -364,7 +364,8 @@ export default function App() {
       <OfflineBanner online={online} />
       <UpdateBanner updates={updates} />
       <header className="app-header">
-        <h1>NikG6 Photo Editor</h1>
+        <h1 className="animated">NikG6 Photo Editor</h1>
+        <p className="app-tagline">Professional photo editing powered by AI</p>
       </header>
       <Toolbar
         canUndo={canUndo}

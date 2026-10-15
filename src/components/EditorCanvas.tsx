@@ -474,10 +474,13 @@ export const EditorCanvas = forwardRef<EditorHandle, EditorCanvasProps>(
     }, [handle]);
 
     return (
-      <div className="editor-canvas-wrap">
+      <div className={`editor-canvas-wrap${hasImage ? ' has-image' : ''}`}>
         <canvas ref={canvasElRef} />
         {!hasImage && (
           <div className="editor-placeholder">
+            <span className="icon" aria-hidden="true">
+              🎨
+            </span>
             <p>Open an image to start editing</p>
           </div>
         )}

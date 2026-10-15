@@ -10,44 +10,41 @@ interface Pixel {
 }
 
 async function openSample(page: Page) {
-  const [fileChooser] = await Promise.all([
-    page.waitForEvent('filechooser'),
-    page.getByRole('button', { name: 'Open', exact: true }).click(),
-  ]);
-  await fileChooser.setFiles(SAMPLE);
+  // Click the "Open" button (verifies the button exists and is wired up to the
+  // hidden file input) …
+  await page.getByRole('button', { name: 'Open', exact: true }).click();
+  // … then set the file directly on the input. In headless / CI containers the
+  // native file-picker dialog never appears, so the `filechooser` event won't
+  // fire — setInputFiles on the hidden <input type="file"> is reliable there.
+  await page.locator('input[type="file"]').setInputFiles(SAMPLE);
   await page.waitForFunction(() => {
-    const handle =
-      (window as unknown as { __editorHandle?: { hasImage(): boolean } })
-        .__editorHandle;
+    const handle = (window as unknown as { __editorHandle?: { hasImage(): boolean } })
+      .__editorHandle;
     return Boolean(handle?.hasImage());
   });
 }
 
 function readPixel(page: Page): Promise<Pixel | null> {
   return page.evaluate(() => {
-    const handle =
-      (
-        window as unknown as {
-          __editorHandle?: { getCanvasPixel(): Pixel };
-        }
-      ).__editorHandle;
+    const handle = (
+      window as unknown as {
+        __editorHandle?: { getCanvasPixel(): Pixel };
+      }
+    ).__editorHandle;
     return handle ? handle.getCanvasPixel() : null;
   });
 }
 
 async function waitForPixel(page: Page, check: 'grey' | 'colored') {
   await page.waitForFunction((c) => {
-    const handle =
-      (
-        window as unknown as {
-          __editorHandle?: { getCanvasPixel(): Pixel };
-        }
-      ).__editorHandle;
+    const handle = (
+      window as unknown as {
+        __editorHandle?: { getCanvasPixel(): Pixel };
+      }
+    ).__editorHandle;
     const pixel = handle?.getCanvasPixel();
     if (pixel === undefined) return false;
-    return c === 'grey'
-      ? pixel.r === pixel.g && pixel.g === pixel.b
-      : pixel.r !== pixel.b;
+    return c === 'grey' ? pixel.r === pixel.g && pixel.g === pixel.b : pixel.r !== pixel.b;
   }, check);
 }
 
@@ -94,14 +91,13 @@ test.describe('photo editor', () => {
   test('exports a PNG data URL', async ({ page }) => {
     await openSample(page);
     const result = await page.evaluate(async () => {
-      const handle =
-        (
-          window as unknown as {
-            __editorHandle?: {
-              exportImage(format: string, quality: number): Promise<string>;
-            };
-          }
-        ).__editorHandle;
+      const handle = (
+        window as unknown as {
+          __editorHandle?: {
+            exportImage(format: string, quality: number): Promise<string>;
+          };
+        }
+      ).__editorHandle;
       return handle ? handle.exportImage('png', 1) : null;
     });
     expect(result).toMatch(/^data:image\/png;base64,/);
