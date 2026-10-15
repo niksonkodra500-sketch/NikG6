@@ -710,7 +710,180 @@
     "README.md",
     "docs/**/*.md"
   ],
-  "plugin": [],
+  "plugin": [
+    {
+      "name": "filesystem-tools",
+      "type": "builtin",
+      "enabled": true,
+      "tools": [
+        "read",
+        "write",
+        "edit",
+        "glob",
+        "grep",
+        "list",
+        "stat",
+        "mkdir",
+        "delete",
+        "copy",
+        "move",
+        "watch"
+      ]
+    },
+    {
+      "name": "image-tools",
+      "type": "builtin",
+      "enabled": true,
+      "tools": [
+        "resize",
+        "crop",
+        "rotate",
+        "flip",
+        "filter",
+        "adjust",
+        "export",
+        "convert",
+        "thumbnail",
+        "metadata"
+      ]
+    },
+    {
+      "name": "editor-tools",
+      "type": "builtin",
+      "enabled": true,
+      "tools": [
+        "load_image",
+        "save_image",
+        "undo",
+        "redo",
+        "reset",
+        "snapshot",
+        "history",
+        "canvas_pixel",
+        "natural_size"
+      ]
+    },
+    {
+      "name": "ai-tools",
+      "type": "builtin",
+      "enabled": true,
+      "tools": [
+        "chat",
+        "vision",
+        "tool_call",
+        "model_select",
+        "preset_prompt",
+        "system_prompt",
+        "conversation_summary"
+      ]
+    },
+    {
+      "name": "storage-tools",
+      "type": "builtin",
+      "enabled": true,
+      "tools": [
+        "save_project",
+        "load_project",
+        "list_projects",
+        "delete_project",
+        "save_api_key",
+        "load_api_key",
+        "save_settings",
+        "load_settings",
+        "save_conversation",
+        "load_conversation"
+      ]
+    },
+    {
+      "name": "camera-tools",
+      "type": "builtin",
+      "enabled": true,
+      "tools": ["take_photo", "pick_from_library", "camera_capture", "gallery_pick"]
+    },
+    {
+      "name": "download-tools",
+      "type": "builtin",
+      "enabled": true,
+      "tools": ["download_data_url", "export_image", "share_native", "save_to_cache"]
+    },
+    {
+      "name": "web-tools",
+      "type": "builtin",
+      "enabled": true,
+      "tools": ["web_search", "web_fetch", "web_scrape", "openrouter_models", "github_api"]
+    },
+    {
+      "name": "task-tools",
+      "type": "builtin",
+      "enabled": true,
+      "tools": [
+        "spawn_agent",
+        "delegate_task",
+        "run_command",
+        "run_test",
+        "run_lint",
+        "run_typecheck",
+        "run_build"
+      ]
+    },
+    {
+      "name": "skill-tools",
+      "type": "builtin",
+      "enabled": true,
+      "tools": ["load_skill", "list_skills", "execute_skill", "register_skill"]
+    },
+    {
+      "name": "mcp-tools",
+      "type": "builtin",
+      "enabled": true,
+      "tools": ["mcp_filesystem", "mcp_github", "mcp_connect", "mcp_list_servers"]
+    },
+    {
+      "name": "debug-tools",
+      "type": "builtin",
+      "enabled": true,
+      "tools": ["debug", "trace", "profile", "inspect", "log", "error_report"]
+    },
+    {
+      "name": "review-tools",
+      "type": "builtin",
+      "enabled": true,
+      "tools": ["code_review", "quality_check", "lint_fix", "security_scan", "performance_audit"]
+    },
+    {
+      "name": "build-tools",
+      "type": "builtin",
+      "enabled": true,
+      "tools": ["build_android", "build_web", "sync_capacitor", "assemble_apk", "upload_artifact"]
+    },
+    {
+      "name": "git-tools",
+      "type": "builtin",
+      "enabled": true,
+      "tools": [
+        "git_add",
+        "git_commit",
+        "git_push",
+        "git_pull",
+        "git_branch",
+        "git_status",
+        "git_log"
+      ]
+    },
+    {
+      "name": "divine-tools",
+      "type": "builtin",
+      "enabled": true,
+      "tools": [
+        "omniscient_read",
+        "omnipotent_write",
+        "omnipresent_edit",
+        "infinite_tool_create",
+        "divine_knowledge_access",
+        "maximal_authority"
+      ]
+    }
+  ],
   "references": {
     "nikg6-repo": {
       "repository": "https://github.com/niksonkodra500-sketch/NikG6",
