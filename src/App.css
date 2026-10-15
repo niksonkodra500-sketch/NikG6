@@ -64,6 +64,32 @@
   }
 }
 
+/* ---- Entrance animation for floating elements ---- */
+@keyframes floatIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.app.fullscreen .panel.floating,
+.app.fullscreen .assistant-window,
+.app.fullscreen .floating-toolbar {
+  animation: floatIn 0.3s ease-out;
+}
+
+/* ---- Keyboard focus styles ---- */
+button:focus-visible,
+select:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
 @keyframes pulseGlow {
   0%,
   100% {
@@ -216,6 +242,7 @@ html {
   box-shadow:
     0 -4px 24px rgba(0, 0, 0, 0.5),
     0 0 0 1px rgba(26, 22, 46, 0.3) inset;
+  transition: box-shadow 0.25s ease;
 }
 
 .toolbar-group {
@@ -512,10 +539,16 @@ button.active:hover:not(:disabled) {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 16px;
+  padding: 0 0 12px;
+  border-bottom: 1px solid var(--border-soft);
 }
 
 .panel-header h2 {
   margin: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--gold-light);
+  letter-spacing: 0.03em;
 }
 
 .panel-header .panel-close {
@@ -523,6 +556,12 @@ button.active:hover:not(:disabled) {
   width: 24px;
   height: 24px;
   font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+.panel-header .panel-close:hover {
+  transform: scale(1.15);
+  color: var(--error);
 }
 
 /* Custom scrollbar */
@@ -543,6 +582,12 @@ button.active:hover:not(:disabled) {
   background: var(--purple);
 }
 
+/* Dim canvas slightly when assistant window is open (focus attention) */
+.app.assistant-open .canvas-container {
+  opacity: 0.85;
+  transition: opacity 0.3s ease;
+}
+
 /* Floating panel overlay for full-screen mode */
 .panel.floating {
   position: fixed;
@@ -555,6 +600,14 @@ button.active:hover:not(:disabled) {
   box-shadow:
     0 0 0 1px rgba(26, 22, 46, 0.3) inset,
     0 20px 60px rgba(0, 0, 0, 0.5);
+  transition: all 0.25s ease;
+}
+
+/* Offset panels to the left when the assistant window is open (desktop) */
+@media (min-width: 1024px) {
+  .app.assistant-open .panel.floating {
+    right: calc(16px + 380px + 24px);
+  }
 }
 
 /* Close button for floating panels */
@@ -584,6 +637,7 @@ button.active:hover:not(:disabled) {
   border-color: var(--error);
   color: var(--error);
   box-shadow: 0 0 12px rgba(244, 63, 94, 0.3);
+  transform: scale(1.15);
 }
 
 /* ==========================================================================
@@ -936,6 +990,7 @@ input[type='range']::-ms-fill-upper {
     0 24px 80px rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .assistant-window-header {
@@ -984,6 +1039,7 @@ input[type='range']::-ms-fill-upper {
   border-color: var(--error);
   color: var(--error);
   box-shadow: 0 0 10px rgba(244, 63, 94, 0.3);
+  transform: scale(1.15);
 }
 
 .assistant-window-body {
@@ -1160,59 +1216,9 @@ input[type='range']::-ms-fill-upper {
 }
 
 /* ==========================================================================
-   Footer
+   Footer (removed — export format moved to floating toolbar)
    ========================================================================== */
-
-.app-footer {
-  padding: 10px 20px;
-  background: var(--surface-1);
-  border-top: 1px solid var(--border-soft);
-  font-size: 0.8rem;
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  flex-wrap: wrap;
-}
-
-.app-footer label {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  color: var(--text-faint);
-  font-size: 0.72rem;
-}
-
-.app-footer select {
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid var(--border-soft);
-  border-radius: 8px;
-  color: var(--text);
-  padding: 4px 10px;
-  font-size: 0.8rem;
-  transition: all 0.2s ease;
-}
-
-.app-footer select:focus {
-  border-color: var(--gold);
-}
-
-.app-footer button {
-  background: rgba(26, 22, 46, 0.5);
-  border-color: var(--border-soft);
-}
-
-.app-footer button:hover:not(:disabled) {
-  border-color: var(--gold);
-  box-shadow: 0 0 14px rgba(212, 175, 55, 0.3);
-}
-
-.version {
-  color: var(--text-faint);
-  font-size: 0.75rem;
-  margin-left: auto;
-}
+/* .app-footer styles removed — export format selector is now in .floating-toolbar */
 
 /* ==========================================================================
    Banners
@@ -1521,7 +1527,7 @@ input[type='range']::-ms-fill-upper {
 
   .workspace {
     top: 56px;
-    bottom: 88px;
+    bottom: 140px;
   }
 
   .floating-toolbar {
@@ -1535,11 +1541,11 @@ input[type='range']::-ms-fill-upper {
   }
 
   .panel.floating {
-    bottom: 96px;
+    bottom: 150px;
     right: 0;
     left: 0;
     width: 100%;
-    max-height: calc(100dvh - 160px);
+    max-height: calc(100dvh - 210px);
     border-radius: 16px 16px 0 0;
   }
 
@@ -1547,7 +1553,7 @@ input[type='range']::-ms-fill-upper {
     top: 56px;
     right: 0;
     left: 0;
-    bottom: 96px;
+    bottom: 150px;
     width: 100%;
     border-radius: 0;
   }

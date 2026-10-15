@@ -74,12 +74,19 @@ export function ProjectsPanel(props: ProjectsPanelProps) {
 
   return (
     <div className="panel floating projects-panel">
-      <h2>
-        Projects
-        <button type="button" className="link-button" onClick={onClose} aria-label="Close">
-          Close
-        </button>
-      </h2>
+      <div className="panel-header">
+        <h2>Projects</h2>
+        {onClose && (
+          <button
+            type="button"
+            className="panel-close"
+            aria-label="Close projects"
+            onClick={onClose}
+          >
+            ×
+          </button>
+        )}
+      </div>
 
       <div className="project-save">
         <input

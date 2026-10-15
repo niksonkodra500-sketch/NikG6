@@ -360,7 +360,7 @@ export default function App() {
   }, []);
 
   return (
-    <div className="app fullscreen">
+    <div className={`app fullscreen${assistantOpen ? ' assistant-open' : ''}`}>
       <OfflineBanner online={online} />
       <UpdateBanner updates={updates} />
       <header className="app-header float">
