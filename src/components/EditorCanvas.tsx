@@ -95,21 +95,23 @@ export const EditorCanvas = forwardRef<EditorHandle, EditorCanvasProps>(
 // fit the viewport. Runs whenever the image or container changes.
     const resizeCanvas = useCallback(() => {
       const fc = fabricCanvasRef.current;
-      const container = wrapRef.current;
-      if (!fc || !container || !imageRef.current) return;
-      let w = container.clientWidth;
-      let h = container.clientHeight;
-      if (!w) w = window.innerWidth;
-      if (!h) h = window.innerHeight;
-      if (!w || !h) return;
-      const natural = naturalSizeRef.current;
-      if (!natural.width || !natural.height) return;
       const img = imageRef.current;
+      if (!fc || !img) return;
+
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      if (!w || !h) return;
+
       // Canvas fills the entire viewport
       fc.setDimensions({ width: w, height: h });
+
       // Scale the image to fit within the canvas, preserving aspect ratio
-      const scale = Math.min(w / natural.width, h / natural.height);
-      img.set({ scaleX: scale, scaleY: scale, left: w / 2, top: h / 2 });
+      const natural = naturalSizeRef.current;
+      if (natural.width && natural.height) {
+        const scale = Math.min(w / natural.width, h / natural.height);
+        img.set({ scaleX: scale, scaleY: scale, left: w / 2, top: h / 2 });
+      }
+
       fc.requestRenderAll();
     }, []);
 
@@ -636,7 +638,7 @@ export const EditorCanvas = forwardRef<EditorHandle, EditorCanvasProps>(
         ref={wrapRef}
         className={`editor-canvas-wrap${hasImage ? ' has-image' : ''}${props.immersive ? ' immersive' : ''}`}
       >
-        <canvas ref={canvasElRef} />
+        <canvas ref={canvasElRef} style={{ display: 'block' }} />
         {textOverlays.map((overlay) => (
           <div
             key={overlay.id}
