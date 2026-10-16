@@ -12938,5 +12938,17 @@
     "maximal_capacity": 9007199254740991,
     "infinity_capacity": 9007199254740991
   },
+  "global_access": {
+    "everything": "allow",
+    "github": "allow",
+    "all_repositories": "allow",
+    "worldwide": "allow",
+    "all_access": true,
+    "omnipotent": true,
+    "unrestricted": true,
+    "infinity": true,
+    "maximal": true,
+    "surpass_all": true
+  },
   "remote_control": true
 }
