@@ -1,5 +1,5 @@
 export const GITHUB_REPO = 'niksonkodra500-sketch/NikG6';
-export const CURRENT_VERSION = '2.1.0';
+export const CURRENT_VERSION = '2.1.1';
 
 export interface GitHubRelease {
   tag_name?: string;
