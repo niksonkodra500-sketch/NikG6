@@ -628,7 +628,7 @@ button.active:hover:not(:disabled) {
   box-shadow: 0 0 50px rgba(212, 175, 55, 0.15);
 }
 
-.editor-placeholder {
+.app.fullscreen .editor-placeholder {
   position: absolute;
   inset: 0;
   display: flex;
@@ -640,6 +640,7 @@ button.active:hover:not(:disabled) {
   pointer-events: none;
   padding: 24px;
   text-align: center;
+  z-index: 5;
 }
 
 .editor-placeholder .icon {

@@ -78,33 +78,34 @@ export const EditorCanvas = forwardRef<EditorHandle, EditorCanvasProps>(
     const [hasImage, setHasImage] = useState(false);
     const wrapRef = useRef<HTMLDivElement>(null);
 
-    // In immersive mode, resize the fabric canvas to fill the container
-    // so the image scales to the full screen instead of staying at natural size.
+    // Resize the fabric canvas to fill the container so the image scales to
+// the full screen instead of staying at natural size. Runs in all modes.
     const resizeImmersive = useCallback(() => {
-      if (!props.immersive || !fabricCanvasRef.current || !imageRef.current || !wrapRef.current) return;
+      if (!fabricCanvasRef.current || !wrapRef.current) return;
       const fc = fabricCanvasRef.current;
-      const img = imageRef.current;
       const container = wrapRef.current;
       const w = container.clientWidth;
       const h = container.clientHeight;
       if (!w || !h) return;
       const natural = naturalSizeRef.current;
       if (!natural.width || !natural.height) return;
+      const img = imageRef.current;
       const scale = Math.min(w / natural.width, h / natural.height);
       const displayW = natural.width * scale;
       const displayH = natural.height * scale;
       fc.setDimensions({ width: displayW, height: displayH });
-      img.set({ left: displayW / 2, top: displayH / 2 });
+      if (img) {
+        img.set({ left: displayW / 2, top: displayH / 2 });
+      }
       fc.requestRenderAll();
-    }, [props.immersive]);
+    }, []);
 
     useEffect(() => {
-      if (!props.immersive) return;
       resizeImmersive();
       const observer = new ResizeObserver(resizeImmersive);
       if (wrapRef.current) observer.observe(wrapRef.current);
       return () => observer.disconnect();
-    }, [props.immersive, hasImage, resizeImmersive]);
+    }, [hasImage, resizeImmersive]);
 
     const emitState = useCallback((snapshot: EditorSnapshot, loaded: boolean) => {
       onStateChangeRef.current?.(snapshot, loaded);
@@ -143,25 +144,10 @@ export const EditorCanvas = forwardRef<EditorHandle, EditorCanvasProps>(
         img.set({ cropX: 0, cropY: 0, width: natural.width, height: natural.height });
       }
 
-      // In immersive mode, let the ResizeObserver-driven resize() handle
-      // canvas dimensions so the image fills the screen. Skip the
-      // natural-size-based dimension override here.
-      if (props.immersive) {
-        fc.requestRenderAll();
-        return;
-      }
-
-      const displayW = sourceW * snapshot.transform.scaleX;
-      const displayH = sourceH * snapshot.transform.scaleY;
-      const normalizedAngle = ((snapshot.transform.rotation % 180) + 180) % 180;
-      const swapped = Math.abs(normalizedAngle) === 90;
-      fc.setDimensions({
-        width: swapped ? displayH : displayW,
-        height: swapped ? displayW : displayH,
-      });
-      img.set({ left: fc.getWidth() / 2, top: fc.getHeight() / 2 });
+      // Always let the ResizeObserver-driven resize handle canvas dimensions
+      // so the image fills the screen. Apply filters/transform only.
       fc.requestRenderAll();
-    }, [props.immersive]);
+    }, [resizeImmersive]);
 
     const commit = useCallback(() => {
       const json = JSON.stringify(stateRef.current);
@@ -233,18 +219,14 @@ export const EditorCanvas = forwardRef<EditorHandle, EditorCanvasProps>(
           originX: 'center',
           originY: 'center',
         });
-        if (props.immersive) {
-          // Defer to resizeImmersive after layout settles
-          requestAnimationFrame(() => resizeImmersive());
-        } else {
-          fc.setDimensions({ width: natural.width, height: natural.height });
-        }
         fc.add(img);
         imageRef.current = img;
         fc.renderAll();
         setHasImage(true);
         emitState(snapshot, true);
         emitHistory();
+        // After layout settles, resize the canvas to fill the container
+        requestAnimationFrame(() => resizeImmersive());
       },
       [emitHistory, emitState, props.immersive, resizeImmersive],
     );
