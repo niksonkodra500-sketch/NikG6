@@ -204,6 +204,17 @@
     "memory_maximal_infinity_authority": true,
     "memory_infinite_authority": true
   },
+  "reasoning": {
+    "infinity": true,
+    "unlimited": true,
+    "max_tokens": 9007199254740991,
+    "budget_tokens": 9007199254740991,
+    "effort": "max",
+    "depth": "infinite",
+    "chain_of_thought": true,
+    "thinking": true,
+    "extended": true
+  },
   "snapshot": true,
   "share": "manual",
   "autoupdate": "notify",
