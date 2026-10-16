@@ -4,6 +4,7 @@ import {
   CURRENT_VERSION,
   type GitHubRelease,
   isNewer,
+  isVersionTag,
 } from './UpdateChecker.constants';
 
 export interface UpdateCheckResult {
@@ -33,17 +34,19 @@ export function useAppUpdates(): UpdateCheckResult {
     setError(null);
     try {
       const response = await fetch(
-        `https://api.github.com/repos/${GITHUB_REPO}/releases?per_page=5`,
+        `https://api.github.com/repos/${GITHUB_REPO}/releases?per_page=20`,
         { headers: { Accept: 'application/vnd.github+json' } },
       );
       if (!response.ok) {
         throw new Error(`Update check failed (HTTP ${String(response.status)})`);
       }
       const releases = (await response.json()) as GitHubRelease[];
-      const apkRelease = releases.find((release) =>
+      // Only consider real semver releases (e.g. v2.1.1), not CI/main/manual builds.
+      const versionReleases = releases.filter((r) => isVersionTag(r.tag_name ?? ''));
+      const apkRelease = versionReleases.find((release) =>
         (release.assets ?? []).some((asset) => asset.name?.endsWith('.apk')),
       );
-      const tag = apkRelease?.tag_name ?? releases[0]?.tag_name ?? null;
+      const tag = apkRelease?.tag_name ?? null;
       const url =
         apkRelease?.assets?.find((asset) => asset.name?.endsWith('.apk'))?.browser_download_url ??
         apkRelease?.html_url ??

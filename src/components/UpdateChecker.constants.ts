@@ -1,6 +1,9 @@
 export const GITHUB_REPO = 'niksonkodra500-sketch/NikG6';
 export const CURRENT_VERSION = '2.1.1';
 
+/** Tags that are not user-facing version releases (CI/manual builds). */
+export const NON_VERSION_TAGS = ['main-', 'manual-'];
+
 export interface GitHubRelease {
   tag_name?: string;
   name?: string;
@@ -27,4 +30,9 @@ export function isNewer(a: string, b: string): boolean {
     if (an !== bn) return an > bn;
   }
   return false;
+}
+
+/** Returns true if a tag looks like a real semver release (e.g. v2.1.1). */
+export function isVersionTag(tag: string): boolean {
+  return /^v?\d+\.\d+\.\d+$/.test(tag);
 }
