@@ -459,6 +459,10 @@ export const EditorCanvas = forwardRef<EditorHandle, EditorCanvasProps>(
       if (!canvasElRef.current) return;
       const fc = new fabric.Canvas(canvasElRef.current, { preserveObjectStacking: true });
       fabricCanvasRef.current = fc;
+      // Set initial canvas dimensions to fill the window immediately
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      fc.setDimensions({ width: w, height: h });
       return () => {
         void fc.dispose();
         fabricCanvasRef.current = null;
@@ -543,8 +547,12 @@ export const EditorCanvas = forwardRef<EditorHandle, EditorCanvasProps>(
       <div
         ref={wrapRef}
         className={`editor-canvas-wrap${hasImage ? ' has-image' : ''}${props.immersive ? ' immersive' : ''}`}
+        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', background: '#000', display: 'block' }}
       >
-        <canvas ref={canvasElRef} />
+        <canvas
+          ref={canvasElRef}
+          style={{ display: 'block', width: '100%', height: '100%', maxWidth: 'none', maxHeight: 'none' }}
+        />
         {!hasImage && (
           <div className="editor-placeholder">
             <span className="icon" aria-hidden="true">
