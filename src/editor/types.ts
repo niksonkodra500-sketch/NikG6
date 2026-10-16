@@ -107,3 +107,138 @@ export const FILTER_LABELS: Record<FilterName, string> = {
   blur: 'Blur',
   sharpen: 'Sharpen',
 };
+
+/* ============================================================================
+   TIER 1 — Adjustment Presets (saved bundles of slider values)
+   ============================================================================ */
+
+/** A named bundle of adjustments that can be applied with one tap. */
+export interface AdjustmentPreset {
+  id: string;
+  name: string;
+  adjustments: AdjustmentState;
+  filter?: FilterName;
+  createdAt: number;
+}
+
+/** Default built-in adjustment presets. */
+export const DEFAULT_PRESETS: AdjustmentPreset[] = [
+  {
+    id: 'portrait-warm',
+    name: 'Portrait Warm',
+    adjustments: { brightness: 10, contrast: 5, saturation: 10, hue: 0, temperature: 25 },
+    filter: 'warm',
+    createdAt: Date.now(),
+  },
+  {
+    id: 'cinematic-cool',
+    name: 'Cinematic Cool',
+    adjustments: { brightness: -5, contrast: 15, saturation: -5, hue: 0, temperature: -25 },
+    filter: 'cool',
+    createdAt: Date.now(),
+  },
+  {
+    id: 'vintage-film',
+    name: 'Vintage Film',
+    adjustments: { brightness: -10, contrast: 10, saturation: -15, hue: 5, temperature: 15 },
+    filter: 'vintage',
+    createdAt: Date.now(),
+  },
+  {
+    id: 'high-contrast',
+    name: 'High Contrast',
+    adjustments: { brightness: 0, contrast: 35, saturation: 10, hue: 0, temperature: 0 },
+    createdAt: Date.now(),
+  },
+  {
+    id: 'soft-glow',
+    name: 'Soft Glow',
+    adjustments: { brightness: 15, contrast: -10, saturation: 5, hue: 0, temperature: 10 },
+    filter: 'polaroid',
+    createdAt: Date.now(),
+  },
+];
+
+/* ============================================================================
+   TIER 3 — Text Overlay (text drawn on the photo)
+   ============================================================================ */
+
+/** A text layer rendered over the photo. */
+export interface TextOverlay {
+  id: string;
+  text: string;
+  x: number;      // percent 0..100
+  y: number;      // percent 0..100
+  fontSize: number; // px
+  color: string;  // hex or css color
+  fontFamily: string;
+  bold: boolean;
+  italic: boolean;
+  opacity: number; // 0..1
+  rotation: number; // degrees
+}
+
+/** Default empty text overlay. */
+export const DEFAULT_TEXT_OVERLAY: TextOverlay = {
+  id: '',
+  text: 'Your text',
+  x: 50,
+  y: 50,
+  fontSize: 48,
+  color: '#ffffff',
+  fontFamily: 'sans-serif',
+  bold: false,
+  italic: false,
+  opacity: 1,
+  rotation: 0,
+};
+
+/* ============================================================================
+   TIER 5 — Export Presets (saved export settings)
+   ============================================================================ */
+
+/** Saved export configuration. */
+export interface ExportPreset {
+  id: string;
+  name: string;
+  format: ExportFormat;
+  quality: number; // 0..1 for jpeg/webp
+  maxWidth: number | null; // null = no resize
+  maxHeight: number | null;
+  watermark: string | null;
+  createdAt: number;
+}
+
+/** Default built-in export presets. */
+export const DEFAULT_EXPORT_PRESETS: ExportPreset[] = [
+  {
+    id: 'web-optimized',
+    name: 'Web Optimized',
+    format: 'jpeg',
+    quality: 0.85,
+    maxWidth: 2048,
+    maxHeight: null,
+    watermark: null,
+    createdAt: Date.now(),
+  },
+  {
+    id: 'print-quality',
+    name: 'Print Quality',
+    format: 'png',
+    quality: 1,
+    maxWidth: null,
+    maxHeight: null,
+    watermark: null,
+    createdAt: Date.now(),
+  },
+  {
+    id: 'social-media',
+    name: 'Social Media',
+    format: 'jpeg',
+    quality: 0.9,
+    maxWidth: 1080,
+    maxHeight: null,
+    watermark: null,
+    createdAt: Date.now(),
+  },
+];

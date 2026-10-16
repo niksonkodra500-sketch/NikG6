@@ -2,6 +2,7 @@ import { Capacitor } from '@capacitor/core';
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 import { Preferences } from '@capacitor/preferences';
 import { DEFAULT_API_KEY } from '../ai/openrouter';
+import type { AdjustmentPreset, ExportPreset } from '../editor/types';
 
 const isNative = Capacitor.isNativePlatform();
 
@@ -9,6 +10,7 @@ const API_KEY_STORAGE = 'openrouter_api_key';
 const CONVERSATION_KEY = 'assistant_conversation';
 const SETTINGS_KEY = 'app_settings';
 const PROJECT_PREFIX = 'project:';
+const PRESET_PREFIX = 'preset:';
 
 export async function hasStoredApiKey(): Promise<boolean> {
   if (isNative) {
@@ -51,6 +53,134 @@ export async function deleteApiKey(): Promise<void> {
     await SecureStoragePlugin.remove({ key: API_KEY_STORAGE });
   } else {
     localStorage.removeItem(API_KEY_STORAGE);
+  }
+}
+
+/* ============================================================================
+   TIER 1 — Adjustment Preset persistence
+   ============================================================================ */
+
+export async function savePreset(preset: AdjustmentPreset): Promise<void> {
+  const json = JSON.stringify(preset);
+  if (isNative) {
+    await Preferences.set({ key: `${PRESET_PREFIX}${preset.id}`, value: json });
+  } else {
+    localStorage.setItem(`${PRESET_PREFIX}${preset.id}`, json);
+  }
+}
+
+export async function loadPresets(): Promise<AdjustmentPreset[]> {
+  const presets: AdjustmentPreset[] = [];
+  if (isNative) {
+    try {
+      const result = await Preferences.keys();
+      for (const key of result.keys) {
+        if (key.startsWith(PRESET_PREFIX)) {
+          const value = await Preferences.get({ key });
+          if (value.value) {
+            try {
+              presets.push(JSON.parse(value.value) as AdjustmentPreset);
+            } catch {
+              // ignore corrupt entries
+            }
+          }
+        }
+      }
+    } catch {
+      // ignore
+    }
+  } else {
+    for (let i = 0; i < localStorage.length; i += 1) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith(PRESET_PREFIX)) {
+        const value = localStorage.getItem(key);
+        if (value) {
+          try {
+            presets.push(JSON.parse(value) as AdjustmentPreset);
+          } catch {
+            // ignore corrupt entries
+          }
+        }
+      }
+    }
+  }
+  return presets.sort((a, b) => b.createdAt - a.createdAt);
+}
+
+export async function deletePreset(id: string): Promise<void> {
+  if (isNative) {
+    try {
+      await Preferences.remove({ key: `${PRESET_PREFIX}${id}` });
+    } catch {
+      // ignore
+    }
+  } else {
+    localStorage.removeItem(`${PRESET_PREFIX}${id}`);
+  }
+}
+
+/* ============================================================================
+   TIER 5 — Export Preset persistence
+   ============================================================================ */
+
+const EXPORT_PRESET_PREFIX = 'export_preset:';
+
+export async function saveExportPreset(preset: ExportPreset): Promise<void> {
+  const json = JSON.stringify(preset);
+  if (isNative) {
+    await Preferences.set({ key: `${EXPORT_PRESET_PREFIX}${preset.id}`, value: json });
+  } else {
+    localStorage.setItem(`${EXPORT_PRESET_PREFIX}${preset.id}`, json);
+  }
+}
+
+export async function loadExportPresets(): Promise<ExportPreset[]> {
+  const presets: ExportPreset[] = [];
+  if (isNative) {
+    try {
+      const result = await Preferences.keys();
+      for (const key of result.keys) {
+        if (key.startsWith(EXPORT_PRESET_PREFIX)) {
+          const value = await Preferences.get({ key });
+          if (value.value) {
+            try {
+              presets.push(JSON.parse(value.value) as ExportPreset);
+            } catch {
+              // ignore corrupt entries
+            }
+          }
+        }
+      }
+    } catch {
+      // ignore
+    }
+  } else {
+    for (let i = 0; i < localStorage.length; i += 1) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith(EXPORT_PRESET_PREFIX)) {
+        const value = localStorage.getItem(key);
+        if (value) {
+          try {
+            presets.push(JSON.parse(value) as ExportPreset);
+          } catch {
+            // ignore corrupt entries
+          }
+        }
+      }
+    }
+  }
+  return presets.sort((a, b) => b.createdAt - a.createdAt);
+}
+
+export async function deleteExportPreset(id: string): Promise<void> {
+  if (isNative) {
+    try {
+      await Preferences.remove({ key: `${EXPORT_PRESET_PREFIX}${id}` });
+    } catch {
+      // ignore
+    }
+  } else {
+    localStorage.removeItem(`${EXPORT_PRESET_PREFIX}${id}`);
   }
 }
 
