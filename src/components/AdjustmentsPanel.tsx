@@ -5,6 +5,7 @@ interface AdjustmentsPanelProps {
   adjustments: AdjustmentState;
   onChange: (name: AdjustmentName, value: number) => void;
   onCommit: () => void;
+  onAutoEnhance: () => void;
   onClose?: () => void;
 }
 
@@ -20,6 +21,7 @@ export function AdjustmentsPanel({
   adjustments,
   onChange,
   onCommit,
+  onAutoEnhance,
   onClose,
 }: AdjustmentsPanelProps) {
   const neutral = isNeutralAdjustments(adjustments);
@@ -70,9 +72,14 @@ export function AdjustmentsPanel({
           <span className="slider-value">{adjustments[name]}</span>
         </label>
       ))}
-      <button type="button" disabled={neutral} onClick={resetAll}>
-        Reset adjustments
-      </button>
+      <div className="adjustment-actions">
+        <button type="button" disabled={neutral} onClick={resetAll}>
+          Reset adjustments
+        </button>
+        <button type="button" onClick={onAutoEnhance}>
+          Auto-Enhance AI
+        </button>
+      </div>
     </div>
   );
 }

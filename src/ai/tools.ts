@@ -25,6 +25,7 @@ export interface EditorApi {
   rotate(degrees: number): void;
   flip(axis: 'x' | 'y'): void;
   resize(width: number, height: number): void;
+  autoEnhance(): void;
   reset(): void;
   exportImage(format: ExportFormat, quality: number): Promise<string>;
   /** Current editor snapshot, used to capture pre-tool state for undo. */
@@ -195,6 +196,15 @@ export const EDITOR_TOOLS: ToolDefinition[] = [
   {
     type: 'function',
     function: {
+      name: 'auto_enhance',
+      description:
+        'Apply automatic photo enhancement: improves brightness, contrast, saturation and color temperature for a more vibrant look.',
+      parameters: { type: 'object', properties: {} },
+    },
+  },
+  {
+    type: 'function',
+    function: {
       name: 'reset',
       description: 'Reset the photo to its original state, discarding all edits.',
       parameters: { type: 'object', properties: {} },
@@ -297,6 +307,10 @@ export async function executeToolCall(
           request,
           `Exported the photo as ${format.toUpperCase()} (quality ${String(quality)}).`,
         );
+      }
+      case 'auto_enhance': {
+        api.autoEnhance();
+        return ok(request, 'Auto-enhanced the photo (brightness, contrast, saturation, temperature)');
       }
       case 'reset': {
         api.reset();

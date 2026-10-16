@@ -195,6 +195,14 @@ export default function App() {
       rotate: (degrees) => editorRef.current?.rotate(degrees),
       flip: (axis) => editorRef.current?.flip(axis),
       resize: (width, height) => editorRef.current?.resize(width, height),
+      autoEnhance: () => {
+        const handle = editorRef.current;
+        if (!handle) return;
+        handle.setAdjustment('brightness', 10);
+        handle.setAdjustment('contrast', 15);
+        handle.setAdjustment('saturation', 10);
+        handle.setAdjustment('temperature', 10);
+      },
       reset: () => editorRef.current?.reset(),
       exportImage: (format, quality) => {
         const handle = editorRef.current;
