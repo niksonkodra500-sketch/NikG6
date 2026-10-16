@@ -181,32 +181,35 @@ html {
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
-.app.fullscreen.immersive .workspace {
-  top: 0;
-  bottom: 0;
+.app.fullscreen.immersive .editor-canvas-wrap.immersive {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  flex: none !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: #000 !important;
+  overflow: hidden !important;
+  display: block !important;
 }
 
-.app.fullscreen.immersive .canvas-container {
-  align-items: stretch;
-  justify-content: stretch;
-}
-
-.app.fullscreen.immersive .editor-canvas-wrap {
-  border: none;
-  border-radius: 0;
-  box-shadow: none;
-  width: 100%;
-  height: 100%;
-}
-
-.app.fullscreen.immersive .editor-canvas-wrap canvas {
-  border-radius: 0;
-  box-shadow: none;
-  max-width: none;
-  max-height: none;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+.app.fullscreen.immersive .editor-canvas-wrap.immersive canvas {
+  position: absolute !important;
+  inset: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  max-width: none !important;
+  max-height: none !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  display: block !important;
 }
 
 .app-header {
