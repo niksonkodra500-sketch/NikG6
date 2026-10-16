@@ -453,6 +453,7 @@ export default function App() {
               editorRef.current?.setAdjustment(name, value, { commit: false })
             }
             onCommit={() => editorRef.current?.commit()}
+            onAutoEnhance={() => editorRef.current?.autoEnhance()}
             onClose={() => setActiveTab(null)}
           />
         )}

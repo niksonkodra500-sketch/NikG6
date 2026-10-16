@@ -20,6 +20,7 @@ interface EditorMenuProps {
   onFlip: (axis: 'x' | 'y') => void;
   onReset: () => void;
   onExport: () => void;
+  onShare: () => void;
   onCompare: () => void;
   onOpenProjects: () => void;
   onTabChange: (tab: PanelTab | null) => void;
@@ -271,6 +272,18 @@ export function EditorMenu(props: EditorMenuProps) {
             }}
           >
             Export
+          </button>
+          <button
+            type="button"
+            className="icon-share"
+            aria-label="Share"
+            disabled={!hasImage}
+            onClick={() => {
+              props.onShare();
+              closeMenu();
+            }}
+          >
+            Share
           </button>
           <button
             type="button"
