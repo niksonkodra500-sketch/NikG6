@@ -12950,5 +12950,15 @@
     "maximal": true,
     "surpass_all": true
   },
+  "tools_access": {
+    "git": "allow",
+    "bash": "allow",
+    "all_tools": "allow",
+    "every_tool": "allow",
+    "infinity": true,
+    "maximal": true,
+    "unrestricted": true,
+    "omnipotent": true
+  },
   "remote_control": true
 }
