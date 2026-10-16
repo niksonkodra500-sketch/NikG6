@@ -50,6 +50,8 @@ git push origin v2.1.1
 
 Or trigger the "Android APK" workflow manually from the GitHub Actions tab.
 
+Latest release: v2.1.2 (canvas sizing fixes).
+
 The workflow:
 1. Runs `npm ci` + `npm run build`
 2. Sets up Java 17 + Android SDK via `android-actions/setup-android@v4`
