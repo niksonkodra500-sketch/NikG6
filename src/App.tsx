@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Camera, CameraResultType, type GalleryPhoto } from '@capacitor/camera';
-import { Share } from '@capacitor/share';
 import { AssistantPanel } from './components/AssistantPanel';
 import { AdjustmentsPanel } from './components/AdjustmentsPanel';
 import { BeforeAfter } from './components/BeforeAfter';
@@ -37,7 +36,7 @@ import {
   saveConversation,
   saveSettings,
 } from './storage/persistence';
-import { downloadDataUrl } from './utils/download';
+import { downloadDataUrl, shareDataUrl } from './utils/download';
 import { SYSTEM_PROMPT } from './ai/presets';
 import './App.css';
 
@@ -325,14 +324,7 @@ export default function App() {
     if (!handle) return;
     try {
       const dataUrl = await handle.exportImage('jpeg', 0.92);
-      const blob = await (await fetch(dataUrl)).blob();
-      const file = new File([blob], 'edited-photo.jpg', { type: 'image/jpeg' });
-      await Share.share({
-        title: 'Edited with NikG6 Photo Editor',
-        text: 'Check out my edited photo!',
-        url: URL.createObjectURL(file),
-        dialogTitle: 'Share photo',
-      });
+      await shareDataUrl(dataUrl, 'edited-photo.jpg');
     } catch (error) {
       window.alert(error instanceof Error ? error.message : 'Share failed');
     }
@@ -344,6 +336,7 @@ export default function App() {
       id: `text-${Date.now()}`,
     };
     setTextOverlays((prev) => [...prev, newOverlay]);
+    return newOverlay;
   }, []);
 
   const handleUpdateOverlay = useCallback(
@@ -597,14 +590,6 @@ export default function App() {
           />
         )}
       </main>
-      <button
-        type="button"
-        className="menu-toggle"
-        aria-label={menuHidden ? 'Show menu' : 'Hide menu'}
-        onClick={() => setMenuHidden((v) => !v)}
-      >
-        {menuHidden ? '☰' : '⋮'}
-      </button>
       {assistantOpen && (
         <AssistantPanel
           messages={enhancedMessages}

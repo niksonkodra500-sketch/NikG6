@@ -3,7 +3,7 @@ import { DEFAULT_TEXT_OVERLAY, type TextOverlay } from '../editor/types';
 
 interface TextOverlayPanelProps {
   overlays: TextOverlay[];
-  onAdd: () => void;
+  onAdd: () => TextOverlay;
   onUpdate: (id: string, updates: Partial<TextOverlay>) => void;
   onDelete: (id: string) => void;
   onClose: () => void;
@@ -20,11 +20,7 @@ export function TextOverlayPanel(props: TextOverlayPanelProps) {
   const selected = overlays.find((o) => o.id === selectedId);
 
   const handleAdd = () => {
-    const newOverlay: TextOverlay = {
-      ...DEFAULT_TEXT_OVERLAY,
-      id: `text-${Date.now()}`,
-    };
-    onAdd();
+    const newOverlay = onAdd();
     setSelectedId(newOverlay.id);
   };
 

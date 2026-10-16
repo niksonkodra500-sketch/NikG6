@@ -16,8 +16,24 @@ export function downloadDataUrl(dataUrl: string, filename: string): void {
   anchor.remove();
 }
 
+/** Shares a data URL via the Capacitor Share plugin (native) or Web Share (browser). */
+export async function shareDataUrl(dataUrl: string, filename: string): Promise<void> {
+  if (Capacitor.isNativePlatform()) {
+    await saveAndShareNative(dataUrl, filename);
+    return;
+  }
+  if (typeof navigator !== 'undefined' && 'share' in navigator) {
+    const blob = await (await fetch(dataUrl)).blob();
+    const file = new File([blob], filename, { type: blob.type || 'image/jpeg' });
+    await navigator.share({ title: 'Edited with NikG6 Photo Editor', text: 'Check out my edited photo!', files: [file] });
+    return;
+  }
+  // Fallback: trigger a download
+  downloadDataUrl(dataUrl, filename);
+}
+
 async function saveAndShareNative(dataUrl: string, filename: string): Promise<void> {
-  const base64 = dataUrl.split(',')[1] ?? '';
+  const base64 = dataUrl.includes(',') ? dataUrl.split(',')[1] ?? '' : '';
   const result = await Filesystem.writeFile({
     path: filename,
     data: base64,

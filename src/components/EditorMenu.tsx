@@ -54,10 +54,11 @@ export function EditorMenu(props: EditorMenuProps) {
       <button
         type="button"
         className="editor-menu-trigger"
-        aria-label="Open editing menu"
+        aria-label={menuHidden ? 'Show menu' : 'Hide menu'}
         aria-haspopup="menu"
         aria-expanded={hasImage}
         onClick={() => {
+          props.onToggleMenu();
           if (menuRef.current) {
             if (menuRef.current.classList.contains('open')) {
               menuRef.current.classList.remove('open');
@@ -67,7 +68,7 @@ export function EditorMenu(props: EditorMenuProps) {
           }
         }}
       >
-        <span className="kebab-icon">⋮</span>
+        <span className="kebab-icon">{menuHidden ? '☰' : '⋮'}</span>
       </button>
       <div className="editor-menu-dropdown" role="menu">
         <div className="toolbar-group" role="toolbar">
