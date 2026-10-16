@@ -18,6 +18,8 @@ interface EditorMenuProps {
   activeTab: PanelTab | null;
   exportFormat: ExportFormat;
   assistantOpen: boolean;
+  immersive: boolean;
+  onImmersiveToggle: () => void;
   onOpenFiles: (files: FileList | null) => void;
   onTakePhoto: () => void;
   onPickFromLibrary: () => void;
@@ -38,7 +40,7 @@ interface EditorMenuProps {
 export function EditorMenu(props: EditorMenuProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
-  const { canUndo, canRedo, hasImage, activeTab, exportFormat, assistantOpen } = props;
+  const { canUndo, canRedo, hasImage, activeTab, exportFormat, assistantOpen, immersive } = props;
   const closeMenu = () => {
     if (menuRef.current) {
       menuRef.current.classList.remove('open');
@@ -283,63 +285,74 @@ export function EditorMenu(props: EditorMenuProps) {
             Export Presets
           </button>
         </div>
-        <div className="toolbar-group">
-          <label style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-            <span style={{ fontSize: '0.72rem', color: 'var(--text-faint)' }}>Format</span>
-            <select
-              value={exportFormat}
-              onChange={(e) => props.onExportFormatChange(e.target.value as ExportFormat)}
-              style={{
-                background: 'rgba(15, 23, 42, 0.6)',
-                border: '1px solid var(--border-soft)',
-                borderRadius: '8px',
-                color: 'var(--text)',
-                padding: '4px 8px',
-                fontSize: '0.8rem',
-                cursor: 'pointer',
+<div className="toolbar-group">
+            <label style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+              <span style={{ fontSize: '0.72rem', color: 'var(--text-faint)' }}>Format</span>
+              <select
+                value={exportFormat}
+                onChange={(e) => props.onExportFormatChange(e.target.value as ExportFormat)}
+                style={{
+                  background: 'rgba(15, 23, 42, 0.6)',
+                  border: '1px solid var(--border-soft)',
+                  borderRadius: '8px',
+                  color: 'var(--text)',
+                  padding: '4px 8px',
+                  fontSize: '0.8rem',
+                  cursor: 'pointer',
+                }}
+              >
+                <option value="png">PNG</option>
+                <option value="jpeg">JPEG</option>
+                <option value="webp">WebP</option>
+              </select>
+            </label>
+            <button
+              type="button"
+              className="icon-export"
+              aria-label="Export"
+              disabled={!hasImage}
+              onClick={() => {
+                props.onExport();
+                closeMenu();
               }}
             >
-              <option value="png">PNG</option>
-              <option value="jpeg">JPEG</option>
-              <option value="webp">WebP</option>
-            </select>
-          </label>
-          <button
-            type="button"
-            className="icon-export"
-            aria-label="Export"
-            disabled={!hasImage}
-            onClick={() => {
-              props.onExport();
-              closeMenu();
-            }}
-          >
-            Export
-          </button>
-          <button
-            type="button"
-            className="icon-share"
-            aria-label="Share"
-            disabled={!hasImage}
-            onClick={() => {
-              props.onShare();
-              closeMenu();
-            }}
-          >
-            Share
-          </button>
-          <button
-            type="button"
-            className={`icon-assistant ${assistantOpen ? 'active' : ''}`}
-            aria-label="AI Assistant"
-            onClick={() => {
-              props.onToggleAssistant();
-              closeMenu();
-            }}
-          >
-            AI Assistant
-          </button>
-        </div>
+              Export
+            </button>
+            <button
+              type="button"
+              className="icon-share"
+              aria-label="Share"
+              disabled={!hasImage}
+              onClick={() => {
+                props.onShare();
+                closeMenu();
+              }}
+            >
+              Share
+            </button>
+            <button
+              type="button"
+              className={`icon-assistant ${assistantOpen ? 'active' : ''}`}
+              aria-label="AI Assistant"
+              onClick={() => {
+                props.onToggleAssistant();
+                closeMenu();
+              }}
+            >
+              AI Assistant
+            </button>
+            <button
+              type="button"
+              className={`icon-immersive ${immersive ? 'active' : ''}`}
+              aria-label={immersive ? 'Exit full screen' : 'Enter full screen'}
+              onClick={() => {
+                props.onImmersiveToggle();
+                closeMenu();
+              }}
+            >
+              {immersive ? 'Exit Full' : 'Full Screen'}
+            </button>
+          </div>
       </div>
     </div>
   );

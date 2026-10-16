@@ -49,6 +49,7 @@ export interface EditorHandle {
 interface EditorCanvasProps {
   onStateChange?: (snapshot: EditorSnapshot, hasImage: boolean) => void;
   onHistoryChange?: (canUndo: boolean, canRedo: boolean) => void;
+  immersive?: boolean;
 }
 
 function freshSnapshot(): EditorSnapshot {

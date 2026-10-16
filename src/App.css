@@ -161,6 +161,52 @@ html {
   background: transparent;
   overflow: hidden;
   position: relative;
+  transition: background 0.3s ease;
+}
+
+/* Immersive mode: canvas fills entire screen, UI chrome hidden */
+.app.fullscreen.immersive {
+  background: #000;
+}
+
+.app.fullscreen.immersive .app-header,
+.app.fullscreen.immersive .offline-banner,
+.app.fullscreen.immersive .update-banner,
+.app.fullscreen.immersive .editor-menu,
+.app.fullscreen.immersive .panel.floating,
+.app.fullscreen.immersive .assistant-window {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-12px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.app.fullscreen.immersive .workspace {
+  top: 0;
+  bottom: 0;
+}
+
+.app.fullscreen.immersive .canvas-container {
+  align-items: stretch;
+  justify-content: stretch;
+}
+
+.app.fullscreen.immersive .editor-canvas-wrap {
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  width: 100%;
+  height: 100%;
+}
+
+.app.fullscreen.immersive .editor-canvas-wrap canvas {
+  border-radius: 0;
+  box-shadow: none;
+  max-width: none;
+  max-height: none;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .app-header {
@@ -378,6 +424,10 @@ html {
 }
 .icon-assistant::before {
   content: '\1F916';
+}
+
+.icon-immersive::before {
+  content: '\1F5FA';
 }
 
 /* ---- Buttons: elegant glass style ---- */

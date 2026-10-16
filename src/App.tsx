@@ -148,6 +148,7 @@ export default function App() {
     typeof navigator !== 'undefined' ? navigator.onLine : true,
   );
   const [textOverlays, setTextOverlays] = useState<TextOverlay[]>([]);
+  const [immersive, setImmersive] = useState(false);
   const updates = useAppUpdates();
 
   // Generate enhanced messages for AI (with summary) from original messages
@@ -439,7 +440,7 @@ export default function App() {
   }, []);
 
   return (
-    <div className={`app fullscreen${assistantOpen ? ' assistant-open' : ''}`}>
+    <div className={`app fullscreen${assistantOpen ? ' assistant-open' : ''}${immersive ? ' immersive' : ''}`}>
       <OfflineBanner online={online} />
       <UpdateBanner updates={updates} />
       <header className="app-header float">
@@ -455,6 +456,8 @@ export default function App() {
             activeTab={activeTab}
             exportFormat={exportFormat}
             assistantOpen={assistantOpen}
+            immersive={immersive}
+            onImmersiveToggle={() => setImmersive((v) => !v)}
             onOpenFiles={openFiles}
             onTakePhoto={() => {
               void takePhoto();
@@ -491,6 +494,7 @@ export default function App() {
                 ref={editorRef}
                 onStateChange={handleStateChange}
                 onHistoryChange={handleHistoryChange}
+                immersive={immersive}
               />
             )}
             {textOverlays.map((overlay) => (
