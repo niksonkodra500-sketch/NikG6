@@ -37,6 +37,7 @@ export interface EditorHandle {
   rotate(degrees: number): void;
   flip(axis: 'x' | 'y'): void;
   resize(width: number, height: number): void;
+  autoEnhance(): void;
   reset(): void;
   exportImage(format: ExportFormat, quality: number): Promise<string>;
   getImageDataUrl(maxSize?: number): Promise<string | null>;
@@ -352,6 +353,24 @@ export const EditorCanvas = forwardRef<EditorHandle, EditorCanvasProps>(
       [applySnapshot, commit, emitState],
     );
 
+    const autoEnhance = useCallback(() => {
+      const current = stateRef.current;
+      const next: EditorSnapshot = {
+        ...current,
+        adjustments: {
+          ...current.adjustments,
+          brightness: clampSlider(current.adjustments.brightness + 10),
+          contrast: clampSlider(current.adjustments.contrast + 15),
+          saturation: clampSlider(current.adjustments.saturation + 10),
+          temperature: clampSlider(current.adjustments.temperature + 10),
+        },
+      };
+      stateRef.current = next;
+      applySnapshot(next);
+      emitState(next, true);
+      commit();
+    }, [applySnapshot, commit, emitState]);
+
     const reset = useCallback(() => {
       const snapshot = freshSnapshot();
       stateRef.current = snapshot;
@@ -435,6 +454,7 @@ export const EditorCanvas = forwardRef<EditorHandle, EditorCanvasProps>(
         rotate,
         flip,
         resize,
+        autoEnhance,
         reset,
         exportImage,
         getImageDataUrl,
@@ -463,6 +483,7 @@ export const EditorCanvas = forwardRef<EditorHandle, EditorCanvasProps>(
         rotate,
         setAdjustment,
         undo,
+        autoEnhance,
       ],
     );
 

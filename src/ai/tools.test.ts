@@ -13,6 +13,7 @@ function mockApi(): EditorApi & { calls: string[] } {
     rotate: (d) => record(`rotate:${String(d)}`),
     flip: (axis) => record(`flip:${axis}`),
     resize: (w, h) => record(`resize:${String(w)}x${String(h)}`),
+    autoEnhance: () => record('autoEnhance'),
     reset: () => record('reset'),
     exportImage: () => {
       record('export');

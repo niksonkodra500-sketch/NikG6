@@ -55,7 +55,7 @@ export function PresetPanel(props: PresetPanelProps) {
   }, [name, adjustments, refresh]);
 
   const handleApply = useCallback(
-    async (preset: AdjustmentPreset) => {
+    (preset: AdjustmentPreset) => {
       onApplyPreset(preset.adjustments, preset.filter);
       onClose();
     },

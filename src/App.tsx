@@ -19,22 +19,21 @@ import { DEFAULT_API_KEY, DEFAULT_MODEL, type ChatMessage } from './ai/openroute
 import type { EditorApi, ToolCallResult } from './ai/tools';
 import {
   DEFAULT_SNAPSHOT,
+  DEFAULT_TEXT_OVERLAY,
   type AdjustmentName,
-  type AdjustmentPreset,
   type CropAspect,
   type EditorSnapshot,
   type ExportFormat,
-  type ExportPreset,
   type FilterName,
   type TextOverlay,
 } from './editor/types';
 import {
+  deleteApiKey,
   getApiKey,
   hasStoredApiKey,
-  saveApiKey,
-  deleteApiKey,
   loadConversation,
   loadSettings,
+  saveApiKey,
   saveConversation,
   saveSettings,
 } from './storage/persistence';
@@ -148,9 +147,7 @@ export default function App() {
   const [online, setOnline] = useState<boolean>(
     typeof navigator !== 'undefined' ? navigator.onLine : true,
   );
-  const [adjustmentPresets, setAdjustmentPresets] = useState<AdjustmentPreset[]>([]);
   const [textOverlays, setTextOverlays] = useState<TextOverlay[]>([]);
-  const [exportPresets, setExportPresets] = useState<ExportPreset[]>([]);
   const updates = useAppUpdates();
 
   // Generate enhanced messages for AI (with summary) from original messages
@@ -181,12 +178,6 @@ export default function App() {
         setModel(settings.model);
         setVisionEnabled(settings.visionEnabled);
       }
-    });
-    void loadPresets().then((presets) => {
-      setAdjustmentPresets(presets);
-    });
-    void loadExportPresets().then((presets) => {
-      setExportPresets(presets);
     });
   }, []);
 
@@ -345,48 +336,6 @@ export default function App() {
     }
   }, []);
 
-  /* ============================================================================
-     TIER 1 — Adjustment Preset handlers
-     ============================================================================ */
-
-  const handleSavePreset = useCallback(async (name: string) => {
-    const trimmed = name.trim();
-    if (!trimmed || !snapshot.adjustments) return;
-    const preset: AdjustmentPreset = {
-      id: `preset-${Date.now()}`,
-      name: trimmed,
-      adjustments: snapshot.adjustments,
-      filter: snapshot.filter,
-      createdAt: Date.now(),
-    };
-    await savePreset(preset);
-    setAdjustmentPresets((prev) => [preset, ...prev]);
-  }, [snapshot.adjustments, snapshot.filter]);
-
-  const handleApplyPreset = useCallback(
-    (preset: AdjustmentPreset) => {
-      editorRef.current?.setAdjustment('brightness', preset.adjustments.brightness);
-      editorRef.current?.setAdjustment('contrast', preset.adjustments.contrast);
-      editorRef.current?.setAdjustment('saturation', preset.adjustments.saturation);
-      editorRef.current?.setAdjustment('hue', preset.adjustments.hue);
-      editorRef.current?.setAdjustment('temperature', preset.adjustments.temperature);
-      if (preset.filter) {
-        editorRef.current?.applyFilter(preset.filter);
-      }
-      editorRef.current?.commit();
-    },
-    [],
-  );
-
-  const handleDeletePreset = useCallback(async (id: string) => {
-    await deletePreset(id);
-    setAdjustmentPresets((prev) => prev.filter((p) => p.id !== id));
-  }, []);
-
-  /* ============================================================================
-     TIER 3 — Text Overlay handlers
-     ============================================================================ */
-
   const handleAddOverlay = useCallback(() => {
     const newOverlay: TextOverlay = {
       ...DEFAULT_TEXT_OVERLAY,
@@ -406,32 +355,6 @@ export default function App() {
 
   const handleDeleteOverlay = useCallback((id: string) => {
     setTextOverlays((prev) => prev.filter((o) => o.id !== id));
-  }, []);
-
-  /* ============================================================================
-     TIER 5 — Export Preset handlers
-     ============================================================================ */
-
-  const handleSaveExportPreset = useCallback(async (name: string) => {
-    const trimmed = name.trim();
-    if (!trimmed) return;
-    const preset: ExportPreset = {
-      id: `export_preset-${Date.now()}`,
-      name: trimmed,
-      format: exportFormat,
-      quality: exportFormat === 'png' ? 1 : 0.92,
-      maxWidth: null,
-      maxHeight: null,
-      watermark: null,
-      createdAt: Date.now(),
-    };
-    await saveExportPreset(preset);
-    setExportPresets((prev) => [preset, ...prev]);
-  }, [exportFormat]);
-
-  const handleDeleteExportPreset = useCallback(async (id: string) => {
-    await deleteExportPreset(id);
-    setExportPresets((prev) => prev.filter((p) => p.id !== id));
   }, []);
 
   const handleMessagesChange = useCallback((next: ChatMessage[]) => {
@@ -643,7 +566,7 @@ export default function App() {
               editorRef.current?.setAdjustment('hue', adjustments.hue);
               editorRef.current?.setAdjustment('temperature', adjustments.temperature);
               if (filter) {
-                editorRef.current?.applyFilter(filter);
+                editorRef.current?.applyFilter(filter as FilterName);
               }
               editorRef.current?.commit();
             }}

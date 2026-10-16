@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import { DEFAULT_TEXT_OVERLAY, type TextOverlay } from '../editor/types';
 
 interface TextOverlayPanelProps {
