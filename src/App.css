@@ -216,11 +216,18 @@ html {
   display: block;
 }
 
-/* Hide UI chrome when menu is hidden */
+/* Hide UI chrome when menu is hidden (except the kebab trigger) */
 .app.fullscreen.menu-hidden .app-header,
 .app.fullscreen.menu-hidden .offline-banner,
-.app.fullscreen.menu-hidden .update-banner,
-.app.fullscreen.menu-hidden .editor-menu {
+.app.fullscreen.menu-hidden .update-banner {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-12px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Hide the dropdown panel when menu is hidden, but keep the trigger visible */
+.app.fullscreen.menu-hidden .editor-menu-dropdown {
   opacity: 0;
   pointer-events: none;
   transform: translateY(-12px);
@@ -236,66 +243,12 @@ html {
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
-/* When menu is hidden, panels slide up from bottom for quick access */
-.app.fullscreen.menu-hidden .panel {
-  position: fixed !important;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  width: 100% !important;
-  max-width: none !important;
-  border-radius: 16px 16px 0 0 !important;
-  z-index: 90;
-  max-height: 75vh;
-}
-
 /* Hide assistant window when menu is hidden */
 .app.fullscreen.menu-hidden .assistant-window {
   opacity: 0;
   pointer-events: none;
   transform: translateX(12px);
   transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
-/* Menu toggle button — always visible in top-right */
-.menu-toggle {
-  position: fixed;
-  top: 16px;
-  right: 16px;
-  z-index: 100;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: rgba(15, 23, 42, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--border-soft);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  color: var(--text);
-  font-size: 1.4rem;
-  line-height: 1;
-  padding: 0;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-}
-
-.menu-toggle:hover {
-  background: rgba(26, 22, 46, 0.95);
-  border-color: var(--gold);
-  box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
-  transform: scale(1.05);
-}
-
-.menu-toggle:active {
-  transform: scale(0.95);
-}
-
-.menu-toggle.hidden {
-  opacity: 0;
-  pointer-events: none;
 }
 
 .app-header {
@@ -366,7 +319,7 @@ html {
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
-/* Editor menu — single overlay button with dropdown */
+/* Editor menu container — trigger is positioned fixed, dropdown stays near it */
 .editor-menu {
   position: absolute;
   top: 16px;
@@ -375,10 +328,10 @@ html {
 }
 
 .editor-menu-trigger {
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
-  background: rgba(15, 23, 42, 0.7);
+  background: rgba(15, 23, 42, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border-soft);
@@ -388,15 +341,21 @@ html {
   cursor: pointer;
   transition: all 0.2s ease;
   color: var(--text);
-  font-size: 1.3rem;
+  font-size: 1.4rem;
   line-height: 1;
   padding: 0;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
 }
 
 .editor-menu-trigger:hover {
-  background: rgba(26, 22, 46, 0.85);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  background: rgba(26, 22, 46, 0.95);
+  border-color: var(--gold);
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
   transform: scale(1.05);
+}
+
+.editor-menu-trigger:active {
+  transform: scale(0.95);
 }
 
 .editor-menu.open .editor-menu-trigger {
@@ -1239,6 +1198,31 @@ input[type='range']::-ms-fill-upper {
   color: var(--error);
   box-shadow: 0 0 10px rgba(244, 63, 94, 0.3);
   transform: scale(1.15);
+}
+
+.assistant-window-header .new-chat-btn {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  color: var(--text-dim);
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  font-size: 0.9rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.assistant-window-header .new-chat-btn:hover:not(:disabled) {
+  background: rgba(212, 175, 55, 0.2);
+  border-color: var(--gold);
+  color: var(--gold);
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+  transform: scale(1.1);
 }
 
 .assistant-window-body {

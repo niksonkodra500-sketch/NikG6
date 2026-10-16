@@ -19,6 +19,11 @@ export function clampPositiveNumber(value: unknown, fallback: number): number {
   return clampNumber(value, 0.01, 1, fallback);
 }
 
+/** Clamps an aspect ratio to a reasonable range (0.01 to 100). */
+export function clampAspectRatio(value: unknown, fallback: number): number {
+  return clampNumber(value, 0.01, 100, fallback);
+}
+
 export function parseRotationArg(value: unknown): number {
   const n = clampNumber(value, -360, 360, 0);
   return Math.round(n);

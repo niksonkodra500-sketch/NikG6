@@ -127,6 +127,17 @@ export function AssistantPanel(props: AssistantPanelProps) {
     <div className="assistant-window">
       <div className="assistant-window-header">
         <h2>AI Assistant</h2>
+        <button
+          type="button"
+          className="new-chat-btn"
+          aria-label="New conversation"
+          onClick={() => {
+            void props.onNewChat();
+          }}
+          title="Start a new conversation"
+        >
+          ↻
+        </button>
         {props.onClose && (
           <button
             type="button"

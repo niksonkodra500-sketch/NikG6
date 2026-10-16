@@ -364,11 +364,12 @@ export default function App() {
       ) {
         return false;
       }
-      // Don't store the SYSTEM_PROMPT (it's regenerated each time)
+      // Don't store the SYSTEM_PROMPT (it's regenerated each time).
+      // Compare after trimming to be robust against minor whitespace differences.
       if (
         msg.role === 'system' &&
         typeof msg.content === 'string' &&
-        msg.content === SYSTEM_PROMPT
+        msg.content.trim() === SYSTEM_PROMPT.trim()
       ) {
         return false;
       }

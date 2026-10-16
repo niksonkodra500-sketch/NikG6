@@ -36,6 +36,17 @@ export class TemperatureFilter extends fabric.filters.BaseFilter<
       }
     }
   }
+
+  /** Returns the filter's serialisable state so Fabric can persist/restore it. */
+  toObject(): { temperature: number } {
+    return { temperature: this.temperature };
+  }
+
+  /** Restore state from a deserialised object (Fabric v6 calls this on load). */
+  static fromObject<T>(options: T): Promise<TemperatureFilter> {
+    const opts = options as { temperature?: number };
+    return Promise.resolve(new TemperatureFilter(opts));
+  }
 }
 
 /** Sharpen kernel for the Convolute filter. */

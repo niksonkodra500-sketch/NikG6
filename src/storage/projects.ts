@@ -1,5 +1,5 @@
 import type { Project } from '../editor/types';
-import { loadProjectJson, saveProjectJson } from './persistence';
+import { deleteProjectJson, loadProjectJson, saveProjectJson } from './persistence';
 
 const PROJECT_INDEX_KEY = 'project:index';
 
@@ -103,7 +103,7 @@ export async function loadProject(name: string): Promise<string | null> {
 /** Deletes a project and removes it from the index. */
 export async function deleteProject(name: string): Promise<void> {
   try {
-    await saveProjectJson(name, JSON.stringify(null));
+    await deleteProjectJson(name);
   } catch {
     // ignore
   }

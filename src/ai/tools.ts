@@ -3,6 +3,7 @@ import {
   clampPositiveInt,
   clampPositiveNumber,
   clampSliderArg,
+  clampAspectRatio,
   isAdjustmentName,
   isExportFormat,
   isFilterName,
@@ -114,6 +115,7 @@ export const EDITOR_TOOLS: ToolDefinition[] = [
           y: { type: 'number', minimum: 0 },
           width: { type: 'number', minimum: 1 },
           height: { type: 'number', minimum: 1 },
+          aspect: { type: 'number', minimum: 0.01, description: 'Optional aspect ratio constraint (e.g. 1 for 1:1, 1.777 for 16:9). Omit for freeform.' },
         },
         required: ['x', 'y', 'width', 'height'],
       },
@@ -266,7 +268,7 @@ export async function executeToolCall(
         const width = clampPositiveInt(args.width, 0);
         const height = clampPositiveInt(args.height, 0);
         if (!width || !height) return fail(request, 'Crop width and height must be positive');
-        const aspect = clampPositiveNumber(args.aspect, 0);
+        const aspect = clampAspectRatio(args.aspect, 0);
         api.crop(x, y, width, height, aspect || null);
         return ok(
           request,

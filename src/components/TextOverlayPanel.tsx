@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { DEFAULT_TEXT_OVERLAY, type TextOverlay } from '../editor/types';
+import { type TextOverlay } from '../editor/types';
 
 interface TextOverlayPanelProps {
   overlays: TextOverlay[];
@@ -68,7 +68,7 @@ export function TextOverlayPanel(props: TextOverlayPanelProps) {
                 onClick={() => setSelectedId(overlay.id)}
               >
                 <span className="overlay-text-preview" style={{ fontWeight: overlay.bold ? 'bold' : 'normal', fontStyle: overlay.italic ? 'italic' : 'normal' }}>
-                  "{overlay.text}"
+                  {overlay.text}
                 </span>
                 <button
                   type="button"
