@@ -157,6 +157,6 @@ export async function runAssistantTurn(options: {
     }
   }
 
-  // If all models failed, throw the last error
-  throw lastError ?? new Error('All available models failed');
+  // If all models failed, throw the last error with a clear user-facing message
+  throw lastError ?? new OpenRouterError('Assistant service is unavailable. All models failed.', undefined, false);
 }

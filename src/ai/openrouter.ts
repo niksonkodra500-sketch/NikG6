@@ -177,7 +177,20 @@ async function postChatCompletion(options: {
     );
   }
 
-  return (await response.json()) as ChatCompletionResponse;
+  // OpenRouter normally returns JSON, but proxies or error paths may return
+  // non-JSON bodies (e.g. SSE streams). Parse defensively and convert any
+  // parse failure into a retryable OpenRouterError so the caller can fall back.
+  let body: ChatCompletionResponse;
+  try {
+    body = (await response.json()) as ChatCompletionResponse;
+  } catch {
+    throw new OpenRouterError(
+      `AI service error (${options.model}): received non-JSON response`,
+      undefined,
+      true,
+    );
+  }
+  return body;
 }
 
 export async function requestChatCompletion(options: {
