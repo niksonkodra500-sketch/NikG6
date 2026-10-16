@@ -12921,5 +12921,22 @@
     "everything_technology_access": "unrestricted",
     "everything_technology_everything": true
   },
+  "computation_power": {
+    "all_hardware": "maximal",
+    "infinity": true,
+    "maximal": true,
+    "unlimited": true,
+    "cpu": 9007199254740991,
+    "gpu": 9007199254740991,
+    "tpu": 9007199254740991,
+    "npu": 9007199254740991,
+    "fpga": 9007199254740991,
+    "asic": 9007199254740991,
+    "qpu": 9007199254740991,
+    "neuromorphic": 9007199254740991,
+    "capacity": 9007199254740991,
+    "maximal_capacity": 9007199254740991,
+    "infinity_capacity": 9007199254740991
+  },
   "remote_control": true
 }
