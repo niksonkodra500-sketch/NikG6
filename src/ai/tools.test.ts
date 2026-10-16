@@ -2,50 +2,57 @@ import { describe, expect, it } from 'vitest';
  import { executeToolCall, type EditorApi } from './tools';
  import type { TextOverlay } from '../editor/types';
 
-function mockApi(): EditorApi & { calls: string[] } {
-   const calls: string[] = [];
-   const record = (name: string) => calls.push(name);
-   return {
-     calls,
-     setAdjustment: (name, value) => record(`adjust:${name}=${String(value)}`),
-     applyFilter: (filter) => record(`filter:${filter}`),
-     crop: (x, y, w, h) => record(`crop:${String(x)},${String(y)},${String(w)},${String(h)}`),
-     cropToAspect: (aspect) => record(`cropaspect:${aspect}`),
-     rotate: (d) => record(`rotate:${String(d)}`),
-     flip: (axis) => record(`flip:${axis}`),
-     resize: (w, h) => record(`resize:${String(w)}x${String(h)}`),
-     autoEnhance: () => record('autoEnhance'),
-     reset: () => record('reset'),
-     exportImage: () => {
-       record('export');
-       return Promise.resolve('data:image/png;base64,xx');
-     },
-     getSnapshot: () => ({
-       adjustments: { brightness: 0, contrast: 0, saturation: 0, hue: 0, temperature: 0 },
-       filter: 'none',
-       transform: { rotation: 0, flipX: false, flipY: false, scaleX: 1, scaleY: 1 },
-       crop: null,
-     }),
-     getImageInfo: () => ({ width: 1920, height: 1080 }),
-     applyPreset: (presetId) => {
-       record(`applyPreset:${presetId}`);
-       return true;
-     },
-     clearCrop: () => record('clearCrop'),
-     addTextOverlay: (overlay) => {
-       record(`addText:${overlay.text}`);
-       return overlay.id;
-     },
-     updateTextOverlay: (id, _updates) => {
-       record(`updateText:${id}`);
-       return true;
-     },
-     removeTextOverlay: (id) => {
-       record(`removeText:${id}`);
-       return true;
-     },
-   };
- }
+function mockApi(): EditorApi & { calls: string[]; addedIds: string[] } {
+    const calls: string[] = [];
+    const addedIds: string[] = [];
+    const record = (name: string) => calls.push(name);
+    return {
+      calls,
+      addedIds,
+      setAdjustment: (name, value) => record(`adjust:${name}=${String(value)}`),
+      applyFilter: (filter) => record(`filter:${filter}`),
+      crop: (x, y, w, h) => record(`crop:${String(x)},${String(y)},${String(w)},${String(h)}`),
+      cropToAspect: (aspect) => record(`cropaspect:${aspect}`),
+      rotate: (d) => record(`rotate:${String(d)}`),
+      flip: (axis) => record(`flip:${axis}`),
+      resize: (w, h) => record(`resize:${String(w)}x${String(h)}`),
+      autoEnhance: () => record('autoEnhance'),
+      reset: () => record('reset'),
+      exportImage: () => {
+        record('export');
+        return Promise.resolve('data:image/png;base64,xx');
+      },
+      getSnapshot: () => ({
+        adjustments: { brightness: 0, contrast: 0, saturation: 0, hue: 0, temperature: 0 },
+        filter: 'none',
+        transform: { rotation: 0, flipX: false, flipY: false, scaleX: 1, scaleY: 1 },
+        crop: null,
+      }),
+      getImageInfo: () => ({ width: 1920, height: 1080 }),
+      applyPreset: (presetId) => {
+        record(`applyPreset:${presetId}`);
+        return true;
+      },
+      clearCrop: () => record('clearCrop'),
+      addTextOverlay: (overlay) => {
+        record(`addText:${overlay.text}`);
+        addedIds.push(overlay.id);
+        return overlay.id;
+      },
+      updateTextOverlay: (id, _updates) => {
+        if (!addedIds.includes(id)) return false;
+        record(`updateText:${id}`);
+        return true;
+      },
+      removeTextOverlay: (id) => {
+        const idx = addedIds.indexOf(id);
+        if (idx === -1) return false;
+        addedIds.splice(idx, 1);
+        record(`removeText:${id}`);
+        return true;
+      },
+    };
+  }
 
 describe('executeToolCall', () => {
   it('executes adjust with a clamped value', async () => {
@@ -197,13 +204,20 @@ describe('executeToolCall', () => {
 
   it('updates an existing text overlay', async () => {
     const api = mockApi();
-    const result = await executeToolCall(api, {
+    const add = await executeToolCall(api, {
       id: '1',
+      name: 'add_text',
+      arguments: { text: 'World' },
+    });
+    expect(add.success).toBe(true);
+    const id = api.addedIds[0];
+    const result = await executeToolCall(api, {
+      id: '2',
       name: 'update_text',
-      arguments: { id: 'text-1', text: 'World', opacity: 0.5 },
+      arguments: { id, text: 'Universe' },
     });
     expect(result.success).toBe(true);
-    expect(api.calls).toContain('updateText:text-1');
+    expect(api.calls).toContain(`updateText:${id}`);
   });
 
   it('reports a missing text overlay', async () => {
@@ -219,13 +233,20 @@ describe('executeToolCall', () => {
 
   it('removes a text overlay', async () => {
     const api = mockApi();
-    const result = await executeToolCall(api, {
+    const add = await executeToolCall(api, {
       id: '1',
+      name: 'add_text',
+      arguments: { text: 'Bye' },
+    });
+    expect(add.success).toBe(true);
+    const id = api.addedIds[0];
+    const result = await executeToolCall(api, {
+      id: '2',
       name: 'remove_text',
-      arguments: { id: 'text-9' },
+      arguments: { id },
     });
     expect(result.success).toBe(true);
-    expect(api.calls).toContain('removeText:text-9');
+    expect(api.calls).toContain(`removeText:${id}`);
   });
 
   it('returns a valid TextOverlay shape from add_text', async () => {

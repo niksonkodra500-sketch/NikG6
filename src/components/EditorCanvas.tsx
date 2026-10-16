@@ -248,8 +248,8 @@ export const EditorCanvas = forwardRef<EditorHandle, EditorCanvasProps>(
         // Set canvas dimensions to fill the container immediately
         const container = wrapRef.current;
         if (container) {
-          let cw = container.clientWidth || window.innerWidth;
-          let ch = container.clientHeight || window.innerHeight;
+          const cw = container.clientWidth || window.innerWidth;
+          const ch = container.clientHeight || window.innerHeight;
           const scale = Math.min(cw / natural.width, ch / natural.height);
           const dw = Math.round(natural.width * scale);
           const dh = Math.round(natural.height * scale);
