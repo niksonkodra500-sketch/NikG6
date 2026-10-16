@@ -91,12 +91,12 @@ export const EditorCanvas = forwardRef<EditorHandle, EditorCanvasProps>(
     const [textOverlays, setTextOverlays] = useState<TextOverlay[]>([]);
     const wrapRef = useRef<HTMLDivElement>(null);
 
-    // Resize the fabric canvas to fill the container so the image scales to
-// the full screen instead of staying at natural size. Runs in all modes.
-    const resizeImmersive = useCallback(() => {
+// Resize the fabric canvas to fill the screen so the image scales to
+// fit the viewport. Runs whenever the image or container changes.
+    const resizeCanvas = useCallback(() => {
       const fc = fabricCanvasRef.current;
       const container = wrapRef.current;
-      if (!fc || !container) return;
+      if (!fc || !container || !imageRef.current) return;
       let w = container.clientWidth;
       let h = container.clientHeight;
       if (!w) w = window.innerWidth;
@@ -105,29 +105,26 @@ export const EditorCanvas = forwardRef<EditorHandle, EditorCanvasProps>(
       const natural = naturalSizeRef.current;
       if (!natural.width || !natural.height) return;
       const img = imageRef.current;
-      // Scale the canvas to fit the container while preserving aspect ratio
+      // Canvas fills the entire viewport
+      fc.setDimensions({ width: w, height: h });
+      // Scale the image to fit within the canvas, preserving aspect ratio
       const scale = Math.min(w / natural.width, h / natural.height);
-      const displayW = Math.round(natural.width * scale);
-      const displayH = Math.round(natural.height * scale);
-      fc.setDimensions({ width: displayW, height: displayH });
-      if (img) {
-        img.set({ left: displayW / 2, top: displayH / 2 });
-      }
+      img.set({ scaleX: scale, scaleY: scale, left: w / 2, top: h / 2 });
       fc.requestRenderAll();
     }, []);
 
     useEffect(() => {
       if (!hasImage) return;
-      resizeImmersive();
-      const observer = new ResizeObserver(resizeImmersive);
+      resizeCanvas();
+      const observer = new ResizeObserver(resizeCanvas);
       if (wrapRef.current) observer.observe(wrapRef.current);
-      const onResize = () => requestAnimationFrame(resizeImmersive);
+      const onResize = () => requestAnimationFrame(resizeCanvas);
       window.addEventListener('resize', onResize);
       return () => {
         observer.disconnect();
         window.removeEventListener('resize', onResize);
       };
-    }, [hasImage, resizeImmersive]);
+    }, [hasImage, resizeCanvas]);
 
     const emitState = useCallback((snapshot: EditorSnapshot, loaded: boolean) => {
       onStateChangeRef.current?.(snapshot, loaded);
@@ -171,7 +168,7 @@ export const EditorCanvas = forwardRef<EditorHandle, EditorCanvasProps>(
       // Always let the ResizeObserver-driven resize handle canvas dimensions
       // so the image fills the screen. Apply filters/transform only.
       fc.requestRenderAll();
-    }, [resizeImmersive]);
+    }, []);
 
     const commit = useCallback(() => {
       const json = JSON.stringify(stateRef.current);
@@ -245,25 +242,14 @@ export const EditorCanvas = forwardRef<EditorHandle, EditorCanvasProps>(
         });
         fc.add(img);
         imageRef.current = img;
-        // Set canvas dimensions to fill the container immediately
-        const container = wrapRef.current;
-        if (container) {
-          const cw = container.clientWidth || window.innerWidth;
-          const ch = container.clientHeight || window.innerHeight;
-          const scale = Math.min(cw / natural.width, ch / natural.height);
-          const dw = Math.round(natural.width * scale);
-          const dh = Math.round(natural.height * scale);
-          fc.setDimensions({ width: dw, height: dh });
-          img.set({ left: dw / 2, top: dh / 2 });
-        }
         fc.renderAll();
         setHasImage(true);
         emitState(snapshot, true);
         emitHistory();
-        // Use requestAnimationFrame to ensure layout is settled
-        requestAnimationFrame(() => resizeImmersive());
+        // Resize canvas to fill screen and scale image to fit
+        requestAnimationFrame(resizeCanvas);
       },
-      [emitHistory, emitState, props.immersive, resizeImmersive],
+      [emitHistory, emitState, resizeCanvas],
     );
 
     const setAdjustment = useCallback(
@@ -649,7 +635,6 @@ export const EditorCanvas = forwardRef<EditorHandle, EditorCanvasProps>(
       <div
         ref={wrapRef}
         className={`editor-canvas-wrap${hasImage ? ' has-image' : ''}${props.immersive ? ' immersive' : ''}`}
-        style={{ position: 'relative', width: '100%', height: '100%', background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
       >
         <canvas ref={canvasElRef} />
         {textOverlays.map((overlay) => (
