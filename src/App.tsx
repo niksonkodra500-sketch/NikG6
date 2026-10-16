@@ -547,6 +547,9 @@ export default function App() {
             onExport={() => {
               void exportCurrent();
             }}
+            onShare={() => {
+              void handleShare();
+            }}
             onCompare={() => void handleCompare()}
             onOpenProjects={() => void setActiveTab((t) => (t === 'projects' ? null : 'projects'))}
             onExportFormatChange={(f) => setExportFormat(f)}
@@ -567,6 +570,30 @@ export default function App() {
                 onHistoryChange={handleHistoryChange}
               />
             )}
+            {textOverlays.map((overlay) => (
+              <div
+                key={overlay.id}
+                className="text-overlay-render"
+                style={{
+                  position: 'absolute',
+                  left: `${overlay.x}%`,
+                  top: `${overlay.y}%`,
+                  transform: `translate(-50%, -50%) rotate(${overlay.rotation}deg)`,
+                  fontSize: `${overlay.fontSize}px`,
+                  color: overlay.color,
+                  fontFamily: overlay.fontFamily,
+                  fontWeight: overlay.bold ? 'bold' : 'normal',
+                  fontStyle: overlay.italic ? 'italic' : 'normal',
+                  opacity: overlay.opacity,
+                  whiteSpace: 'nowrap',
+                  pointerEvents: 'none',
+                  userSelect: 'none',
+                  zIndex: 10,
+                }}
+              >
+                {overlay.text}
+              </div>
+            ))}
           </div>
         </div>
         {activeTab === 'adjust' && (
@@ -603,6 +630,39 @@ export default function App() {
             sourceDataUrl={sourceDataUrl}
             snapshot={snapshot}
             onRestore={(dataUrl, snap) => void handleProjectRestore(dataUrl, snap)}
+            onClose={() => setActiveTab(null)}
+          />
+        )}
+        {activeTab === 'presets' && (
+          <PresetPanel
+            adjustments={snapshot.adjustments}
+            onApplyPreset={(adjustments, filter) => {
+              editorRef.current?.setAdjustment('brightness', adjustments.brightness);
+              editorRef.current?.setAdjustment('contrast', adjustments.contrast);
+              editorRef.current?.setAdjustment('saturation', adjustments.saturation);
+              editorRef.current?.setAdjustment('hue', adjustments.hue);
+              editorRef.current?.setAdjustment('temperature', adjustments.temperature);
+              if (filter) {
+                editorRef.current?.applyFilter(filter);
+              }
+              editorRef.current?.commit();
+            }}
+            onClose={() => setActiveTab(null)}
+          />
+        )}
+        {activeTab === 'text' && (
+          <TextOverlayPanel
+            overlays={textOverlays}
+            onAdd={handleAddOverlay}
+            onUpdate={handleUpdateOverlay}
+            onDelete={handleDeleteOverlay}
+            onClose={() => setActiveTab(null)}
+          />
+        )}
+        {activeTab === 'export_presets' && (
+          <ExportPresetPanel
+            exportFormat={exportFormat}
+            onExportFormatChange={(f) => setExportFormat(f)}
             onClose={() => setActiveTab(null)}
           />
         )}

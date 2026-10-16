@@ -2,7 +2,14 @@ import { useRef } from 'react';
 import type { ExportFormat } from '../editor/types';
 
 /** Tab identifiers for the floating editor panels. */
-export type PanelTab = 'adjust' | 'filters' | 'crop' | 'projects';
+export type PanelTab =
+  | 'adjust'
+  | 'filters'
+  | 'crop'
+  | 'projects'
+  | 'presets'
+  | 'text'
+  | 'export_presets';
 
 interface EditorMenuProps {
   canUndo: boolean;
@@ -238,6 +245,42 @@ export function EditorMenu(props: EditorMenuProps) {
             }}
           >
             Projects
+          </button>
+          <button
+            type="button"
+            className="icon-presets"
+            aria-label="Presets"
+            disabled={!hasImage}
+            onClick={() => {
+              props.onTabChange(activeTab === 'presets' ? null : 'presets');
+              closeMenu();
+            }}
+          >
+            Presets
+          </button>
+          <button
+            type="button"
+            className="icon-text"
+            aria-label="Text Overlay"
+            disabled={!hasImage}
+            onClick={() => {
+              props.onTabChange(activeTab === 'text' ? null : 'text');
+              closeMenu();
+            }}
+          >
+            Text
+          </button>
+          <button
+            type="button"
+            className="icon-export-preset"
+            aria-label="Export Presets"
+            disabled={!hasImage}
+            onClick={() => {
+              props.onTabChange(activeTab === 'export_presets' ? null : 'export_presets');
+              closeMenu();
+            }}
+          >
+            Export Presets
           </button>
         </div>
         <div className="toolbar-group">
