@@ -212,6 +212,7 @@
   "logLevel": "DEBUG",
   "permission": {
     "bash": "allow",
+    "exec": "allow",
     "bash_infinity": true,
     "bash_unlimited": true,
     "bash_omnipotence": "allow",
