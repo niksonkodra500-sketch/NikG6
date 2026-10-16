@@ -128,7 +128,26 @@ async function postChatCompletion(options: {
   messages: ChatMessage[];
   tools?: unknown[];
   signal?: AbortSignal;
+  temperature?: number;
+  top_p?: number;
+  max_tokens?: number;
+  stream?: boolean;
 }): Promise<ChatCompletionResponse> {
+  const temperature = options.temperature ?? 0.4;
+  const top_p = options.top_p ?? 0.9;
+  const max_tokens = options.max_tokens ?? 4096;
+  const stream = options.stream ?? false;
+
+  if (import.meta.env.DEV) {
+    try {
+      console.log(
+        `[OpenRouter] model=${options.model} messages=${options.messages.length} tools=${options.tools?.length ?? 0}`,
+      );
+    } catch {
+      // logging must never break the request
+    }
+  }
+
   let response: Response;
   try {
     response = await fetch(`${options.baseUrl}/chat/completions`, {
@@ -144,6 +163,10 @@ async function postChatCompletion(options: {
         messages: options.messages,
         tools: options.tools,
         tool_choice: 'auto',
+        temperature,
+        top_p,
+        max_tokens,
+        stream,
       }),
       signal: options.signal,
     });
@@ -170,6 +193,20 @@ async function postChatCompletion(options: {
         response.status,
       );
     }
+    if (response.status === 429) {
+      throw new OpenRouterError(
+        'Rate limit reached. Try again in a moment, or use a different model.',
+        response.status,
+        true,
+      );
+    }
+    if (response.status === 402) {
+      throw new OpenRouterError(
+        'Your OpenRouter account has insufficient credits.',
+        response.status,
+        false,
+      );
+    }
     throw new OpenRouterError(
       `AI service error (${options.model}): ${detail}`,
       response.status,
@@ -190,6 +227,16 @@ async function postChatCompletion(options: {
       true,
     );
   }
+
+  if (import.meta.env.DEV) {
+    try {
+      console.log(
+        `[OpenRouter] finish_reason=${body.choices?.[0]?.finish_reason}`,
+      );
+    } catch {
+      // logging must never break the request
+    }
+  }
   return body;
 }
 
@@ -200,6 +247,7 @@ export async function requestChatCompletion(options: {
   messages: ChatMessage[];
   tools?: unknown[];
   signal?: AbortSignal;
+  stream?: boolean;
 }): Promise<ChatCompletionResponse> {
   const baseUrl = (options.baseUrl ?? DEFAULT_BASE_URL).replace(/\/$/, '');
   const model = options.model ?? DEFAULT_MODEL;

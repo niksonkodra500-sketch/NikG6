@@ -219,6 +219,108 @@ export const EDITOR_TOOLS: ToolDefinition[] = [
       parameters: { type: 'object', properties: {} },
     },
   },
+  {
+    type: 'function',
+    function: {
+      name: 'get_image_info',
+      description: 'Get information about the current photo (width and height).',
+      parameters: {
+        type: 'object',
+        properties: {},
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'apply_preset',
+      description: 'Apply a built-in adjustment preset to the photo.',
+      parameters: {
+        type: 'object',
+        properties: {
+          preset: {
+            type: 'string',
+            enum: [
+              'portrait-warm',
+              'cinematic-cool',
+              'vintage-film',
+              'high-contrast',
+              'soft-glow',
+            ],
+          },
+        },
+        required: ['preset'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'clear_crop',
+      description: 'Remove any crop and restore the full image.',
+      parameters: {
+        type: 'object',
+        properties: {},
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'add_text',
+      description: 'Add a text overlay to the photo.',
+      parameters: {
+        type: 'object',
+        properties: {
+          text: { type: 'string' },
+          x: { type: 'number', minimum: 0, maximum: 100 },
+          y: { type: 'number', minimum: 0, maximum: 100 },
+          fontSize: { type: 'number', minimum: 12, maximum: 200 },
+          color: { type: 'string' },
+          bold: { type: 'boolean' },
+          italic: { type: 'boolean' },
+        },
+        required: ['text'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'update_text',
+      description: 'Update an existing text overlay.',
+      parameters: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          text: { type: 'string' },
+          x: { type: 'number', minimum: 0, maximum: 100 },
+          y: { type: 'number', minimum: 0, maximum: 100 },
+          fontSize: { type: 'number', minimum: 12, maximum: 200 },
+          color: { type: 'string' },
+          bold: { type: 'boolean' },
+          italic: { type: 'boolean' },
+          opacity: { type: 'number', minimum: 0, maximum: 1 },
+          rotation: { type: 'number' },
+        },
+        required: ['id'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'remove_text',
+      description: 'Remove a text overlay.',
+      parameters: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+        },
+        required: ['id'],
+      },
+    },
+  },
 ];
 
 export interface ToolCallRequest {
@@ -233,6 +335,7 @@ export interface ToolCallResult {
   success: boolean;
   message: string;
   /** Editor snapshot captured before the tool ran, so the UI can undo it. */
+  revertSnapshot?: EditorSnapshot;
 }
 
 const PRESET_NAMES: Record<string, string> = {
@@ -331,6 +434,92 @@ export async function executeToolCall(
       case 'reset': {
         api.reset();
         return ok(request, 'Reset the photo to its original state');
+      }
+      case 'get_image_info': {
+        const info = api.getImageInfo ? api.getImageInfo() : null;
+        if (info === null) {
+          return fail(request, 'No photo is loaded.');
+        }
+        return ok(
+          request,
+          `The photo is ${String(info.width)}x${String(info.height)} pixels.`,
+        );
+      }
+      case 'apply_preset': {
+        const preset = String(args.preset);
+        const presetIds = [
+          'portrait-warm',
+          'cinematic-cool',
+          'vintage-film',
+          'high-contrast',
+          'soft-glow',
+        ];
+        if (!presetIds.includes(preset)) {
+          return fail(request, `Unknown preset: ${preset}`);
+        }
+        const success = api.applyPreset ? api.applyPreset(preset) : false;
+        if (!success) {
+          return fail(request, `Unknown preset: ${preset}`);
+        }
+        const name = PRESET_NAMES[preset] ?? preset;
+        return ok(request, `Applied preset: ${name}`);
+      }
+      case 'clear_crop': {
+        if (api.clearCrop) api.clearCrop();
+        return ok(request, 'Cleared the crop; restored the full image.');
+      }
+      case 'add_text': {
+        const text = String(args.text);
+        const x = clampNumber(args.x, 0, 100, 50);
+        const y = clampNumber(args.y, 0, 100, 50);
+        const fontSize = clampNumber(args.fontSize, 12, 200, 48);
+        const color = typeof args.color === 'string' ? args.color : '#ffffff';
+        const bold = Boolean(args.bold);
+        const italic = Boolean(args.italic);
+        const id = `text-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+        const overlay: TextOverlay = {
+          id,
+          text,
+          x,
+          y,
+          fontSize,
+          color,
+          fontFamily: 'sans-serif',
+          bold,
+          italic,
+          opacity: 1,
+          rotation: 0,
+        };
+        if (api.addTextOverlay) {
+          api.addTextOverlay(overlay);
+        }
+        return ok(request, `Added text: "${text}"`);
+      }
+      case 'update_text': {
+        const id = String(args.id);
+        const updates: Partial<TextOverlay> = {};
+        if (typeof args.text === 'string') updates.text = args.text;
+        if (args.x !== undefined) updates.x = clampNumber(args.x, 0, 100, 50);
+        if (args.y !== undefined) updates.y = clampNumber(args.y, 0, 100, 50);
+        if (args.fontSize !== undefined) updates.fontSize = clampNumber(args.fontSize, 12, 200, 48);
+        if (typeof args.color === 'string') updates.color = args.color;
+        if (args.bold !== undefined) updates.bold = Boolean(args.bold);
+        if (args.italic !== undefined) updates.italic = Boolean(args.italic);
+        if (args.opacity !== undefined) updates.opacity = clampNumber(args.opacity, 0, 1, 1);
+        if (args.rotation !== undefined) updates.rotation = Number(args.rotation);
+        const success = api.updateTextOverlay ? api.updateTextOverlay(id, updates) : false;
+        if (!success) {
+          return fail(request, `Text overlay not found: ${id}`);
+        }
+        return ok(request, `Updated text overlay ${id}`);
+      }
+      case 'remove_text': {
+        const id = String(args.id);
+        const success = api.removeTextOverlay ? api.removeTextOverlay(id) : false;
+        if (!success) {
+          return fail(request, `Text overlay not found: ${id}`);
+        }
+        return ok(request, `Removed text overlay ${id}`);
       }
       default:
         return fail(request, `Unknown tool: ${request.name}`);

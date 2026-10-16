@@ -44,62 +44,75 @@ import './App.css';
 const MAX_RECENT_MESSAGES = 15; // Keep this many messages in full detail
 
 // Simple conversation summarization
-function createConversationSummary(messages: ChatMessage[]): string {
-  if (messages.length === 0) return 'No previous conversation.';
+  function createConversationSummary(messages: ChatMessage[]): string {
+    if (messages.length === 0) return 'No previous conversation.';
 
-  // Count message types
-  const userMessages = messages.filter((m) => m.role === 'user').length;
-  const assistantMessages = messages.filter((m) => m.role === 'assistant').length;
-  const toolMessages = messages.filter((m) => m.role === 'tool').length;
+    // Count message types
+    const userMessages = messages.filter((m) => m.role === 'user').length;
+    const assistantMessages = messages.filter((m) => m.role === 'assistant').length;
+    const toolMessages = messages.filter((m) => m.role === 'tool').length;
 
-  // Extract topics from user messages (simplistic)
-  const userTexts = messages
-    .filter((m) => m.role === 'user' && typeof m.content === 'string')
-    .map((m) => m.content as string);
+    // Extract topics from user messages (simplistic)
+    const userTexts = messages
+      .filter((m) => m.role === 'user' && typeof m.content === 'string')
+      .map((m) => m.content as string);
 
-  // Look for common photo editing terms and categorize them
-  const editTerms = {
-    brightness: ['bright', 'contrast', 'exposure', 'shadows', 'highlights'],
-    color: ['saturation', 'hue', 'temperature', 'warm', 'cool', 'vibrant', 'muted'],
-    geometry: ['crop', 'rotate', 'flip', 'resize', 'scale'],
-    filters: ['filter', 'blur', 'sharpen', 'grayscale', 'sepia', 'vintage'],
-    details: ['noise', 'detail', 'texture', 'clarity', 'sharp'],
-  };
+    // Look for common photo editing terms and categorize them
+    const editTerms = {
+      brightness: ['bright', 'contrast', 'exposure', 'shadows', 'highlights'],
+      color: ['saturation', 'hue', 'temperature', 'warm', 'cool', 'vibrant', 'muted'],
+      geometry: ['crop', 'rotate', 'flip', 'resize', 'scale'],
+      filters: ['filter', 'blur', 'sharpen', 'grayscale', 'sepia', 'vintage'],
+      details: ['noise', 'detail', 'texture', 'clarity', 'sharp'],
+      text: ['text', 'caption', 'font', 'overlay'],
+      presets: ['preset', 'portrait', 'cinematic', 'vintage film'],
+    };
 
-  const mentionedCategories = [];
-  const mentionedTerms = [];
+    const mentionedCategories = [];
+    const mentionedTerms = [];
 
-  for (const [category, terms] of Object.entries(editTerms)) {
-    const foundTerms = terms.filter((term) =>
-      userTexts.some((text) => text.toLowerCase().includes(term)),
-    );
-    if (foundTerms.length > 0) {
-      mentionedCategories.push(category);
-      mentionedTerms.push(...foundTerms);
+    for (const [category, terms] of Object.entries(editTerms)) {
+      const foundTerms = terms.filter((term) =>
+        userTexts.some((text) => text.toLowerCase().includes(term)),
+      );
+      if (foundTerms.length > 0) {
+        mentionedCategories.push(category);
+        mentionedTerms.push(...foundTerms);
+      }
     }
+
+    let summary = `Conversation summary: ${userMessages} user messages, ${assistantMessages} assistant responses, ${toolMessages} tool results.`;
+
+    if (mentionedCategories.length > 0) {
+      summary += ` User mentioned editing categories: ${mentionedCategories.join(', ')}.`;
+    }
+
+    if (mentionedTerms.length > 0) {
+      // Limit to most frequently mentioned or recent terms
+      const uniqueTerms = [...new Set(mentionedTerms)];
+      summary += ` Specific terms: ${uniqueTerms.slice(0, 8).join(', ')}${uniqueTerms.length > 8 ? '...' : ''}.`;
+    }
+
+    if (userTexts.length > 0) {
+      summary += ` Recent discussion topics: ${userTexts
+        .slice(-3)
+        .map((t) => (t.length > 50 ? t.substring(0, 50) + '...' : t))
+        .join('; ')}.`;
+    }
+
+    // Summarize the actual edits made by the assistant (tool results carry the
+    // ground truth of what changed, which is more useful than the assistant's
+    // prose when pruning older context).
+    const toolTexts = messages
+      .filter((m) => m.role === 'tool' && typeof m.content === 'string')
+      .map((m) => m.content as string);
+    if (toolTexts.length > 0) {
+      const recentTools = toolTexts.slice(-6);
+      summary += ` Recent edits applied: ${recentTools.join('; ')}.`;
+    }
+
+    return summary;
   }
-
-  let summary = `Conversation summary: ${userMessages} user messages, ${assistantMessages} assistant responses, ${toolMessages} tool results.`;
-
-  if (mentionedCategories.length > 0) {
-    summary += ` User mentioned editing categories: ${mentionedCategories.join(', ')}.`;
-  }
-
-  if (mentionedTerms.length > 0) {
-    // Limit to most frequently mentioned or recent terms
-    const uniqueTerms = [...new Set(mentionedTerms)];
-    summary += ` Specific terms: ${uniqueTerms.slice(0, 8).join(', ')}${uniqueTerms.length > 8 ? '...' : ''}.`;
-  }
-
-  if (userTexts.length > 0) {
-    summary += ` Recent discussion topics: ${userTexts
-      .slice(-3)
-      .map((t) => (t.length > 50 ? t.substring(0, 50) + '...' : t))
-      .join('; ')}.`;
-  }
-
-  return summary;
-}
 
 // Enhanced conversation processing for AI context
 function getConversationForAI(messages: ChatMessage[]): ChatMessage[] {
@@ -146,7 +159,7 @@ export default function App() {
   const [online, setOnline] = useState<boolean>(
     typeof navigator !== 'undefined' ? navigator.onLine : true,
   );
-  const [textOverlays, setTextOverlays] = useState<TextOverlay[]>([]);
+const [textOverlays, setTextOverlays] = useState<TextOverlay[]>([]);
   const [immersive, setImmersive] = useState(false);
   const [menuHidden, setMenuHidden] = useState(false);
   const updates = useAppUpdates();
@@ -218,6 +231,15 @@ export default function App() {
         return handle.exportImage(format, quality);
       },
       getSnapshot: () => editorRef.current?.getSnapshot() ?? DEFAULT_SNAPSHOT,
+      getImageInfo: () => editorRef.current?.getImageInfo() ?? null,
+      applyPreset: (presetId: string) => editorRef.current?.applyPreset(presetId) ?? false,
+      clearCrop: () => editorRef.current?.clearCrop(),
+      addTextOverlay: (overlay: TextOverlay) =>
+        editorRef.current?.addTextOverlay(overlay) ?? overlay.id,
+      updateTextOverlay: (id: string, updates: Partial<TextOverlay>) =>
+        editorRef.current?.updateTextOverlay(id, updates) ?? false,
+      removeTextOverlay: (id: string) =>
+        editorRef.current?.removeTextOverlay(id) ?? false,
     }),
     [],
   );
@@ -491,6 +513,7 @@ export default function App() {
                 ref={editorRef}
                 onStateChange={handleStateChange}
                 onHistoryChange={handleHistoryChange}
+                onTextOverlaysChange={setTextOverlays}
                 immersive={immersive}
               />
             )}

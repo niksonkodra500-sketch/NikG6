@@ -75,8 +75,10 @@ export const EditorCanvas = forwardRef<EditorHandle, EditorCanvasProps>(
   function EditorCanvas(props, ref) {
     const onStateChangeRef = useRef(props.onStateChange);
     const onHistoryChangeRef = useRef(props.onHistoryChange);
+    const onTextOverlaysChangeRef = useRef(props.onTextOverlaysChange);
     onStateChangeRef.current = props.onStateChange;
     onHistoryChangeRef.current = props.onHistoryChange;
+    onTextOverlaysChangeRef.current = props.onTextOverlaysChange;
 
     const canvasElRef = useRef<HTMLCanvasElement>(null);
     const fabricCanvasRef = useRef<fabric.Canvas | null>(null);
@@ -86,6 +88,7 @@ export const EditorCanvas = forwardRef<EditorHandle, EditorCanvasProps>(
     const historyRef = useRef<History<EditorSnapshot>>(new History(50));
     const lastCommittedRef = useRef<string>('');
     const [hasImage, setHasImage] = useState(false);
+    const [textOverlays, setTextOverlays] = useState<TextOverlay[]>([]);
     const wrapRef = useRef<HTMLDivElement>(null);
 
     // Resize the fabric canvas to fill the container so the image scales to
@@ -133,6 +136,10 @@ export const EditorCanvas = forwardRef<EditorHandle, EditorCanvasProps>(
     const emitHistory = useCallback(() => {
       onHistoryChangeRef.current?.(historyRef.current.canUndo(), historyRef.current.canRedo());
     }, []);
+
+    useEffect(() => {
+      onTextOverlaysChangeRef.current?.(textOverlays);
+    }, [textOverlays]);
 
     const applySnapshot = useCallback((snapshot: EditorSnapshot) => {
       const img = imageRef.current;
@@ -465,6 +472,77 @@ export const EditorCanvas = forwardRef<EditorHandle, EditorCanvasProps>(
 
     const getNaturalSize = useCallback(() => naturalSizeRef.current, []);
 
+    const getImageInfo = useCallback(() => {
+      if (!imageRef.current) return null;
+      return { ...naturalSizeRef.current };
+    }, []);
+
+    const applyPreset = useCallback((presetId: string): boolean => {
+      const preset = DEFAULT_PRESETS.find((p) => p.id === presetId);
+      if (!preset) return false;
+      const current = stateRef.current;
+      const next: EditorSnapshot = {
+        ...current,
+        adjustments: { ...preset.adjustments },
+        filter: preset.filter ?? current.filter,
+      };
+      stateRef.current = next;
+      applySnapshot(next);
+      emitState(next, true);
+      commit();
+      return true;
+    }, [applySnapshot, commit, emitState]);
+
+    const clearCrop = useCallback(() => {
+      const current = stateRef.current;
+      const next: EditorSnapshot = { ...current, crop: null };
+      stateRef.current = next;
+      applySnapshot(next);
+      emitState(next, true);
+      commit();
+    }, [applySnapshot, commit, emitState]);
+
+    const addTextOverlay = useCallback((overlay: TextOverlay): string => {
+      const id = overlay.id || `text-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+      const full: TextOverlay = { ...overlay, id };
+      setTextOverlays((prev) => [...prev, full]);
+      return id;
+    }, []);
+
+    const updateTextOverlay = useCallback(
+      (id: string, updates: Partial<TextOverlay>): boolean => {
+        let found = false;
+        setTextOverlays((prev) =>
+          prev.map((o) => {
+            if (o.id === id) {
+              found = true;
+              return { ...o, ...updates };
+            }
+            return o;
+          }),
+        );
+        return found;
+      },
+      [],
+    );
+
+    const removeTextOverlay = useCallback((id: string): boolean => {
+      let found = false;
+      setTextOverlays((prev) => {
+        const next = prev.filter((o) => {
+          if (o.id === id) {
+            found = true;
+            return false;
+          }
+          return true;
+        });
+        return next;
+      });
+      return found;
+    }, []);
+
+    const getTextOverlays = useCallback(() => textOverlays, [textOverlays]);
+
     useEffect(() => {
       if (!canvasElRef.current) return;
       const fc = new fabric.Canvas(canvasElRef.current, { preserveObjectStacking: true });
@@ -519,11 +597,21 @@ export const EditorCanvas = forwardRef<EditorHandle, EditorCanvasProps>(
         getCanvasPixel,
         getNaturalSize,
         cropToAspect,
+        getImageInfo,
+        applyPreset,
+        clearCrop,
+        addTextOverlay,
+        updateTextOverlay,
+        removeTextOverlay,
+        getTextOverlays,
       }),
       [
+        addTextOverlay,
         applyFilter,
+        applyPreset,
         applySnapshot,
         checkHasImage,
+        clearCrop,
         commit,
         crop,
         cropToAspect,
@@ -532,14 +620,18 @@ export const EditorCanvas = forwardRef<EditorHandle, EditorCanvasProps>(
         flip,
         getCanvasPixel,
         getImageDataUrl,
+        getImageInfo,
         getNaturalSize,
+        getTextOverlays,
         loadFromDataUrl,
         redo,
+        removeTextOverlay,
         reset,
         resize,
         rotate,
         setAdjustment,
         undo,
+        updateTextOverlay,
         autoEnhance,
       ],
     );
@@ -560,6 +652,30 @@ export const EditorCanvas = forwardRef<EditorHandle, EditorCanvasProps>(
         style={{ position: 'relative', width: '100%', height: '100%', background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
       >
         <canvas ref={canvasElRef} />
+        {textOverlays.map((overlay) => (
+          <div
+            key={overlay.id}
+            className="text-overlay-render"
+            style={{
+              position: 'absolute',
+              left: `${overlay.x}%`,
+              top: `${overlay.y}%`,
+              transform: `translate(-50%, -50%) rotate(${overlay.rotation}deg)`,
+              fontSize: `${overlay.fontSize}px`,
+              color: overlay.color,
+              fontFamily: overlay.fontFamily,
+              fontWeight: overlay.bold ? 'bold' : 'normal',
+              fontStyle: overlay.italic ? 'italic' : 'normal',
+              opacity: overlay.opacity,
+              whiteSpace: 'nowrap',
+              pointerEvents: 'none',
+              userSelect: 'none',
+              zIndex: 10,
+            }}
+          >
+            {overlay.text}
+          </div>
+        ))}
         {!hasImage && (
           <div className="editor-placeholder">
             <span className="icon" aria-hidden="true">
