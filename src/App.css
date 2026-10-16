@@ -163,56 +163,55 @@ html {
   position: relative;
 }
 
-/* Default: canvas fills the entire screen, no wrapper border */
+/* Workspace fills the entire screen */
 .app.fullscreen .workspace {
   position: absolute;
   inset: 0;
   overflow: hidden;
+  background: #000;
 }
 
 .app.fullscreen .canvas-container {
   width: 100%;
   height: 100%;
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
 }
 
 .app.fullscreen .canvas-stage {
-  flex: none;
-  position: absolute;
-  inset: 0;
+  flex: 1;
+  position: relative;
   min-width: 0;
   min-height: 0;
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
 }
 
 .app.fullscreen .editor-canvas-wrap {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  max-width: none;
-  max-height: none;
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   min-width: 0;
   min-height: 0;
-  flex: none;
   background: #000;
   border: none;
   border-radius: 0;
   box-shadow: none;
   overflow: hidden;
-  display: block;
 }
 
-.app.fullscreen .editor-canvas-wrap canvas {
-  position: absolute;
-  inset: 0;
-  border-radius: 0;
-  box-shadow: none;
-  max-width: none;
-  max-height: none;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+/* Don't constrain fabric.js canvas — let JS control its size */
+.app.fullscreen .editor-canvas-wrap canvas,
+.app.fullscreen .editor-canvas-wrap .upper-canvas,
+.app.fullscreen .editor-canvas-wrap .lower-canvas {
+  max-width: none !important;
+  max-height: none !important;
   display: block;
 }
 
@@ -618,14 +617,8 @@ button.active:hover:not(:disabled) {
 }
 
 .editor-canvas-wrap.has-image {
-  border-color: var(--border-accent);
-  box-shadow:
-    0 0 0 1px rgba(168, 85, 247, 0.15) inset,
-    0 0 60px rgba(212, 175, 55, 0.12);
-}
-
-.editor-canvas-wrap.has-image canvas {
-  box-shadow: 0 0 50px rgba(212, 175, 55, 0.15);
+  border: none;
+  box-shadow: none;
 }
 
 .app.fullscreen .editor-placeholder {
