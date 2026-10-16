@@ -10,6 +10,9 @@ export class TemperatureFilter extends fabric.filters.BaseFilter<
   string,
   { temperature: number }
 > {
+  /** Fabric v6 requires a `type` string on custom filters. */
+  static type = 'Temperature' as const;
+
   temperature = 0;
 
   constructor(options?: { temperature?: number }) {
@@ -38,19 +41,28 @@ export class TemperatureFilter extends fabric.filters.BaseFilter<
   }
 
   /** Returns the filter's serialisable state so Fabric can persist/restore it. */
-  toObject(): { temperature: number } {
-    return { temperature: this.temperature };
+  toObject(): { temperature: number; type: string } {
+    return { temperature: this.temperature, type: 'Temperature' };
   }
 
   /** Restore state from a deserialised object (Fabric v6 calls this on load). */
-  static fromObject<T>(options: T): Promise<TemperatureFilter> {
-    const opts = options as { temperature?: number };
-    return Promise.resolve(new TemperatureFilter(opts));
+  static fromObject<T extends { temperature?: number }>(options: T): Promise<TemperatureFilter> {
+    return Promise.resolve(new TemperatureFilter({ temperature: options.temperature }));
   }
 }
 
 /** Sharpen kernel for the Convolute filter. */
 const SHARPEN_MATRIX = [0, -1, 0, -1, 5, -1, 0, -1, 0];
+
+// Register the custom filter so Fabric v6 can deserialize it from JSON.
+// We cast through unknown because the fabric type definitions don't expose
+// a way to add custom filter classes at runtime.
+{
+  const fabricFilters = fabric.filters as unknown as Record<string, unknown>;
+  if (!fabricFilters.Temperature) {
+    fabricFilters.Temperature = TemperatureFilter;
+  }
+}
 
 /** Builds the Fabric filter stack for a snapshot's adjustments + preset filter. */
 export function buildFabricFilters(
