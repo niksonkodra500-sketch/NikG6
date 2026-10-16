@@ -131,8 +131,6 @@ export const EditorCanvas = forwardRef<EditorHandle, EditorCanvasProps>(
         scaleY: snapshot.transform.scaleY,
       });
 
-      const sourceW = snapshot.crop ? snapshot.crop.width : natural.width;
-      const sourceH = snapshot.crop ? snapshot.crop.height : natural.height;
       if (snapshot.crop) {
         img.set({
           cropX: snapshot.crop.x,
