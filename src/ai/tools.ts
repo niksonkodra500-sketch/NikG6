@@ -15,6 +15,7 @@ import type {
   EditorSnapshot,
   ExportFormat,
   FilterName,
+  TextOverlay,
 } from '../editor/types';
 
 /** The set of editing operations the AI assistant can invoke. */
@@ -31,6 +32,12 @@ export interface EditorApi {
   exportImage(format: ExportFormat, quality: number): Promise<string>;
   /** Current editor snapshot, used to capture pre-tool state for undo. */
   getSnapshot(): EditorSnapshot;
+  getImageInfo?(): { width: number; height: number } | null;
+  applyPreset?(presetId: string): boolean;
+  clearCrop?(): void;
+  addTextOverlay?(overlay: TextOverlay): string;
+  updateTextOverlay?(id: string, updates: Partial<TextOverlay>): boolean;
+  removeTextOverlay?(id: string): boolean;
 }
 
 export interface ToolParameterSchema {
@@ -226,8 +233,15 @@ export interface ToolCallResult {
   success: boolean;
   message: string;
   /** Editor snapshot captured before the tool ran, so the UI can undo it. */
-  revertSnapshot?: EditorSnapshot;
 }
+
+const PRESET_NAMES: Record<string, string> = {
+  'portrait-warm': 'Portrait Warm',
+  'cinematic-cool': 'Cinematic Cool',
+  'vintage-film': 'Vintage Film',
+  'high-contrast': 'High Contrast',
+  'soft-glow': 'Soft Glow',
+};
 
 function ok(request: ToolCallRequest, message: string): ToolCallResult {
   return { id: request.id, name: request.name, success: true, message };

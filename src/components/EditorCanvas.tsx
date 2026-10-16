@@ -13,12 +13,14 @@ import { clampNumber } from '../editor/commands';
 import { buildFabricFilters } from '../editor/fabricFilters';
 import { History } from '../editor/history';
 import {
+  DEFAULT_PRESETS,
   DEFAULT_SNAPSHOT,
   type AdjustmentName,
   type CropAspect,
   type EditorSnapshot,
   type ExportFormat,
   type FilterName,
+  type TextOverlay,
   CROP_ASPECT_PRESETS,
 } from '../editor/types';
 
@@ -44,12 +46,20 @@ export interface EditorHandle {
   hasImage(): boolean;
   getCanvasPixel(): { r: number; g: number; b: number };
   getNaturalSize(): { width: number; height: number };
+  getImageInfo(): { width: number; height: number } | null;
+  applyPreset(presetId: string): boolean;
+  clearCrop(): void;
+  addTextOverlay(overlay: TextOverlay): string;
+  updateTextOverlay(id: string, updates: Partial<TextOverlay>): boolean;
+  removeTextOverlay(id: string): boolean;
+  getTextOverlays(): TextOverlay[];
 }
 
 interface EditorCanvasProps {
   onStateChange?: (snapshot: EditorSnapshot, hasImage: boolean) => void;
   onHistoryChange?: (canUndo: boolean, canRedo: boolean) => void;
   immersive?: boolean;
+  onTextOverlaysChange?: (overlays: TextOverlay[]) => void;
 }
 
 function freshSnapshot(): EditorSnapshot {
@@ -547,12 +557,9 @@ export const EditorCanvas = forwardRef<EditorHandle, EditorCanvasProps>(
       <div
         ref={wrapRef}
         className={`editor-canvas-wrap${hasImage ? ' has-image' : ''}${props.immersive ? ' immersive' : ''}`}
-        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', background: '#000', display: 'block' }}
+        style={{ position: 'relative', width: '100%', height: '100%', background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
       >
-        <canvas
-          ref={canvasElRef}
-          style={{ display: 'block', width: '100%', height: '100%', maxWidth: 'none', maxHeight: 'none' }}
-        />
+        <canvas ref={canvasElRef} />
         {!hasImage && (
           <div className="editor-placeholder">
             <span className="icon" aria-hidden="true">
