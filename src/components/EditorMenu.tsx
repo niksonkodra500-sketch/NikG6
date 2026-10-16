@@ -19,7 +19,9 @@ interface EditorMenuProps {
   exportFormat: ExportFormat;
   assistantOpen: boolean;
   immersive: boolean;
+  menuHidden: boolean;
   onImmersiveToggle: () => void;
+  onToggleMenu: () => void;
   onOpenFiles: (files: FileList | null) => void;
   onTakePhoto: () => void;
   onPickFromLibrary: () => void;
@@ -40,7 +42,7 @@ interface EditorMenuProps {
 export function EditorMenu(props: EditorMenuProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
-  const { canUndo, canRedo, hasImage, activeTab, exportFormat, assistantOpen, immersive } = props;
+  const { canUndo, canRedo, hasImage, activeTab, exportFormat, assistantOpen, immersive, menuHidden } = props;
   const closeMenu = () => {
     if (menuRef.current) {
       menuRef.current.classList.remove('open');
@@ -351,6 +353,17 @@ export function EditorMenu(props: EditorMenuProps) {
               }}
             >
               {immersive ? 'Exit Full' : 'Full Screen'}
+            </button>
+            <button
+              type="button"
+              className={`icon-toggle-menu ${menuHidden ? 'active' : ''}`}
+              aria-label={menuHidden ? 'Show menu' : 'Hide menu'}
+              onClick={() => {
+                props.onToggleMenu();
+                closeMenu();
+              }}
+            >
+              {menuHidden ? 'Show Menu' : 'Hide Menu'}
             </button>
           </div>
       </div>

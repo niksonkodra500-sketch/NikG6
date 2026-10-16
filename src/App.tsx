@@ -149,6 +149,7 @@ export default function App() {
   );
   const [textOverlays, setTextOverlays] = useState<TextOverlay[]>([]);
   const [immersive, setImmersive] = useState(false);
+  const [menuHidden, setMenuHidden] = useState(false);
   const updates = useAppUpdates();
 
   // Generate enhanced messages for AI (with summary) from original messages
@@ -440,7 +441,7 @@ export default function App() {
   }, []);
 
   return (
-    <div className={`app fullscreen${assistantOpen ? ' assistant-open' : ''}${immersive ? ' immersive' : ''}`}>
+    <div className={`app fullscreen${assistantOpen ? ' assistant-open' : ''}${menuHidden ? ' menu-hidden' : ''}`}>
       <OfflineBanner online={online} />
       <UpdateBanner updates={updates} />
       <header className="app-header float">
@@ -457,7 +458,9 @@ export default function App() {
             exportFormat={exportFormat}
             assistantOpen={assistantOpen}
             immersive={immersive}
+            menuHidden={menuHidden}
             onImmersiveToggle={() => setImmersive((v) => !v)}
+            onToggleMenu={() => setMenuHidden((v) => !v)}
             onOpenFiles={openFiles}
             onTakePhoto={() => {
               void takePhoto();
@@ -594,6 +597,14 @@ export default function App() {
           />
         )}
       </main>
+      <button
+        type="button"
+        className="menu-toggle"
+        aria-label={menuHidden ? 'Show menu' : 'Hide menu'}
+        onClick={() => setMenuHidden((v) => !v)}
+      >
+        {menuHidden ? '☰' : '⋮'}
+      </button>
       {assistantOpen && (
         <AssistantPanel
           messages={enhancedMessages}
