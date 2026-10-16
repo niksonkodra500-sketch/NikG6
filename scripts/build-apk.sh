@@ -45,7 +45,7 @@ echo "==> Syncing Capacitor to Android project"
 npx cap sync android
 
 echo "==> Building debug APK with Gradle"
-cd android
+cd "$APP_DIR/android"
 "$GRADLE_BIN" assembleDebug --no-daemon \
   -Dorg.gradle.java.home="$JAVA_HOME" \
   -Djavax.net.ssl.trustStore="$TRUST_STORE" \
@@ -53,7 +53,7 @@ cd android
 
 echo "==> Copying APK to apks/"
 mkdir -p "$APP_DIR/apks"
-cp android/app/build/outputs/apk/debug/app-debug.apk "$APP_DIR/apks/app-debug.apk"
+cp "$APP_DIR/android/app/build/outputs/apk/debug/app-debug.apk" "$APP_DIR/apks/app-debug.apk"
 
 echo "==> APK ready: $APP_DIR/apks/app-debug.apk"
 ls -la "$APP_DIR/apks/app-debug.apk"
