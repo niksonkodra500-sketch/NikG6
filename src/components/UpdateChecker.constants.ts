@@ -1,5 +1,31 @@
-export const GITHUB_REPO = 'niksonkodra500-sketch/NikG6';
-export const CURRENT_VERSION = '2.1.1';
+
+/**
+ * The Capacitor App plugin provides the *real installed* app version at
+ * runtime (App.getInfo().versionName). This is the source of truth for the
+ * in-app update banner.
+ *
+ * We import it lazily and defensively because:
+ *  - On the web (browser/PWA) the plugin is not available.
+ *  - The Android WebView may not have it synced yet.
+ * If the plugin is unavailable, we fall back to the build-time constant.
+ */
+export async function getInstalledVersion(): Promise<string> {
+  try {
+    // Dynamic import keeps the plugin out of the web bundle when unused and
+    // avoids a hard dependency at module-evaluation time.
+    const mod = (await import('@capacitor/app')) as {
+      App?: { getInfo(): Promise<{ version: string }> };
+    };
+    const info = await mod.App?.getInfo();
+    if (info?.version) return info.version;
+  } catch {
+    // Plugin not installed / not synced on this platform — fall through.
+  }
+  return CURRENT_VERSION;
+}
+
+/** Build-time fallback version (kept in sync with package.json + build.gradle). */
+export const CURRENT_VERSION = '2.1.3';
 
 /** Tags that are not user-facing version releases (CI/manual builds). */
 export const NON_VERSION_TAGS = ['main-', 'manual-'];

@@ -1,11 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import {
-  GITHUB_REPO,
-  CURRENT_VERSION,
-  type GitHubRelease,
-  isNewer,
-  isVersionTag,
-} from './UpdateChecker.constants';
+import { getInstalledVersion, type GitHubRelease, isNewer, isVersionTag } from './UpdateChecker.constants';
 
 export interface UpdateCheckResult {
   checking: boolean;
@@ -33,8 +27,15 @@ export function useAppUpdates(): UpdateCheckResult {
     setChecking(true);
     setError(null);
     try {
+      // Read the *real installed version* at runtime (Capacitor App plugin,
+      // falling back to the build-time constant on web). This is what makes
+      // the banner self-heal: bumping the version no longer requires editing
+      // this file, so a stale constant can never again show a phantom update
+      // for the version the user already has installed.
+      const installedVersion = await getInstalledVersion();
+
       const response = await fetch(
-        `https://api.github.com/repos/${GITHUB_REPO}/releases?per_page=20`,
+        `https://api.github.com/repos/niksonkodra500-sketch/NikG6/releases?per_page=20`,
         { headers: { Accept: 'application/vnd.github+json' } },
       );
       if (!response.ok) {
@@ -51,7 +52,7 @@ export function useAppUpdates(): UpdateCheckResult {
         apkRelease?.assets?.find((asset) => asset.name?.endsWith('.apk'))?.browser_download_url ??
         apkRelease?.html_url ??
         null;
-      if (tag && isNewer(tag, CURRENT_VERSION)) {
+      if (tag && isNewer(tag, installedVersion)) {
         setLatestVersion(tag);
         setDownloadUrl(url);
         setUpdateAvailable(true);
