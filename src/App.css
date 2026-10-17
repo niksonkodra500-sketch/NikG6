@@ -391,7 +391,7 @@ body {
   border-radius: 12px;
   padding: 10px;
   min-width: 260px;
-  max-width: calc(100vw - 32px);
+  max-width: min(calc(100vw - 32px), 420px);
   max-height: calc(100dvh - 120px);
   overflow-y: auto;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
@@ -399,6 +399,7 @@ body {
   flex-direction: column;
   gap: 8px;
   z-index: 100;
+  box-sizing: border-box;
 }
 
 .toolbar-group {
@@ -1740,7 +1741,7 @@ input[type='range']::-ms-fill-upper {
 
   .editor-menu-dropdown {
     min-width: calc(100vw - 20px);
-    right: 10px;
+    right: auto;
     left: 10px;
     max-width: calc(100vw - 20px);
     width: calc(100vw - 20px);
