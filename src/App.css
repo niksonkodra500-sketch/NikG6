@@ -1740,11 +1740,10 @@ input[type='range']::-ms-fill-upper {
 
   .editor-menu-dropdown {
     min-width: calc(100vw - 20px);
-    right: 0;
-    left: auto;
+    right: 10px;
+    left: 10px;
     max-width: calc(100vw - 20px);
-    width: calc(100vw - 20px);
-    transform: translateX(calc((100vw - 20px) - (340px + 40px) + 10px));
+    width: auto;
   }
 }
 
