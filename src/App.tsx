@@ -161,7 +161,7 @@ export default function App() {
   );
 const [textOverlays, setTextOverlays] = useState<TextOverlay[]>([]);
   const [immersive, setImmersive] = useState(false);
-  const [menuHidden, setMenuHidden] = useState(false);
+  const [menuHidden] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const updates = useAppUpdates();
 
@@ -477,6 +477,7 @@ const [textOverlays, setTextOverlays] = useState<TextOverlay[]>([]);
             immersive={immersive}
             menuHidden={menuHidden}
             isOpen={menuOpen}
+            onImmersiveToggle={() => setImmersive((v) => !v)}
             onToggleMenu={() => {
               setAssistantOpen(false);
               setMenuOpen((v) => !v);

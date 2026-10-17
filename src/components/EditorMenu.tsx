@@ -44,7 +44,7 @@ export function EditorMenu(props: EditorMenuProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
-  const { canUndo, canRedo, hasImage, activeTab, exportFormat, assistantOpen, immersive, menuHidden } = props;
+  const { canUndo, canRedo, hasImage, activeTab, exportFormat, assistantOpen, immersive, menuHidden, isOpen } = props;
   const closeMenu = () => {
     if (menuRef.current) {
       menuRef.current.classList.remove('open');
