@@ -318,6 +318,8 @@ body {
   top: 16px;
   right: 16px;
   z-index: 100;
+  width: 48px;
+  height: 48px;
 }
 
 .editor-menu-trigger {
@@ -358,6 +360,7 @@ body {
 
 .editor-menu.open .editor-menu-dropdown {
   display: flex;
+  right: 0;
 }
 
 .kebab-icon {
@@ -377,9 +380,10 @@ body {
 
 /* Dropdown panel for editor menu */
 .editor-menu-dropdown {
-  position: fixed;
+  position: absolute;
   top: 56px;
-  right: 16px;
+  right: 0;
+  left: auto;
   background: var(--surface-1);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -1724,6 +1728,8 @@ input[type='range']::-ms-fill-upper {
   .editor-menu {
     top: 10px;
     right: 10px;
+    width: 40px;
+    height: 40px;
   }
 
   .editor-menu-trigger {
@@ -1734,7 +1740,11 @@ input[type='range']::-ms-fill-upper {
 
   .editor-menu-dropdown {
     min-width: calc(100vw - 20px);
-    right: -4px;
+    right: 0;
+    left: auto;
+    max-width: calc(100vw - 20px);
+    width: calc(100vw - 20px);
+    transform: translateX(calc((100vw - 20px) - (340px + 40px) + 10px));
   }
 }
 
