@@ -162,6 +162,7 @@ export default function App() {
 const [textOverlays, setTextOverlays] = useState<TextOverlay[]>([]);
   const [immersive, setImmersive] = useState(false);
   const [menuHidden, setMenuHidden] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const updates = useAppUpdates();
 
   // Generate enhanced messages for AI (with summary) from original messages
@@ -475,8 +476,11 @@ const [textOverlays, setTextOverlays] = useState<TextOverlay[]>([]);
             assistantOpen={assistantOpen}
             immersive={immersive}
             menuHidden={menuHidden}
-            onImmersiveToggle={() => setImmersive((v) => !v)}
-            onToggleMenu={() => setMenuHidden((v) => !v)}
+            isOpen={menuOpen}
+            onToggleMenu={() => {
+              setAssistantOpen(false);
+              setMenuOpen((v) => !v);
+            }}
             onOpenFiles={openFiles}
             onTakePhoto={() => {
               void takePhoto();

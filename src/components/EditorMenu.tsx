@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import type { ExportFormat } from '../editor/types';
 
 /** Tab identifiers for the floating editor panels. */
@@ -20,6 +20,7 @@ interface EditorMenuProps {
   assistantOpen: boolean;
   immersive: boolean;
   menuHidden: boolean;
+  isOpen: boolean;
   onImmersiveToggle: () => void;
   onToggleMenu: () => void;
   onOpenFiles: (files: FileList | null) => void;
@@ -42,6 +43,7 @@ interface EditorMenuProps {
 export function EditorMenu(props: EditorMenuProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const { canUndo, canRedo, hasImage, activeTab, exportFormat, assistantOpen, immersive, menuHidden } = props;
   const closeMenu = () => {
     if (menuRef.current) {
@@ -49,14 +51,30 @@ export function EditorMenu(props: EditorMenuProps) {
     }
   };
 
+  // Click outside to close the panel
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (!isOpen) return;
+      const menuEl = menuRef.current;
+      const panelEl = panelRef.current;
+      if (menuEl && !menuEl.contains(event.target as Node)) {
+        if (panelEl && !panelEl.contains(event.target as Node)) {
+          props.onToggleMenu();
+        }
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isOpen, props.onToggleMenu]);
+
   return (
     <div className="editor-menu" ref={menuRef}>
       <button
         type="button"
-        className="editor-menu-trigger"
-        aria-label={menuHidden ? 'Show menu' : 'Hide menu'}
+        className={`editor-menu-trigger${isOpen ? ' trigger-open' : ''}`}
+        aria-label={isOpen ? 'Hide menu' : 'Show menu'}
         aria-haspopup="menu"
-        aria-expanded={hasImage}
+        aria-expanded={isOpen}
         onClick={() => {
           props.onToggleMenu();
           if (menuRef.current) {
@@ -68,9 +86,14 @@ export function EditorMenu(props: EditorMenuProps) {
           }
         }}
       >
-        <span className="kebab-icon">{menuHidden ? '☰' : '⋮'}</span>
+        {isOpen ? '✕' : '☰'}
       </button>
-      <div className="editor-menu-dropdown" role="menu">
+      <div
+        className={`editor-menu-panel${isOpen ? ' open' : ''}`}
+        ref={panelRef}
+        data-isopen={String(isOpen)}
+      >
+        <div className="editor-menu-dropdown" role="menu">
         <div className="toolbar-group" role="toolbar">
           <button
             type="button"
@@ -367,6 +390,7 @@ export function EditorMenu(props: EditorMenuProps) {
               {menuHidden ? 'Show Menu' : 'Hide Menu'}
             </button>
           </div>
+        </div>
       </div>
     </div>
   );

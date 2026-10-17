@@ -1741,10 +1741,12 @@ input[type='range']::-ms-fill-upper {
 
   .editor-menu-dropdown {
     min-width: calc(100vw - 20px);
-    right: auto;
-    left: 10px;
+    right: 10px;
+    left: auto;
     max-width: calc(100vw - 20px);
     width: calc(100vw - 20px);
+    box-sizing: border-box;
+    overflow-x: hidden;
   }
 }
 
