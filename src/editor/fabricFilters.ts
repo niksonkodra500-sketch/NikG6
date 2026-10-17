@@ -54,15 +54,13 @@ export class TemperatureFilter extends fabric.filters.BaseFilter<
 /** Sharpen kernel for the Convolute filter. */
 const SHARPEN_MATRIX = [0, -1, 0, -1, 5, -1, 0, -1, 0];
 
-// Register the custom filter so Fabric v6 can deserialize it from JSON.
-// We cast through unknown because the fabric type definitions don't expose
-// a way to add custom filter classes at runtime.
-{
-  const fabricFilters = fabric.filters as unknown as Record<string, unknown>;
-  if (!fabricFilters.Temperature) {
-    fabricFilters.Temperature = TemperatureFilter;
-  }
-}
+// NOTE: TemperatureFilter is instantiated directly by buildFabricFilters() and
+// is never deserialized from Fabric canvas JSON (the app never calls
+// loadFromJSON/parseFilters), so it must NOT be registered onto fabric.filters.
+// In Fabric v6 the filters object is sealed/non-extensible, and attempting to
+// assign a new property onto it throws "Cannot add property Temperature, object
+// is not extensible" — an uncaught error that aborts React mount and leaves the
+// screen black (in the WebView and in headless Chromium alike).
 
 /** Builds the Fabric filter stack for a snapshot's adjustments + preset filter. */
 export function buildFabricFilters(
