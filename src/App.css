@@ -377,16 +377,17 @@ body {
 
 /* Dropdown panel for editor menu */
 .editor-menu-dropdown {
-  position: absolute;
+  position: fixed;
   top: 56px;
-  right: 0;
+  right: 16px;
   background: var(--surface-1);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border-soft);
   border-radius: 12px;
   padding: 10px;
-  min-width: 280px;
+  min-width: 260px;
+  max-width: calc(100vw - 32px);
   max-height: calc(100dvh - 120px);
   overflow-y: auto;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
@@ -401,6 +402,19 @@ body {
   gap: 6px;
   flex-wrap: wrap;
   align-items: center;
+}
+
+/* On narrow screens the dropdown can't hold full-width button rows without
+ * overflowing, which made buttons stack on top of each other on the device.
+ * Shrink the buttons so every row fits inside the clamped dropdown width. */
+@media (max-width: 420px) {
+  .editor-menu-dropdown button {
+    font-size: 0.72rem;
+    padding: 5px 8px;
+  }
+  .editor-menu-dropdown .toolbar-group {
+    gap: 4px;
+  }
 }
 
 /* ---- Icon helpers (decorative, aria-hidden) ---- */
