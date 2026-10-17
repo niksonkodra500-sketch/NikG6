@@ -28,3 +28,8 @@ android/app/build/
 android/build/
 android/capacitor.settings.gradle
 .gradle/
+
+# Scratch / diagnostic files
+diag-*.mjs
+fabtest*.mjs
+quicktest*

@@ -1,7 +1,11 @@
 import { deflateSync } from 'node:zlib';
 import { mkdirSync, writeFileSync } from 'node:fs';
 
-const SIZE = 32;
+// Larger sample with a strongly colored center so e2e pixel assertions are
+// robust. The previous 32x32 gradient, when scaled up ~22x to fill the canvas,
+// blended the center pixel to near-grey — which broke the grayscale test's
+// "before.r !== before.b" precondition even though the image was rendering fine.
+const SIZE = 256;
 
 function crc32(buf) {
   const table = [];
@@ -30,18 +34,24 @@ function chunk(type, data) {
 
 const width = SIZE;
 const height = SIZE;
+const cx = (width - 1) / 2;
+const cy = (height - 1) / 2;
+const maxDist = Math.max(cx, cy);
 const raw = Buffer.alloc((width * 3 + 1) * height);
 let offset = 0;
 for (let y = 0; y < height; y++) {
   raw[offset++] = 0; // filter: none
   for (let x = 0; x < width; x++) {
-    raw[offset++] = x * 8; // red grows with x
-    raw[offset++] = y * 8; // green grows with y
-    raw[offset++] = (width - 1 - x) * 8; // blue shrinks with x
+    // Normalised Chebyshev distance from centre (0 at centre, 1 at corners)
+    const d = Math.max(Math.abs(x - cx), Math.abs(y - cy)) / maxDist;
+    raw[offset++] = Math.round(255 * (1 - d)); // red: 255 at centre, 0 at edge
+    raw[offset++] = Math.round(255 * d);        // green: 0 at centre, 255 at edge
+    raw[offset++] = 0;                          // blue: 0 everywhere
   }
 }
 
-const ihdr = Buffer.alloc(13);ihdr.writeUInt32BE(width, 0);
+const ihdr = Buffer.alloc(13);
+ihdr.writeUInt32BE(width, 0);
 ihdr.writeUInt32BE(height, 4);
 ihdr[8] = 8; // bit depth
 ihdr[9] = 2; // color type: RGB

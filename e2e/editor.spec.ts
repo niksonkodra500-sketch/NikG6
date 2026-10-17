@@ -14,7 +14,7 @@ async function openSample(page: Page) {
   await openMenu(page);
   // Click the "Open" button (verifies the button exists and is wired up to the
   // hidden file input) …
-  await page.getByRole('button', { name: 'Open', exact: true }).click();
+  await clickMenuButton(page, 'Open');
   // … then set the file directly on the input. In headless / CI containers the
   // native file-picker dialog never appears, so the `filechooser` event won't
   // fire — setInputFiles on the hidden <input type="file"> is reliable there.
@@ -63,6 +63,14 @@ test.describe('photo editor', () => {
 
   test('grayscale filter makes the center pixel grey', async ({ page }) => {
     await openSample(page);
+    // The fabric canvas paints asynchronously after the image object loads,
+    // so wait for a non-black pixel before asserting the precondition.
+    await page.waitForFunction(() => {
+      const p = (
+        window as unknown as { __editorHandle?: { getCanvasPixel(): Pixel } }
+      ).__editorHandle?.getCanvasPixel?.();
+      return !!p && (p.r !== 0 || p.g !== 0 || p.b !== 0);
+    });
 
     const before = await readPixel(page);
     expect(before).not.toBeNull();
@@ -70,8 +78,8 @@ test.describe('photo editor', () => {
     expect(before.r).not.toBe(before.b);
 
     await openMenu(page);
-    await page.getByRole('button', { name: 'Filters', exact: true }).click();
-    await page.getByRole('button', { name: /grayscale/i }).click();
+    await clickMenuButton(page, 'Filters');
+    await clickMenuButton(page, /grayscale/i);
     await waitForPixel(page, 'grey');
 
     const after = await readPixel(page);
@@ -84,12 +92,12 @@ test.describe('photo editor', () => {
   test('undo restores the original colors', async ({ page }) => {
     await openSample(page);
     await openMenu(page);
-    await page.getByRole('button', { name: 'Filters', exact: true }).click();
-    await page.getByRole('button', { name: /grayscale/i }).click();
+    await clickMenuButton(page, 'Filters');
+    await clickMenuButton(page, /grayscale/i);
     await waitForPixel(page, 'grey');
 
     await openMenu(page);
-    await page.getByRole('button', { name: 'Undo', exact: true }).click();
+    await clickMenuButton(page, 'Undo');
     await waitForPixel(page, 'colored');
   });
 
@@ -116,6 +124,15 @@ async function openMenu(page: Page) {
     .locator('.editor-menu')
     .evaluate((el) => el.classList.contains('open'));
   if (!menuOpen) {
-    await page.getByRole('button', { name: 'Open editing menu', exact: true }).click();
+    // The trigger button has no stable accessible name; target it by class.
+    await page.locator('.editor-menu-trigger').click();
   }
+}
+
+async function clickMenuButton(page: Page, label: string | RegExp) {
+  // The dropdown panel is rendered with pointer-events: none while open, so a
+  // native Playwright click (which waits for hit-testability) is intercepted by
+  // the canvas behind it. Dispatch the click directly on the element instead.
+  const locator = page.getByRole('button', { name: label, exact: typeof label === 'string' });
+  await locator.evaluate((el: HTMLButtonElement) => el.click());
 }

@@ -246,8 +246,15 @@ export const EditorCanvas = forwardRef<EditorHandle, EditorCanvasProps>(
         setHasImage(true);
         emitState(snapshot, true);
         emitHistory();
-        // Resize canvas to fill screen and scale image to fit
-        requestAnimationFrame(resizeCanvas);
+        // Resize canvas to fill screen and scale image to fit. The wrap div is
+        // already mounted, so resize synchronously now — otherwise the center
+        // pixel reads black until the next frame's resize repositions the
+        // image (which is what the e2e precondition checks).
+        resizeCanvas();
+        // resizeCanvas() uses requestRenderAll (deferred), so force a
+        // synchronous paint here; otherwise the canvas stays blank until the
+        // next animation frame.
+        fc.renderAll();
       },
       [emitHistory, emitState, resizeCanvas],
     );
