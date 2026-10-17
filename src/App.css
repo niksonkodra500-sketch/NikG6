@@ -1743,7 +1743,7 @@ input[type='range']::-ms-fill-upper {
     right: 10px;
     left: 10px;
     max-width: calc(100vw - 20px);
-    width: auto;
+    width: calc(100vw - 20px);
   }
 }
 
