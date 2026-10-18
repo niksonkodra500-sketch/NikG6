@@ -1,5 +1,5 @@
 export const GITHUB_REPO = 'niksonkodra500-sketch/NikG6';
-export const CURRENT_VERSION = '2.1.1';
+export const CURRENT_VERSION = '2.2.3';
 
 /** Tags that are not user-facing version releases (CI/manual builds). */
 export const NON_VERSION_TAGS = ['main-', 'manual-'];
