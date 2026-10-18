@@ -460,9 +460,9 @@ const [textOverlays, setTextOverlays] = useState<TextOverlay[]>([]);
     <div className={`app fullscreen${assistantOpen ? ' assistant-open' : ''}${menuHidden ? ' menu-hidden' : ''}`}>
       <OfflineBanner online={online} />
       <UpdateBanner updates={updates} />
-      <header className="app-header float">
-        <h1 className="animated">NikG6 Photo Editor</h1>
-        <p className="app-tagline">Professional photo editing powered by AI</p>
+        <header className="app-header float">
+          <h1 className="animated">NikG6 Photo Editor</h1>
+          <p className="app-tagline">Professional photo editing powered by AI</p>
       </header>
       <main className="workspace">
         <div className="canvas-container">
@@ -501,7 +501,7 @@ const [textOverlays, setTextOverlays] = useState<TextOverlay[]>([]);
             onToggleAssistant={() => setAssistantOpen((o) => !o)}
             onTabChange={setActiveTab}
           />
-          <div className="canvas-stage">
+          <div className="canvas-stage" style={{ pointerEvents: hasImage ? 'auto' : 'none' }}>
             {compareMode && hasImage && sourceDataUrl && compareAfter ? (
               <BeforeAfter
                 before={sourceDataUrl}

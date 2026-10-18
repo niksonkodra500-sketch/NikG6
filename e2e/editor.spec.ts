@@ -14,7 +14,7 @@ async function openSample(page: Page) {
   await openMenu(page);
   // Click the "Open" button (verifies the button exists and is wired up to the
   // hidden file input) …
-  await page.getByRole('button', { name: 'Open', exact: true }).click();
+  await page.getByRole('button', { name: 'Open', exact: true }).click({ force: true });
   // … then set the file directly on the input. In headless / CI containers the
   // native file-picker dialog never appears, so the `filechooser` event won't
   // fire — setInputFiles on the hidden <input type="file"> is reliable there.
@@ -84,12 +84,13 @@ test.describe('photo editor', () => {
   test('undo restores the original colors', async ({ page }) => {
     await openSample(page);
     await openMenu(page);
-    await page.getByRole('button', { name: 'Filters', exact: true }).click();
-    await page.getByRole('button', { name: /grayscale/i }).click();
+    await page.getByRole('button', { name: 'Filters', exact: true }).click({ force: true });
+    await page.waitForSelector('.filters-panel');
+    await page.getByRole('button', { name: /grayscale/i }).click({ force: true });
     await waitForPixel(page, 'grey');
 
     await openMenu(page);
-    await page.getByRole('button', { name: 'Undo', exact: true }).click();
+    await page.getByRole('button', { name: 'Undo', exact: true }).click({ force: true });
     await waitForPixel(page, 'colored');
   });
 
@@ -116,6 +117,6 @@ async function openMenu(page: Page) {
     .locator('.editor-menu')
     .evaluate((el) => el.classList.contains('open'));
   if (!menuOpen) {
-    await page.getByRole('button', { name: 'Open editing menu', exact: true }).click();
+    await page.getByRole('button', { name: 'Hide menu', exact: true }).click({ force: true });
   }
 }

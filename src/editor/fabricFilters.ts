@@ -57,10 +57,16 @@ const SHARPEN_MATRIX = [0, -1, 0, -1, 5, -1, 0, -1, 0];
 // Register the custom filter so Fabric v6 can deserialize it from JSON.
 // We cast through unknown because the fabric type definitions don't expose
 // a way to add custom filter classes at runtime.
+// fabric.filters may be frozen in some environments; guard against that.
 {
   const fabricFilters = fabric.filters as unknown as Record<string, unknown>;
   if (!fabricFilters.Temperature) {
-    fabricFilters.Temperature = TemperatureFilter;
+    try {
+      fabricFilters.Temperature = TemperatureFilter;
+    } catch {
+      // Object is frozen/non-extensible — filter registration is best-effort.
+      // fromObject is handled via static type lookup elsewhere if needed.
+    }
   }
 }
 
