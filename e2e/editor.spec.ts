@@ -108,6 +108,69 @@ test.describe('photo editor', () => {
     });
     expect(result).toMatch(/^data:image\/png;base64,/);
   });
+
+  test('adds a text overlay and removes it', async ({ page }) => {
+    await openSample(page);
+    await openMenu(page);
+
+    // Open Text Overlay panel
+    await page.getByRole('button', { name: 'Text overlay', exact: true }).click({ force: true });
+    await page.waitForSelector('.text-overlay-panel');
+
+    // Add text
+    await page.getByRole('button', { name: /\+ add text/i }).click({ force: true });
+    await page.getByRole('textbox', { name: /text/i }).fill('Hello NikG6');
+    await page.waitForSelector('.overlay-item');
+
+    // Verify text appears in overlay list
+    await expect(page.locator('.overlay-text-preview')).toContainText('Hello NikG6');
+
+    // Remove the text overlay
+    await page.getByRole('button', { name: /delete/i }).click({ force: true });
+    await page.waitForTimeout(300);
+    await expect(page.locator('.overlay-item')).toHaveCount(0);
+  });
+
+  test('applies a preset filter', async ({ page }) => {
+    await openSample(page);
+    await openMenu(page);
+
+    // Switch to Presets tab
+    await page.getByRole('button', { name: 'Presets', exact: true }).click({ force: true });
+    await page.waitForSelector('.preset-row');
+
+    // Click first preset button
+    const presetButtons = page.locator('.preset-row button');
+    await presetButtons.first().click({ force: true });
+
+    // Verify canvas still renders (preset applied without crash)
+    expect(await readPixel(page)).not.toBeNull();
+  });
+
+  test('saves and restores a project', async ({ page }) => {
+    await openSample(page);
+    await openMenu(page);
+
+    // Open Projects panel
+    await page.getByRole('button', { name: 'Projects', exact: true }).click({ force: true });
+    await page.waitForSelector('.projects-panel');
+
+    // Save project
+    await page.getByRole('textbox', { name: /project name/i }).fill('e2e-test-project');
+    await page.getByRole('button', { name: /save current/i }).click({ force: true });
+    await page.waitForFunction(() => {
+      const el = document.querySelector('.project-item');
+      return Boolean(el?.textContent?.includes('e2e-test-project'));
+    });
+
+    // List should show the saved project
+    await expect(page.locator('.project-item')).toContainText('e2e-test-project');
+
+    // Delete the project
+    await page.getByRole('button', { name: /delete/i }).last().click({ force: true });
+    await page.waitForTimeout(300);
+    await expect(page.locator('.project-item')).toHaveCount(0);
+  });
 });
 
 async function openMenu(page: Page) {

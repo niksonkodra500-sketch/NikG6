@@ -23,6 +23,7 @@ export function parseVersion(tag: string): number[] {
 }
 
 export function isNewer(a: string, b: string): boolean {
+  if (!isVersionTag(a) || !isVersionTag(b)) return false;
   const av = parseVersion(a);
   const bv = parseVersion(b);
   for (let i = 0; i < Math.max(av.length, bv.length); i += 1) {

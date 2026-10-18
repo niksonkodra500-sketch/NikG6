@@ -1,0 +1,30 @@
+name: Dependency Scanning
+
+on:
+  push:
+    branches: [kilo/live-copper-nwe]
+  pull_request:
+  schedule:
+    - cron: '0 0 * * *'  # daily
+
+jobs:
+  npm-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Run npm audit
+        id: audit
+        run: |
+          npm audit --audit-level=moderate > /tmp/audit-output.txt 2>&1 || true
+          echo "has_vulns=$?" >> $GITHUB_OUTPUT
+          cat /tmp/audit-output.txt
+      - name: Fail on vulnerabilities
+        if: steps.audit.outputs.has_vulns == '0'
+        run: |
+          echo "Vulnerabilities found! Review /tmp/audit-output.txt"
+          exit 1

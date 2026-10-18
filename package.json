@@ -30,14 +30,16 @@
     "@capacitor/preferences": "^6.0.2",
     "@capacitor/share": "^6.0.2",
     "capacitor-secure-storage-plugin": "^0.10.0",
-    "fabric": "^6.0.0",
+    "fabric": "^7.4.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
-    "@capacitor/cli": "^6.2.0",
+    "@capacitor/cli": "^8.5.3",
     "@eslint/js": "^9.17.0",
     "@playwright/test": "^1.49.0",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
     "@types/node": "^22.10.0",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
