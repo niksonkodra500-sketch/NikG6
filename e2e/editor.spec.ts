@@ -114,12 +114,12 @@ test.describe('photo editor', () => {
     await openMenu(page);
 
     // Open Text Overlay panel
-    await page.getByRole('button', { name: 'Text overlay', exact: true }).click({ force: true });
+    await page.getByRole('button', { name: 'Text Overlay', exact: true }).click({ force: true });
     await page.waitForSelector('.text-overlay-panel');
 
     // Add text
     await page.getByRole('button', { name: /\+ add text/i }).click({ force: true });
-    await page.getByRole('textbox', { name: /text/i }).fill('Hello NikG6');
+    await page.locator('input[type="text"]').first().fill('Hello NikG6');
     await page.waitForSelector('.overlay-item');
 
     // Verify text appears in overlay list
@@ -156,7 +156,7 @@ test.describe('photo editor', () => {
     await page.waitForSelector('.projects-panel');
 
     // Save project
-    await page.getByRole('textbox', { name: /project name/i }).fill('e2e-test-project');
+    await page.getByPlaceholder(/project name/i).fill('e2e-test-project');
     await page.getByRole('button', { name: /save current/i }).click({ force: true });
     await page.waitForFunction(() => {
       const el = document.querySelector('.project-item');
@@ -180,6 +180,6 @@ async function openMenu(page: Page) {
     .locator('.editor-menu')
     .evaluate((el) => el.classList.contains('open'));
   if (!menuOpen) {
-    await page.getByRole('button', { name: 'Hide menu', exact: true }).click({ force: true });
+    await page.getByRole('button', { name: 'Show menu', exact: true }).click({ force: true });
   }
 }
