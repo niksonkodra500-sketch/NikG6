@@ -499,35 +499,20 @@ export const EditorCanvas = forwardRef<EditorHandle, EditorCanvasProps>(
 
     const updateTextOverlay = useCallback(
       (id: string, updates: Partial<TextOverlay>): boolean => {
-        let found = false;
+        const found = textOverlays.some((o) => o.id === id);
         setTextOverlays((prev) =>
-          prev.map((o) => {
-            if (o.id === id) {
-              found = true;
-              return { ...o, ...updates };
-            }
-            return o;
-          }),
+          prev.map((o) => (o.id === id ? { ...o, ...updates } : o)),
         );
         return found;
       },
-      [],
+      [textOverlays],
     );
 
     const removeTextOverlay = useCallback((id: string): boolean => {
-      let found = false;
-      setTextOverlays((prev) => {
-        const next = prev.filter((o) => {
-          if (o.id === id) {
-            found = true;
-            return false;
-          }
-          return true;
-        });
-        return next;
-      });
+      const found = textOverlays.some((o) => o.id === id);
+      setTextOverlays((prev) => prev.filter((o) => o.id !== id));
       return found;
-    }, []);
+    }, [textOverlays]);
 
     const getTextOverlays = useCallback(() => textOverlays, [textOverlays]);
 
