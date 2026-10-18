@@ -44,9 +44,7 @@ export function EditorMenu(props: EditorMenuProps) {
   const menuRef = useRef<HTMLDivElement>(null);
   const { canUndo, canRedo, hasImage, activeTab, exportFormat, assistantOpen, immersive, menuHidden } = props;
   const closeMenu = () => {
-    if (menuRef.current) {
-      menuRef.current.classList.remove('open');
-    }
+    onToggleMenu();
   };
 
   return (
@@ -56,21 +54,14 @@ export function EditorMenu(props: EditorMenuProps) {
         className="editor-menu-trigger"
         aria-label={menuHidden ? 'Show menu' : 'Hide menu'}
         aria-haspopup="menu"
-        aria-expanded={hasImage}
+        aria-expanded={!menuHidden}
         onClick={() => {
-          props.onToggleMenu();
-          if (menuRef.current) {
-            if (menuRef.current.classList.contains('open')) {
-              menuRef.current.classList.remove('open');
-            } else {
-              menuRef.current.classList.add('open');
-            }
-          }
+          onToggleMenu();
         }}
       >
         <span className="kebab-icon">{menuHidden ? '☰' : '⋮'}</span>
       </button>
-      <div className="editor-menu-dropdown" role="menu">
+      <div className={`editor-menu-dropdown${!menuHidden ? ' open' : ''}`} role="menu">
         <div className="toolbar-group" role="toolbar">
           <button
             type="button"
