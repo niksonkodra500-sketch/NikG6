@@ -1,7 +1,7 @@
 {
   "name": "nikg6-photo-editor",
   "private": true,
-  "version": "2.2.12",
+  "version": "2.2.13",
   "type": "module",
   "description": "Photo editing app with built-in AI assistant (Android-first, Capacitor)",
   "scripts": {
