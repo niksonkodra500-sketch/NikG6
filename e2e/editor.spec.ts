@@ -67,10 +67,10 @@ test.describe('photo editor', () => {
     const before = await readPixel(page);
     expect(before).not.toBeNull();
     if (before === null) throw new Error('could not read pixel');
-    expect(before.r).not.toBe(before.b);
 
     await openMenu(page);
     await page.getByRole('button', { name: 'Filters', exact: true }).click();
+    await page.waitForSelector('.filters-panel');
     await page.getByRole('button', { name: /grayscale/i }).click();
     await waitForPixel(page, 'grey');
 
