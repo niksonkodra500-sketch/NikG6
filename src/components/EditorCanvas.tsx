@@ -104,6 +104,11 @@ export const EditorCanvas = forwardRef<EditorHandle, EditorCanvasProps>(
 
       // Canvas fills the entire viewport
       fc.setDimensions({ width: w, height: h });
+      // Also set element attributes directly for Android WebView compatibility
+      if (canvasElRef.current) {
+        canvasElRef.current.width = w;
+        canvasElRef.current.height = h;
+      }
 
       // Scale the image to fit within the canvas, preserving aspect ratio
       const natural = naturalSizeRef.current;
@@ -520,9 +525,12 @@ export const EditorCanvas = forwardRef<EditorHandle, EditorCanvasProps>(
       if (!canvasElRef.current) return;
       const fc = new fabric.Canvas(canvasElRef.current, { preserveObjectStacking: true });
       fabricCanvasRef.current = fc;
-      // Set initial canvas dimensions to fill the window immediately
+      // Set explicit canvas dimensions via both attributes and CSS to
+      // ensure Fabric.js renders correctly on Android WebView.
       const w = window.innerWidth;
       const h = window.innerHeight;
+      canvasElRef.current.width = w;
+      canvasElRef.current.height = h;
       fc.setDimensions({ width: w, height: h });
       return () => {
         void fc.dispose();
@@ -623,7 +631,12 @@ export const EditorCanvas = forwardRef<EditorHandle, EditorCanvasProps>(
         ref={wrapRef}
         className={`editor-canvas-wrap${hasImage ? ' has-image' : ''}${props.immersive ? ' immersive' : ''}`}
       >
-        <canvas ref={canvasElRef} style={{ display: 'block' }} />
+        <canvas
+          ref={canvasElRef}
+          style={{ display: 'block' }}
+          width={window.innerWidth || 1}
+          height={window.innerHeight || 1}
+        />
         {textOverlays.map((overlay) => (
           <div
             key={overlay.id}
