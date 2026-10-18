@@ -90,8 +90,7 @@ export function UpdateBanner({ updates }: UpdateBannerProps) {
       </span>
       <a
         href={updates.downloadUrl}
-        target="_blank"
-        rel="noopener noreferrer"
+        rel="noopener"
         className="update-download"
       >
         Download APK
