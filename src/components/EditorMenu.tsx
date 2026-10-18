@@ -42,7 +42,7 @@ interface EditorMenuProps {
 export function EditorMenu(props: EditorMenuProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
-  const { canUndo, canRedo, hasImage, activeTab, exportFormat, assistantOpen, immersive, menuHidden } = props;
+  const { canUndo, canRedo, hasImage, activeTab, exportFormat, assistantOpen, immersive, menuHidden, onToggleMenu } = props;
   const closeMenu = () => {
     onToggleMenu();
   };
