@@ -48,7 +48,7 @@ export function EditorMenu(props: EditorMenuProps) {
   };
 
   return (
-    <div className="editor-menu" ref={menuRef}>
+    <div className={`editor-menu${!menuHidden ? ' open' : ''}`} ref={menuRef}>
       <button
         type="button"
         className="editor-menu-trigger"
@@ -61,7 +61,7 @@ export function EditorMenu(props: EditorMenuProps) {
       >
         <span className="kebab-icon">{menuHidden ? '☰' : '⋮'}</span>
       </button>
-      <div className={`editor-menu-dropdown${!menuHidden ? ' open' : ''}`} role="menu">
+      <div className="editor-menu-dropdown" role="menu">
         <div className="toolbar-group" role="toolbar">
           <button
             type="button"
