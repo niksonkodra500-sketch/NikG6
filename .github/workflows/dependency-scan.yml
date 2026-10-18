@@ -20,11 +20,14 @@ jobs:
       - name: Run npm audit
         id: audit
         run: |
-          npm audit --audit-level=moderate > /tmp/audit-output.txt 2>&1 || true
-          echo "has_vulns=$?" >> $GITHUB_OUTPUT
+          set +e
+          npm audit --audit-level=moderate > /tmp/audit-output.txt 2>&1
+          audit_exit=$?
+          set -e
+          echo "audit_exit=$audit_exit" >> $GITHUB_OUTPUT
           cat /tmp/audit-output.txt
       - name: Fail on vulnerabilities
-        if: steps.audit.outputs.has_vulns == '0'
+        if: steps.audit.outputs.audit_exit != 0
         run: |
-          echo "Vulnerabilities found! Review /tmp/audit-output.txt"
+          echo "Vulnerabilities found! Review audit output above."
           exit 1
