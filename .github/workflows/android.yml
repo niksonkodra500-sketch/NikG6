@@ -28,8 +28,10 @@ jobs:
           packages: "platform-tools build-tools;34.0.0 platforms;android-34"
       - name: Sync Capacitor
         run: npx cap sync android
+      - name: Accept Android SDK licenses
+        run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
       - name: Build debug APK
-        run: cd android && ./gradlew assembleDebug --no-daemon
+        run: cd android && ./gradlew assembleDebug --no-daemon --stacktrace
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
