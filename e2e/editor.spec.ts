@@ -10,14 +10,12 @@ interface Pixel {
 }
 
 async function openSample(page: Page) {
-  // Open the kebab menu first, since all editing features are now inside it
-  await openMenu(page);
-  // Click the "Open" button (verifies the button exists and is wired up to the
-  // hidden file input) …
+  // Open the kebab menu using the editor-menu-trigger class (avoids duplicate
+  // "Show menu" aria-label on the bottom toggle button)
+  await page.locator('button.editor-menu-trigger').click({ force: true });
+  // Click the "Open" button
   await page.getByRole('button', { name: 'Open', exact: true }).click({ force: true });
-  // … then set the file directly on the input. In headless / CI containers the
-  // native file-picker dialog never appears, so the `filechooser` event won't
-  // fire — setInputFiles on the hidden <input type="file"> is reliable there.
+  // Set the file directly on the hidden input (native file-picker won't fire in CI)
   await page.locator('input[type="file"]').setInputFiles(SAMPLE);
   await page.waitForFunction(() => {
     const handle = (window as unknown as { __editorHandle?: { hasImage(): boolean } })
@@ -64,7 +62,7 @@ test.describe('photo editor', () => {
   test('grayscale filter makes the center pixel grey', async ({ page }) => {
     await openSample(page);
 
-    await openMenu(page);
+    await page.locator('button.editor-menu-trigger').click({ force: true });
     await page.getByRole('button', { name: 'Filters', exact: true }).click();
     await page.waitForSelector('.filters-panel');
     await page.getByRole('button', { name: 'Grayscale', exact: true }).click();
@@ -79,13 +77,13 @@ test.describe('photo editor', () => {
 
   test('undo restores the original colors', async ({ page }) => {
     await openSample(page);
-    await openMenu(page);
+    await page.locator('button.editor-menu-trigger').click({ force: true });
     await page.getByRole('button', { name: 'Filters', exact: true }).click({ force: true });
     await page.waitForSelector('.filters-panel');
     await page.getByRole('button', { name: 'Grayscale', exact: true }).click({ force: true });
     await waitForPixel(page, 'grey');
 
-    await openMenu(page);
+    await page.locator('button.editor-menu-trigger').click({ force: true });
     await page.getByRole('button', { name: 'Undo', exact: true }).click({ force: true });
     // Just verify undo runs without crashing and pixel is still readable
     const after = await readPixel(page);
@@ -109,7 +107,7 @@ test.describe('photo editor', () => {
 
   test('adds a text overlay and removes it', async ({ page }) => {
     await openSample(page);
-    await openMenu(page);
+    await page.locator('button.editor-menu-trigger').click({ force: true });
 
     // Open Text Overlay panel
     await page.getByRole('button', { name: 'Text Overlay', exact: true }).click({ force: true });
@@ -133,7 +131,7 @@ test.describe('photo editor', () => {
 
   test('applies a preset filter', async ({ page }) => {
     await openSample(page);
-    await openMenu(page);
+    await page.locator('button.editor-menu-trigger').click({ force: true });
 
     // Switch to Presets tab
     await page.getByRole('button', { name: 'Presets', exact: true }).click({ force: true });
@@ -149,7 +147,7 @@ test.describe('photo editor', () => {
 
   test('saves and restores a project', async ({ page }) => {
     await openSample(page);
-    await openMenu(page);
+    await page.locator('button.editor-menu-trigger').click({ force: true });
 
     // Open Projects panel
     await page.getByRole('button', { name: 'Projects', exact: true }).click({ force: true });
@@ -172,14 +170,3 @@ test.describe('photo editor', () => {
     await expect(page.locator('.project-item')).toHaveCount(0);
   });
 });
-
-async function openMenu(page: Page) {
-  // The kebab button toggles the dropdown open/closed — only click if
-  // the dropdown isn't already open (otherwise a second click would close it).
-  const menuOpen = await page
-    .locator('.editor-menu')
-    .evaluate((el) => el.classList.contains('open'));
-  if (!menuOpen) {
-    await page.getByRole('button', { name: 'Show menu', exact: true }).click({ force: true });
-  }
-}
