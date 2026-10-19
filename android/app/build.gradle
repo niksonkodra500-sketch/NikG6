@@ -24,6 +24,8 @@ android {
     }
 }
 
+apply from: 'capacitor.build.gradle'
+
 repositories {
     flatDir{
         dirs 'libs'

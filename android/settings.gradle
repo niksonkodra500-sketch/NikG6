@@ -1,1 +1,19 @@
 include ':app'
+
+include ':capacitor-android'
+project(':capacitor-android').projectDir = new File(rootProject.projectDir, '../node_modules/@capacitor/android')
+
+include ':capacitor-camera'
+project(':capacitor-camera').projectDir = new File(rootProject.projectDir, '../node_modules/@capacitor/camera/android')
+
+include ':capacitor-filesystem'
+project(':capacitor-filesystem').projectDir = new File(rootProject.projectDir, '../node_modules/@capacitor/filesystem/android')
+
+include ':capacitor-preferences'
+project(':capacitor-preferences').projectDir = new File(rootProject.projectDir, '../node_modules/@capacitor/preferences/android')
+
+include ':capacitor-share'
+project(':capacitor-share').projectDir = new File(rootProject.projectDir, '../node_modules/@capacitor/share/android')
+
+include ':capacitor-secure-storage-plugin'
+project(':capacitor-secure-storage-plugin').projectDir = new File(rootProject.projectDir, '../node_modules/capacitor-secure-storage-plugin/android')
