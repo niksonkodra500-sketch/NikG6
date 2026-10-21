@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Protesta Shqiptare - Fiton Populli</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, sans-serif; background: #1a1a2e; color: #eee; overflow: hidden; display:flex; flex-direction:column; align-items:center; height:100vh; }
+  header { padding: 8px 12px; text-align: center; }
+  h1 { font-size: 1.2rem; }
+  #hud { display: flex; gap: 16px; font-size: 0.95rem; margin-top: 4px; }
+  canvas { background: #2d3a4b; border: 2px solid #444; max-width: 100%; }
+  #msg { margin-top: 8px; font-size: 1.1rem; min-height: 1.4em; text-align: center; }
+  .btn { padding: 6px 12px; margin-top: 6px; cursor: pointer; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Protesta Shqiptare</h1>
+  <div id="hud">
+    <span>Protestues: <b id="count">0</b>/100</span>
+    <span>Jeta: <b id="lives">3</b></span>
+    <span>Pike: <b id="score">0</b></span>
+  </div>
+</header>
+<canvas id="c" width="600" height="400"></canvas>
+<div id="msg"></div>
+<button class="btn" id="restart" style="display:none">Fillo perseri</button>
+<p style="font-size:0.8rem;margin-top:6px;opacity:0.7">Shigjetat/WASD per te levizur. Shmang policine. Arrij parlamentin.</p>
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const W = canvas.width, H = canvas.height;
+
+let player, protesters, police, count, lives, score, gameOver, win;
+let keys = {};
+let spawnTimer = 0, policeTimer = 0;
+const goal = { x: W/2, y: 30, w: 120, h: 30 };
+
+function reset() {
+  player = { x: W/2, y: H-40, r: 12, speed: 4 };
+  protesters = []; police = [];
+  count = 0; lives = 3; score = 0; gameOver = false; win = false;
+  document.getElementById('restart').style.display = 'none';
+  document.getElementById('msg').textContent = '';
+}
+
+function spawnProtester() {
+  protesters.push({ x: Math.random()*W, y: H-20, r: 8, vy: -1.2 - Math.random()*0.8, vx: (Math.random()-0.5)*0.6 });
+}
+function spawnPolice() {
+  police.push({ x: Math.random()*W, y: 60 + Math.random()*100, r: 10, vx: (Math.random()-0.5)*2, vy: (Math.random()-0.5)*1.5 });
+}
+
+window.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
+window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+document.getElementById('restart').addEventListener('click', reset);
+
+function update() {
+  if (gameOver || win) return;
+  if (keys['arrowleft'] || keys['a']) player.x -= player.speed;
+  if (keys['arrowright'] || keys['d']) player.x += player.speed;
+  if (keys['arrowup'] || keys['w']) player.y -= player.speed;
+  if (keys['arrowdown'] || keys['s']) player.y += player.speed;
+  player.x = Math.max(player.r, Math.min(W-player.r, player.x));
+  player.y = Math.max(player.r, Math.min(H-player.r, player.y));
+
+  spawnTimer++;
+  if (spawnTimer > 40) { spawnProtester(); spawnTimer = 0; }
+  policeTimer++;
+  if (policeTimer > 90) { spawnPolice(); policeTimer = 0; }
+
+  for (let i = protesters.length-1; i >= 0; i--) {
+    const p = protesters[i];
+    const dx = player.x - p.x, dy = player.y - p.y;
+    const d = Math.hypot(dx,dy);
+    if (d < 60 && d > 0) { p.vx += dx/d*0.05; p.vy += dy/d*0.05; }
+    p.x += p.vx; p.y += p.vy;
+    if (p.y < goal.y + goal.h && p.x > goal.x - goal.w/2 && p.x < goal.x + goal.w/2) {
+      protesters.splice(i,1); count++; score += 10;
+      if (count >= 100) { win = true; endGame(true); }
+      continue;
+    }
+    if (p.y < -10 || p.x < -10 || p.x > W+10) protesters.splice(i,1);
+  }
+
+  for (let i = police.length-1; i >= 0; i--) {
+    const po = police[i];
+    po.x += po.vx; po.y += po.vy;
+    if (po.x < po.r || po.x > W-po.r) po.vx *= -1;
+    if (po.y < 60 || po.y > H-60) po.vy *= -1;
+    if (Math.hypot(po.x-player.x, po.y-player.y) < po.r + player.r) {
+      lives--; score = Math.max(0, score-5);
+      player.x = W/2; player.y = H-40;
+      police.splice(i,1);
+      if (lives <= 0) { gameOver = true; endGame(false); }
+      continue;
+    }
+    for (let j = protesters.length-1; j >= 0; j--) {
+      const p = protesters[j];
+      if (Math.hypot(po.x-p.x, po.y-p.y) < po.r + p.r) protesters.splice(j,1);
+    }
+  }
+  if (police.length > 8) police.shift();
+
+  document.getElementById('count').textContent = count;
+  document.getElementById('lives').textContent = lives;
+  document.getElementById('score').textContent = score;
+}
+
+function endGame(won) {
+  const msg = document.getElementById('msg');
+  if (won) { msg.textContent = 'POPULLI FITON! Kryeministri jep doreheqje!'; msg.style.color = '#4ade80'; }
+  else { msg.textContent = 'Protesta u shtyp. Provo perseri.'; msg.style.color = '#f87171'; }
+  document.getElementById('restart').style.display = 'inline-block';
+}
+
+function draw() {
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle = '#3b4a5c'; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle = '#8b5a2b'; ctx.fillRect(goal.x - goal.w/2, goal.y, goal.w, goal.h);
+  ctx.fillStyle = '#facc15'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign='center';
+  ctx.fillText('PARLAMENTI', goal.x, goal.y + 20);
+  ctx.fillStyle = '#60a5fa';
+  for (const p of protesters) { ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill(); }
+  ctx.fillStyle = '#ef4444';
+  for (const po of police) {
+    ctx.beginPath(); ctx.arc(po.x,po.y,po.r,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.font='bold 9px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('P', po.x, po.y+3); ctx.fillStyle = '#ef4444';
+  }
+  ctx.fillStyle = '#fbbf24'; ctx.beginPath(); ctx.arc(player.x,player.y,player.r,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#000'; ctx.font='bold 10px sans-serif'; ctx.textAlign='center';
+  ctx.fillText('L', player.x, player.y+3);
+}
+
+function loop() { update(); draw(); requestAnimationFrame(loop); }
+reset(); loop();
+</script>
+</body>
+</html>

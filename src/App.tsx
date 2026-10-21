@@ -11,6 +11,7 @@ import { FiltersPanel } from './components/FiltersPanel';
 import { OfflineBanner } from './components/OfflineBanner';
 import { PresetPanel } from './components/PresetPanel';
 import { ProjectsPanel } from './components/ProjectsPanel';
+import { ProtestGame } from './components/ProtestGame';
 import { TextOverlayPanel } from './components/TextOverlayPanel';
 import { type PanelTab } from './components/EditorMenu';
 import { UpdateBanner, useAppUpdates } from './components/UpdateChecker';
@@ -162,6 +163,7 @@ export default function App() {
 const [textOverlays, setTextOverlays] = useState<TextOverlay[]>([]);
   const [immersive, setImmersive] = useState(false);
   const [menuHidden, setMenuHidden] = useState(false);
+  const [gameOpen, setGameOpen] = useState(false);
   const updates = useAppUpdates();
 
   // Generate enhanced messages for AI (with summary) from original messages
@@ -463,6 +465,13 @@ const [textOverlays, setTextOverlays] = useState<TextOverlay[]>([]);
       <header className="app-header float">
         <h1 className="animated">NikG6 Photo Editor</h1>
         <p className="app-tagline">Professional photo editing powered by AI</p>
+        <button
+          type="button"
+          className="app-game-button"
+          onClick={() => setGameOpen(true)}
+        >
+          Protesta Shqiptare (Game)
+        </button>
       </header>
       <main className="workspace">
         <div className="canvas-container">
@@ -614,6 +623,7 @@ const [textOverlays, setTextOverlays] = useState<TextOverlay[]>([]);
           />
         )}
       </main>
+      {gameOpen && <ProtestGame onClose={() => setGameOpen(false)} />}
       {assistantOpen && (
         <AssistantPanel
           messages={enhancedMessages}

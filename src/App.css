@@ -1725,6 +1725,116 @@ input[type='range']::-ms-fill-upper {
 }
 
 /* ==========================================================================
+   Protest game ("Protesta Shqiptare")
+   ========================================================================== */
+
+.app-game-button {
+  margin-top: 8px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border-accent);
+  background: var(--surface-2);
+  color: var(--gold-light);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.app-game-button:hover {
+  box-shadow: var(--glow-gold-hover);
+}
+
+.protest-game {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(5, 5, 20, 0.82);
+  backdrop-filter: blur(6px);
+  padding: 16px;
+}
+
+.protest-game__panel {
+  width: min(640px, 100%);
+  max-height: 100%;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid var(--border-accent);
+  background: var(--surface-panel);
+  box-shadow: var(--glow-gold);
+}
+
+.protest-game__title {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.protest-game__title h2 {
+  font-size: 1.1rem;
+  color: var(--gold-light);
+}
+
+.protest-game__close {
+  padding: 2px 10px;
+  border-radius: 8px;
+}
+
+.protest-game__hud {
+  display: flex;
+  gap: 16px;
+  font-size: 0.9rem;
+  color: var(--text-dim);
+}
+
+.protest-game__canvas {
+  width: 100%;
+  height: auto;
+  max-width: 600px;
+  border-radius: 10px;
+  border: 1px solid var(--border-soft);
+  touch-action: none;
+}
+
+.protest-game__message {
+  font-size: 1.05rem;
+  font-weight: 700;
+  text-align: center;
+  color: var(--success);
+}
+
+.protest-game__restart {
+  padding: 6px 14px;
+  border-radius: 999px;
+}
+
+.protest-game__touch {
+  display: flex;
+  gap: 8px;
+}
+
+.protest-game__touch button {
+  width: 52px;
+  height: 44px;
+  font-size: 1.1rem;
+  border-radius: 10px;
+  touch-action: none;
+}
+
+.protest-game__hint {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* ==========================================================================
    Reduced motion preference
    ========================================================================== */
 
